@@ -1,6 +1,31 @@
-cmake_minimum_required ( VERSION 2.8 )
-project (kibitz) 
-set ( CMAKE_CXX_FLAGS "-g" )
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
+#file( GLOB hdrs RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.hpp" )
+#set(VES_PUBLIC_HEADERS ${hdrs})
+
+set(VES_TARGET_VERSION ${kibitz_VERSION})
+set(VES_TARGET_EXPORT ${CMAKE_PROJECT_NAME}-targets)
+set(VES_TARGET_CATEGORY Lib)
+set(VES_INCLUDE_DIRECTORY_NAME ${CMAKE_PROJECT_NAME})
+
+#
+#Build the kibitz_messages library
+#
+set(VES_PUBLIC_HEADERS
+    heartbeat.hpp
+    message.hpp
+    inproc_notification_message.hpp
+    worker_notification_message.hpp
+    worker_info.hpp
+    worker_query.hpp
+    worker_query_response.hpp
+    worker_broadcast_message.hpp
+    job_initialization_message.hpp
+    basic_collaboration_message.hpp
+    collaboration_message.hpp
+    notification_message.hpp
+)
+set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
 add_library( kibitz_messages SHARED 
   heartbeat.cpp
@@ -12,8 +37,34 @@ add_library( kibitz_messages SHARED
   worker_broadcast_message.cpp
   job_initialization_message.cpp
   basic_collaboration_message.cpp
+  ${VES_PUBLIC_HEADERS}
 )
 
+target_link_libraries( kibitz_messages 
+  ${Boost_LIBRARIES}
+)
+
+set(VES_TARGET_NAME kibitz_messages)
+include(VESModuleInstall)
+
+#
+#Build the kibitz library
+#
+set(VES_PUBLIC_HEADERS
+    kibitz.hpp
+    heartbeat_sender.hpp
+    context.hpp
+    message_base.hpp
+    common.hpp
+    bindings.hpp
+    heartbeat_receiver.hpp
+    kibitz_util.hpp
+    worker_map.hpp
+    bus.hpp
+    in_edge_manager.hpp
+    basic_collaboration_message.hpp
+)
+set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
 add_library( kibitz SHARED
   kibitz.cpp
@@ -27,42 +78,48 @@ add_library( kibitz SHARED
   bus.cpp
   in_edge_manager.cpp
   basic_collaboration_message.cpp
-)
-
-add_library( locator SHARED
-  registry.cpp
-  kibitz_util.cpp
-)
-
-target_link_libraries( kibitz_messages 
-  boost_program_options-mt
-  boost_system-mt
+  ${VES_PUBLIC_HEADERS}
 )
 
 target_link_libraries( kibitz
   kibitz_messages		       
-  boost_program_options-mt
-  boost_filesystem-mt
-  boost_system-mt
-  boost_thread-mt
-  glog
-  zmq
-  yaml-cpp  
+  ${Boost_LIBRARIES}
+  ${GLOG_LIBRARIES}
+  ${ZMQ_LIBRARIES}
+  ${YAMLCPP_LIBRARIES}
+)
+
+set(VES_TARGET_NAME kibitz)
+include(VESModuleInstall)
+
+#
+#Build the locator library
+#
+set(VES_PUBLIC_HEADERS
+  registry.hpp
+  kibitz_util.hpp
+)
+set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
+
+add_library( locator SHARED
+  registry.cpp
+  kibitz_util.cpp
+  ${VES_PUBLIC_HEADERS}
 )
 
 target_link_libraries( locator
   kibitz_messages 
-  boost_program_options-mt
-  boost_filesystem-mt
-  boost_system-mt
-  boost_thread-mt
-  glog
-  zmq
+  ${Boost_LIBRARIES}
+  ${GLOG_LIBRARIES}
+  ${ZMQ_LIBRARIES}
 )
 
+set(VES_TARGET_NAME locator)
+include(VESModuleInstall)
 
-
-
+#
+#Build the executables
+#
 add_executable( test-worker  test_worker.cpp )
 add_executable( unit-test unit_test.cpp )
 add_executable( worker-locator locator.cpp ) 
