@@ -15,7 +15,7 @@ set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
 set( BOOST_ROOT "Please specify" CACHE PATH "Root directory where Boost is installed" )
-find_package(Boost 1.44.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
+find_package(Boost 1.44.0 REQUIRED COMPONENTS prg_exec_monitor program_options regex chrono date_time filesystem system thread )
 
 set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
 find_package(glog REQUIRED)

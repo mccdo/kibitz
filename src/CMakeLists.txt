@@ -8,6 +8,8 @@ set(VES_TARGET_EXPORT ${CMAKE_PROJECT_NAME}-targets)
 set(VES_TARGET_CATEGORY Lib)
 set(VES_INCLUDE_DIRECTORY_NAME ${CMAKE_PROJECT_NAME})
 
+#add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+
 #
 #Build the kibitz_messages library
 #
@@ -98,6 +100,8 @@ target_link_libraries( kibitz
 set(VES_TARGET_NAME kibitz)
 include(VESModuleInstall)
 
+string(REPLACE "/DKIBITZ_LIBRARY" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
 #
 #Build the locator library
 #
@@ -134,7 +138,7 @@ set(VES_TARGET_NAME test-worker)
 include(VESModuleInstall)
 
 add_executable( unit-test unit_test.cpp )
-target_link_libraries( unit-test kibitz )
+target_link_libraries(unit-test kibitz ${Boost_LIBRARIES})
 set(VES_TARGET_NAME unit-test)
 include(VESModuleInstall)
 

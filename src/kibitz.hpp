@@ -24,6 +24,7 @@
 #include "collaboration_message.hpp"
 #include "notification_message.hpp"
 */
+#include <export_config.hpp>
 
 #include <string>
 #include <vector>
@@ -41,17 +42,17 @@ namespace kibitz {
 
   };
 
-  void initialize( int argc, char* argv[] ) ; 
-  void start() ;
-  void terminate();
-  void set_in_message_handler( collaboration_callback fn );
-  void set_initialization_notification_handler( initialization_callback fn );
-  void send_out_message( const payload_t& payload ) ;
-  void send_notification_message( const payload_t& payload ) ;
+  KIBITZ_EXPORT void initialize( int argc, char* argv[] ) ; 
+  KIBITZ_EXPORT void start() ;
+  KIBITZ_EXPORT void terminate();
+  KIBITZ_EXPORT void set_in_message_handler( collaboration_callback fn );
+  KIBITZ_EXPORT void set_initialization_notification_handler( initialization_callback fn );
+  KIBITZ_EXPORT void send_out_message( const payload_t& payload ) ;
+  KIBITZ_EXPORT void send_notification_message( const payload_t& payload ) ;
   /**
    * Retrieves information about worker, for diagnostic purposes only
    */
-  void get_context_information( context_information_t& context_information );
+  KIBITZ_EXPORT void get_context_information( context_information_t& context_information );
   
 
 }

@@ -51,7 +51,10 @@ namespace kibitz {
     assert( !context_ );
 
     google::InitGoogleLogging( argv[0] );
+#ifndef BOOST_WINDOWS
+    //On windows this is not implemented
     google::InstallFailureSignalHandler();
+#endif
     DLOG(INFO) << "initialize start";
     fs::path path( argv[0] );
     stringstream ss ;

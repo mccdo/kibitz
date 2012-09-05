@@ -33,6 +33,7 @@
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 #define GLOG_NO_ABBREVIATED_SEVERITIES 1
+#undef GOOGLE_GLOG_DLL_DECL
 #endif
 
 #include <glog/logging.h>

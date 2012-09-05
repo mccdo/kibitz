@@ -17,17 +17,19 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
+#include "common.hpp"
+
+#include "heartbeat.hpp"
+#include "worker_query_response.hpp"
+#include "worker_query.hpp"
 
 #include <boost/test/minimal.hpp>
-#include "common.hpp"
-#include "heartbeat.hpp"
+
 #include <fstream>
-#include <yaml-cpp/yaml.h>
 #include <vector>
 #include <iostream>
 
-#include "worker_query_response.hpp"
-#include "worker_query.hpp"
+#include <yaml-cpp/yaml.h>
 
 namespace k = kibitz;
 using boost::dynamic_pointer_cast;
