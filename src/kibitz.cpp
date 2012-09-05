@@ -50,8 +50,8 @@ namespace kibitz {
   void initialize( int argc, char* argv[] ) {
     assert( !context_ );
 
-    InitGoogleLogging( argv[0] );
-    InstallFailureSignalHandler();
+    google::InitGoogleLogging( argv[0] );
+    google::InstallFailureSignalHandler();
     DLOG(INFO) << "initialize start";
     fs::path path( argv[0] );
     stringstream ss ;

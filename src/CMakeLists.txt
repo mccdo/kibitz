@@ -27,6 +27,8 @@ set(VES_PUBLIC_HEADERS
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
+add_definitions(-DKIBITZ_MESSAGE_LIBRARY)
+
 add_library( kibitz_messages SHARED 
   heartbeat.cpp
   message.cpp
@@ -47,6 +49,8 @@ target_link_libraries( kibitz_messages
 set(VES_TARGET_NAME kibitz_messages)
 include(VESModuleInstall)
 
+string(REPLACE "/DKIBITZ_MESSAGE_LIBRARY" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
 #
 #Build the kibitz library
 #
@@ -65,6 +69,8 @@ set(VES_PUBLIC_HEADERS
     basic_collaboration_message.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
+
+add_definitions(-DKIBITZ_LIBRARY)
 
 add_library( kibitz SHARED
   kibitz.cpp

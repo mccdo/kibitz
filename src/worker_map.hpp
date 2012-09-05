@@ -28,11 +28,13 @@
 #include "worker_query.hpp"
 #include "worker_query_response.hpp"
 #include "heartbeat.hpp"
+#include "export_config.hpp"
+
 #include <map>
 
 namespace kibitz {
   
-  class worker_map {
+  class KIBITZ_EXPORT worker_map {
     typedef int worker_id_t;
     typedef string worker_type_t;
     typedef std::map< worker_id_t, worker_notification_message_ptr_t > worker_by_id_t;

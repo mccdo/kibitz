@@ -20,13 +20,14 @@
 #ifndef notification_message_hpp
 #define notification_message_hpp
 
+#include "export_config.hpp"
 
 #include "message.hpp"
 
 
 namespace kibitz {
 
-  class notification_message : public message {
+  class KIBITZ_MESSAGE_EXPORT notification_message : public message {
     const string notification_type_;
   protected:
     notification_message(const string& notification_type, const string& version = "1.0") 

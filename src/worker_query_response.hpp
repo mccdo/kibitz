@@ -25,10 +25,7 @@
 
 namespace kibitz {
 
-  
-
-
-  class worker_query_response : public notification_message
+  class KIBITZ_MESSAGE_EXPORT worker_query_response : public notification_message
   {
     worker_infos_t workers_;
   public :

@@ -28,7 +28,7 @@ namespace kibitz {
 
 
 
-  class inproc_notification_message : public notification_message {
+  class KIBITZ_MESSAGE_EXPORT inproc_notification_message : public notification_message {
     int notification_;
   public:
     inproc_notification_message( const ptree& json ) ;

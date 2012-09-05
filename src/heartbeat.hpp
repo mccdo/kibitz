@@ -21,6 +21,7 @@
 #define __HEARTBEAT_HPP__
 
 
+#include "export_config.hpp"
 
 #include "notification_message.hpp"
 
@@ -28,7 +29,7 @@ namespace kibitz {
 
   class worker_notification_message;
 
-  class heartbeat : public notification_message {
+  class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message {
     string worker_type_;
     int worker_id_;
     string host_name_;

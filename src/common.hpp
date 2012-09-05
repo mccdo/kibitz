@@ -29,11 +29,35 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector> 
+
+#include <boost/config.hpp>
+#ifdef BOOST_WINDOWS
+#define GLOG_NO_ABBREVIATED_SEVERITIES 1
+#endif
+
 #include <glog/logging.h>
 
-#include <unistd.h>
+#ifdef BOOST_WINDOWS
 
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+
+#else
+#include <stdint.h>
+#endif
+
+#ifdef _MSC_VER
+# pragma warning(disable: 4275)
+#endif
 #include <boost/program_options.hpp>
+#ifdef _MSC_VER
+# pragma warning(default: 4275)
+#endif
+
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>

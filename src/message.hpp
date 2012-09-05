@@ -23,14 +23,36 @@
 #define __MESSAGE_HPP__
 
 #include <sstream>
+
+#ifdef _MSC_VER
+# pragma warning(disable: 4275)
+#endif
 #include <boost/program_options.hpp>
+#ifdef _MSC_VER
+# pragma warning(default: 4275)
+#endif
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
 #include <string>
 
+#include "export_config.hpp"
+
+#ifdef BOOST_WINDOWS
+
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+
+#else
 #include <stdint.h>
+#endif
+
 
 using boost::property_tree::ptree;
 using boost::shared_ptr;
@@ -45,7 +67,7 @@ namespace kibitz {
   } 
   
 
-  class message {
+  class KIBITZ_MESSAGE_EXPORT message {
     const string message_type_;
     const string version_;
   protected :
@@ -74,7 +96,7 @@ namespace kibitz {
 
   typedef shared_ptr<message> message_ptr_t;
 
-  message_ptr_t message_factory( const string& json ) ;
+  KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const string& json ) ;
 }
 
 

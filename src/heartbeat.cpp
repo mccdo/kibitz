@@ -20,8 +20,17 @@
 #ifndef heartbeat_hpp
 #define heartbeat_hpp
 
-#include "heartbeat.hpp"
 #include <boost/asio/ip/host_name.hpp>
+#if defined(BOOST_WINDOWS)
+#include <process.h>
+#endif
+//#if defined(BOOST_WINDOWS)
+//    return static_cast<unsigned short>(::GetCurrentProcessId());
+//#else
+//    return static_cast<unsigned short>(::getpid());
+//#endif
+#include "heartbeat.hpp"
+
 #include "worker_notification_message.hpp"
 namespace kibitz {
 
@@ -32,7 +41,11 @@ namespace kibitz {
      worker_type_( config["worker-type"].as<string>()  ),
      worker_id_( config["worker-id"].as<int>() ),
      host_name_( boost::asio::ip::host_name() ),
+#if defined(BOOST_WINDOWS)
+     pid_(_getpid()),
+#else
      pid_(getpid()),
+#endif
      port_( config["publish-port"].as<int>()),
      ticks_(0) {
 

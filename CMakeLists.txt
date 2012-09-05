@@ -15,7 +15,7 @@ set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
 set( BOOST_ROOT "Please specify" CACHE PATH "Root directory where Boost is installed" )
-find_package(Boost 1.44.0 REQUIRED COMPONENTS program_options filesystem system thread )
+find_package(Boost 1.44.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
 
 set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
 find_package(glog REQUIRED)
@@ -33,9 +33,12 @@ INCLUDE_DIRECTORIES(
     ${YAMLCPP_INCLUDE_DIRS}
 )
 
-set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-
-#set( CMAKE_CXX_FLAGS "-g" )
+if(WIN32)
+    add_definitions( -DBOOST_ALL_DYN_LINK )
+else(WIN32)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+    #set( CMAKE_CXX_FLAGS "-g" )
+endif(WIN32)
 
 include(VESSetupCompiler)
 

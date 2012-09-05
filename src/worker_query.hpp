@@ -20,10 +20,12 @@
 #ifndef worker_query_hpp
 #define worker_query_hpp
 
+#include "export_config.hpp"
+
 #include "notification_message.hpp"
 
 namespace kibitz {
-  class worker_query : public notification_message {
+  class KIBITZ_MESSAGE_EXPORT worker_query : public notification_message {
     const string worker_type_;
   public:
     worker_query( const string& worker_type ) ;

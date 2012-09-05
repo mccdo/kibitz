@@ -19,11 +19,17 @@
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <zmq.h>
 #include <assert.h>
-#include <string.h>
+#include <string>
+#include <fstream>
+
 #include "kibitz_util.hpp"
+
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <fstream>
+
+#if defined(BOOST_WINDOWS)
+#include <process.h>
+#endif
 
 using boost::format;
 
@@ -44,13 +50,20 @@ namespace kibitz {
 	throw std::runtime_error( (format("Lock file, %1% exists.") % pid_file ).str() );
       }
 
+#ifndef BOOST_WINDOWS
       int err = daemon( 0, 0 );
       if( err ) {
+#endif
 	throw std::runtime_error( (format( "Could not daemonize process. errno %1%" ) % errno ).str() );
-      }
-
+#ifndef BOOST_WINDOWS
+    }
+#endif
       std::fstream stm( pid_path.c_str(), std::ios::out | std::ios::trunc );
-      stm << getpid();
+#if defined(BOOST_WINDOWS)
+     stm << _getpid();
+#else
+     stm << getpid();
+#endif
       stm.close();
 
 

@@ -180,7 +180,11 @@ namespace kibitz {
       // TODO: fix this if broadcast subscriber is created before broadcast publisher
       //       an exception errno 111 is raised, thus this sleep hack
       //       we want to give the publisher time to be instantiated
+#ifdef BOOST_WINDOWS
+      Sleep( 5000 );
+#else
       sleep( 5 );
+#endif
       sub broadcast_subscriber( context_.zmq_context(), HEARTBEAT_RECEIVER_BROADCASTS );
       boost::thread*  edge_monitor_thread = NULL;
       zmq_pollitem_t broadcast_pollitem = {

@@ -20,12 +20,14 @@
 #ifndef worker_notification_message_hpp
 #define worker_notification_message_hpp
 
+#include "export_config.hpp"
+
 #include "heartbeat.hpp"
 
 
 namespace kibitz {
 
-  class worker_notification_message : public notification_message {
+  class KIBITZ_MESSAGE_EXPORT worker_notification_message : public notification_message {
     string worker_type_;
     int32_t worker_id_;
     string host_name_;

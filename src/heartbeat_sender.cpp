@@ -17,9 +17,9 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
+#include "kibitz_util.hpp"
 #include "heartbeat.hpp"
 #include "heartbeat_sender.hpp"
-#include "kibitz_util.hpp"
 
 using kibitz::util::create_socket;
 using kibitz::util::check_zmq;
