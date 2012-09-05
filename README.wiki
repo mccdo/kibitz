@@ -12,11 +12,11 @@ Currently I've managed to build and run kibitz on Ubuntu and Mac OS X 10.7.4
 
 CMake is required to build kibitz. Generate a make file like so:
 
-```
+{{{
 cd src
 cmake .
 make
-```
+}}}
 
 Binaries will be found in the src directory after building.
 
@@ -24,14 +24,14 @@ Dependencies
 ------------
 
 ZeroMQ 
-```
+{{{
 git clone ssh://git@github.com/zeromq/zeromq-x.git
 cd zeromq-x
 ./autogen.sh
 ./configure 
 make 
 sudo make install
-```
+}}}
 
 Boost 1.49
 
@@ -56,10 +56,9 @@ http://code.google.com/p/yaml-cpp/downloads/detail?name=yaml-cpp-0.3.0.tar.gz&ca
 yaml-cpp builds a static lib by default. If you need a shared
 lib because your build fails in Linux use cmake to generate
 yaml-cpp make file thus
-```
+{{{
 cmake -DBUILD_SHARED_LIBS=ON
-
-```
+}}}
 
 #### Mac OSX
 brew install yaml-cpp
@@ -77,20 +76,19 @@ Once you install RVM there is a control script in the project root that will set
 dependencies. (.rvmrc)  This script will run the first time you enter the project root directory and download
 Ruby gems and install the appropriate version of Ruby.  Once installation is complete you can run
 
-```
+{{{
 # stops workers
 script\kibitz stop
 
 #starts a job
 KIBITZ_LOCATOR='tcp://196.1.3.122:5556' script\kibitz initiate --worker-type=starter --worker-id=1
-
-```
+}}}
 
 Components
 ------------------------
 
 worker-locator - provides mechanism for workers to discover each other
-```
+{{{
 worker-locator:
   -h [ --help ]                         Show help message
   -b [ --heartbeat-binding ] arg (=tcp://*:5556)
@@ -98,10 +96,10 @@ worker-locator:
   -p [ --port ] arg (=5557)             Port used to distribute locator 
                                         messages
   -t [ --context-threads ] arg (=1)     zmq context thread count
-```
+}}}
 
 test-worker-a - sample worker that implements the kibitz library
-```
+{{{
 "test-worker-a" options:
   -h [ --help ]                         Show help message
   -I [ --worker-id ] arg                (Required) Integer that identifies 
@@ -115,4 +113,4 @@ test-worker-a - sample worker that implements the kibitz library
   -t [ --context-threads ] arg (=1)     Thread count passed to zmq_init
   -h [ --heartbeat-frequency ] arg (=1000)
                                         Heartbeat frequency in milliseconds
-```
+}}}
