@@ -45,7 +45,7 @@ add_subdirectory(src)
 
 include(VESInstallPDBFiles)
 
-set(VES_EXPORT_LIBRARY_TARGETS kibitz)
+set(VES_EXPORT_LIBRARY_TARGETS kibitz kibitz_messages locator)
 set(VES_CONFIGURE_VARS CMAKE_INSTALL_LIBDIR)
 
 if(WIN32)
@@ -56,4 +56,4 @@ else(WIN32)
     set(${CMAKE_PROJECT_NAME}_FPC_LIBRARIES "-L\${libdir} -lkibitz_messages -lkibitz -llocator")
 endif(WIN32)
 
-#include(VESInstallAutoDiscoveryTools)
+include(VESInstallAutoDiscoveryTools)

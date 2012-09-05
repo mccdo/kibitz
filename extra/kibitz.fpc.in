@@ -1,0 +1,15 @@
+prefix=@VES_FPC_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/include
+
+Name: kibitz
+Description: kibitz release pre-compiled for VES
+Provides: kibitz
+Requires:
+Version: @kibitz_VERSION@
+Libs: @kibitz_FPC_LIBRARIES@
+Cflags: @kibitz_FPC_INCLUDES@
+Arch: noarch
+
+
