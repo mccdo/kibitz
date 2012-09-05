@@ -57,7 +57,8 @@ find_library(YAMLCPP_LIBRARIES
                     ${YAMLCPP_ROOT}/lib
                     ENV{YAMLCPP_ROOT}/lib/)
 
+mark_as_advanced(FORCE YAMLCPP_INCLUDE_DIRS YAMLCPP_LIBRARIES)
+
 # handle the QUIETLY and REQUIRED arguments and set YAMLCPP_FOUND to TRUE if all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(YAMLCPP DEFAULT_MSG YAMLCPP_INCLUDE_DIRS YAMLCPP_LIBRARIES)
-mark_as_advanced(YAMLCPP_INCLUDE_DIRS YAMLCPP_LIBRARIES)

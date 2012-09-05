@@ -53,10 +53,10 @@ else (ZMQ_LIBRARIES AND ZMQ_INCLUDE_DIRS)
     )
   endif (ZMQ_LIBRARY)
 
+  # show the ZMQ_INCLUDE_DIRS and ZMQ_LIBRARIES variables only in the advanced view
+  mark_as_advanced(FORCE ZMQ_INCLUDE_DIRS ZMQ_LIBRARIES)
+
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(ZMQ DEFAULT_MSG ZMQ_LIBRARIES ZMQ_INCLUDE_DIRS)
-
-  # show the ZMQ_INCLUDE_DIRS and ZMQ_LIBRARIES variables only in the advanced view
-  mark_as_advanced(ZMQ_INCLUDE_DIRS ZMQ_LIBRARIES)
 
 endif (ZMQ_LIBRARIES AND ZMQ_INCLUDE_DIRS)
