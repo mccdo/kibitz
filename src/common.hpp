@@ -64,7 +64,7 @@ using boost::static_pointer_cast;
 using namespace boost::posix_time;
 
 namespace po = boost::program_options;
-namespace fs = boost::filesystem3;
+namespace fs = boost::filesystem;
 namespace pt = boost::property_tree;
 
 using namespace google;
