@@ -120,12 +120,24 @@ include(VESModuleInstall)
 #
 #Build the executables
 #
-add_executable( test-worker  test_worker.cpp )
-add_executable( unit-test unit_test.cpp )
-add_executable( worker-locator locator.cpp ) 
-add_executable( regression-tester regression_tester.cpp )
+set(VES_TARGET_CATEGORY Test)
 
+add_executable( test-worker  test_worker.cpp )
 target_link_libraries( test-worker kibitz )
+set(VES_TARGET_NAME test-worker)
+include(VESModuleInstall)
+
+add_executable( unit-test unit_test.cpp )
 target_link_libraries( unit-test kibitz )
+set(VES_TARGET_NAME unit-test)
+include(VESModuleInstall)
+
+add_executable( worker-locator locator.cpp ) 
 target_link_libraries( worker-locator locator )
+set(VES_TARGET_NAME worker-locator)
+include(VESModuleInstall)
+
+add_executable( regression-tester regression_tester.cpp )
 target_link_libraries( regression-tester kibitz )
+set(VES_TARGET_NAME regression-tester)
+include(VESModuleInstall)
