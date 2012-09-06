@@ -107,18 +107,19 @@ string(REPLACE "/DKIBITZ_LIBRARY" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 #
 set(VES_PUBLIC_HEADERS
   registry.hpp
-  kibitz_util.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
+add_definitions(-DKIBITZ_LOCATOR_LIBRARY)
+
 add_library( locator SHARED
   registry.cpp
-  kibitz_util.cpp
   ${VES_PUBLIC_HEADERS}
 )
 
 target_link_libraries( locator
-  kibitz_messages 
+  kibitz_messages
+  kibitz
   ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${ZMQ_LIBRARIES}
@@ -126,6 +127,8 @@ target_link_libraries( locator
 
 set(VES_TARGET_NAME locator)
 include(VESModuleInstall)
+
+string(REPLACE "/DKIBITZ_LOCATOR_LIBRARY" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
 #
 #Build the executables
@@ -143,7 +146,7 @@ set(VES_TARGET_NAME unit-test)
 include(VESModuleInstall)
 
 add_executable( worker-locator locator.cpp ) 
-target_link_libraries( worker-locator locator )
+target_link_libraries( worker-locator locator kibitz)
 set(VES_TARGET_NAME worker-locator)
 include(VESModuleInstall)
 

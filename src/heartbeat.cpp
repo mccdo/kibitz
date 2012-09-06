@@ -21,6 +21,7 @@
 #define heartbeat_hpp
 
 #include <boost/asio/ip/host_name.hpp>
+#include <boost/config.hpp>
 #if defined(BOOST_WINDOWS)
 #include <process.h>
 #endif

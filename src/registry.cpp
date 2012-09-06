@@ -17,14 +17,18 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#include "registry.hpp"
-#include "locator.hpp"
-#include "worker_broadcast_message.hpp"
-#include "job_initialization_message.hpp"
-
-#include <boost/thread.hpp>
+//glog must be included BEFORE zmq to make things build on windows
+#include <glog/logging.h>
 
 #include <zmq.h>
+
+#include "registry.hpp"
+#include "worker_broadcast_message.hpp"
+#include "job_initialization_message.hpp"
+#include "inproc_notification_message.hpp"
+#include "kibitz_util.hpp"
+
+#include <boost/thread.hpp>
 
 using namespace google;
 

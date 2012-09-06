@@ -21,14 +21,13 @@
 #define kibitz_util_hpp
 
 #include <zmq.h>
+
 #include <string>
 #include <stdexcept>
-#include <sstream>
 
+#include "export_config.hpp"
 
 using std::string;
-using std::stringstream;
-using std::runtime_error;
 
 namespace kibitz {
   namespace util {
@@ -39,12 +38,12 @@ namespace kibitz {
       virtual ~queue_interrupt() throw(); 
     };
 
-    void recv( void* socket, string& message ) ;
-    void send( void* socket, const string& message );
-    void check_zmq( int zmq_return_code ) ;
-    void* create_socket( void* context, int socktype ) ;
-    void close_socket( void* socket );
-    void daemonize( const string& pid_file ) ;
+    KIBITZ_EXPORT void recv( void* socket, string& message ) ;
+    KIBITZ_EXPORT void send( void* socket, const string& message );
+    KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;
+    KIBITZ_EXPORT void* create_socket( void* context, int socktype ) ;
+    KIBITZ_EXPORT void close_socket( void* socket );
+    KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
   }
 }
 

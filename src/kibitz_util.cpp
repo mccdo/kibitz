@@ -19,14 +19,15 @@
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <zmq.h>
 #include <assert.h>
-#include <string>
 #include <fstream>
+#include <sstream>
 
 #include "kibitz_util.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
+#include <boost/config.hpp>
 #if defined(BOOST_WINDOWS)
 #include <process.h>
 #endif
@@ -34,6 +35,9 @@
 using boost::format;
 
 namespace fs = boost::filesystem;
+
+using std::stringstream;
+using std::runtime_error;
 
 namespace kibitz {
   namespace util {

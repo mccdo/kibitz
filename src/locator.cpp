@@ -17,17 +17,20 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#include <assert.h>
+//glog must be included BEFORE zmq to build on windows
+#include <glog/logging.h>
+
 #include <zmq.h>
 
 #include "locator.hpp"
 #include "registry.hpp"
 
-#include <glog/logging.h>
-
 #include <iostream>
 #include <string>
+#include <assert.h>
+#include <signal.h>
 
+#include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 # pragma warning(disable: 4275)
 #else
@@ -46,7 +49,6 @@ GCC_DIAG_ON(unused-parameter)
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 
-#include <signal.h>
 namespace fs = boost::filesystem;
 using boost::format;
 using namespace google;
@@ -91,7 +93,10 @@ int main( int argc, char* argv[] ) {
 
 
   InitGoogleLogging( argv[0] );
-  InstallFailureSignalHandler( );
+#ifndef BOOST_WINDOWS
+  //This method is not implemented on windows
+  InstallFailureSignalHandler();
+#endif
   DLOG(INFO) << "Start locator" ;
 
 

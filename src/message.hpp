@@ -21,7 +21,9 @@
 #define __MESSAGE_HPP__
 
 #include <sstream>
+#include <string>
 
+#include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 # pragma warning(disable: 4275)
 #else
@@ -41,7 +43,6 @@ GCC_DIAG_ON(unused-parameter)
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
-#include <string>
 
 #include "export_config.hpp"
 

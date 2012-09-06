@@ -23,7 +23,14 @@
 #include "worker_query_response.hpp"
 #include "worker_query.hpp"
 
+#include <boost/config.hpp>
+#ifdef BOOST_WINDOWS
+# pragma warning(disable: 4273)
+#endif
 #include <boost/test/minimal.hpp>
+#ifdef BOOST_WINDOWS
+# pragma warning(default: 4273)
+#endif
 
 #include <fstream>
 #include <vector>
