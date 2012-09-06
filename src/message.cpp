@@ -17,6 +17,9 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
+
+#include "message.hpp"
+
 #include "heartbeat.hpp"
 #include "inproc_notification_message.hpp"
 #include "worker_notification_message.hpp"

@@ -18,19 +18,13 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include "registry.hpp"
-#include <zmq.h>
-#include <sys/time.h>
 #include "locator.hpp"
-#include <sstream>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include "worker_broadcast_message.hpp"
 #include "job_initialization_message.hpp"
 
-using boost::property_tree::ptree;
+#include <zmq.h>
 
 using namespace google;
-using boost::dynamic_pointer_cast;
 
 registry::registry( void* inproc_pub_socket, void* inproc_sub_socket,  void* publisher_socket ) 
   :publisher_socket_( publisher_socket ),
@@ -69,10 +63,10 @@ void registry::operator()() {
       DLOG(INFO) << "Registry got a message " << message ;
       kibitz::message_ptr_t message_ptr = kibitz::message_factory( message );
       assert( message_ptr->message_type() == "notification" );
-      string notification_type = dynamic_pointer_cast<kibitz::notification_message>(message_ptr)->notification_type();
+      string notification_type = boost::dynamic_pointer_cast<kibitz::notification_message>(message_ptr)->notification_type();
       
       if( notification_type == "inproc" ) {
-	int notification = dynamic_pointer_cast<kibitz::inproc_notification_message>(message_ptr)->get_notification() ;
+	int notification = boost::dynamic_pointer_cast<kibitz::inproc_notification_message>(message_ptr)->get_notification() ;
 	bool exit_thread = false;
 	switch( notification ) {
 	case kibitz::message::stop :
@@ -90,7 +84,7 @@ void registry::operator()() {
 
       if( notification_type == "worker_broadcast" ) {
 	
-	kibitz::worker_broadcast_message_ptr_t broadcast_ptr = dynamic_pointer_cast<kibitz::worker_broadcast_message>( message_ptr );
+	kibitz::worker_broadcast_message_ptr_t broadcast_ptr = boost::dynamic_pointer_cast<kibitz::worker_broadcast_message>( message_ptr );
 	LOG(INFO) << "Publishing " << broadcast_ptr->notification() << " to all workers";
 	kibitz::util::send( publisher_socket_, broadcast_ptr->to_json() );
       }
@@ -101,7 +95,7 @@ void registry::operator()() {
       }
 
       if( notification_type == "heartbeat" ) {
-	heartbeat_ptr_t heartbeat_ptr = dynamic_pointer_cast<kibitz::heartbeat>(message_ptr);
+	heartbeat_ptr_t heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>(message_ptr);
 	workers[heartbeat_ptr->worker_type()][heartbeat_ptr->worker_id()] = heartbeat_ptr;
 
 	

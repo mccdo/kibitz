@@ -17,19 +17,24 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-
-
 #ifndef __MESSAGE_HPP__
 #define __MESSAGE_HPP__
 
 #include <sstream>
 
-#ifdef _MSC_VER
+#ifdef BOOST_WINDOWS
 # pragma warning(disable: 4275)
+#else
+#include "GNUCompilerGuards.h"
+GCC_DIAG_OFF(unused-parameter)
 #endif
+
 #include <boost/program_options.hpp>
-#ifdef _MSC_VER
+
+#ifdef BOOST_WINDOWS
 # pragma warning(default: 4275)
+#else
+GCC_DIAG_ON(unused-parameter)
 #endif
 
 #include <boost/property_tree/ptree.hpp>

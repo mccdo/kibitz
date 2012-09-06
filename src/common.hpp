@@ -33,7 +33,6 @@
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 #define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#undef GOOGLE_GLOG_DLL_DECL
 #endif
 
 #include <glog/logging.h>
@@ -51,12 +50,21 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-#ifdef _MSC_VER
+#ifdef BOOST_WINDOWS
 # pragma warning(disable: 4275)
+#else
+#include "GNUCompilerGuards.h"
+GCC_DIAG_OFF(unused-parameter)
 #endif
+
 #include <boost/program_options.hpp>
-#ifdef _MSC_VER
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+#ifdef BOOST_WINDOWS
 # pragma warning(default: 4275)
+#else
+GCC_DIAG_ON(unused-parameter)
 #endif
 
 #include <boost/filesystem.hpp>
@@ -65,8 +73,7 @@ typedef unsigned __int64 uint64_t;
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>

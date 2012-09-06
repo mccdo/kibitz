@@ -24,7 +24,20 @@
 #include <iostream>
 #include <string>
 
+#ifdef BOOST_WINDOWS
+# pragma warning(disable: 4275)
+#else
+#include "GNUCompilerGuards.h"
+GCC_DIAG_OFF(unused-parameter)
+#endif
+
 #include <boost/program_options.hpp>
+
+#ifdef BOOST_WINDOWS
+# pragma warning(default: 4275)
+#else
+GCC_DIAG_ON(unused-parameter)
+#endif
 #include <boost/thread.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
