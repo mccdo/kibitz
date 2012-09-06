@@ -22,6 +22,8 @@
 #include "worker_broadcast_message.hpp"
 #include "job_initialization_message.hpp"
 
+#include <boost/thread.hpp>
+
 #include <zmq.h>
 
 using namespace google;
@@ -37,7 +39,7 @@ registry::~registry() {
 }
 
 
-void registry::push_message( const string& msg ) {
+void registry::push_message( const std::string& msg ) {
   DLOG(INFO) << "inproc message send " << msg;
   kibitz::util::send( inproc_pub_socket_, msg );
 }
@@ -54,16 +56,17 @@ void registry::operator()() {
   
   DLOG(INFO) << "starting registry thread";
   worker_type_map_t workers;
-  timeval last_send = { 0, 0 };
+  //timeval last_send = { 0, 0 };
+    boost::posix_time::ptime last_send( boost::posix_time::microsec_clock::local_time() );
 
   try {
     while( true ) {
-      string message;
+      std::string message;
       kibitz::util::recv( inproc_sub_socket_, message ) ;
       DLOG(INFO) << "Registry got a message " << message ;
       kibitz::message_ptr_t message_ptr = kibitz::message_factory( message );
       assert( message_ptr->message_type() == "notification" );
-      string notification_type = boost::dynamic_pointer_cast<kibitz::notification_message>(message_ptr)->notification_type();
+      std::string notification_type = boost::dynamic_pointer_cast<kibitz::notification_message>(message_ptr)->notification_type();
       
       if( notification_type == "inproc" ) {
 	int notification = boost::dynamic_pointer_cast<kibitz::inproc_notification_message>(message_ptr)->get_notification() ;
@@ -125,17 +128,16 @@ void registry::operator()() {
 
 // TODO this method controls frequency of broadcast of 
 // locator information, we want to make it configurable
-bool registry::one_second_elapsed( timeval& last_send ) {
-  bool second_elapsed = false;
-  const int microsecs_in_second = 1000000;
-  timeval current_time;
-  gettimeofday( &current_time, NULL );
-  long curr_usec = (current_time.tv_sec * microsecs_in_second) + current_time.tv_usec;
-  long last_usec = (last_send.tv_sec * microsecs_in_second) +  last_send.tv_usec;
-  if( (curr_usec - last_usec) > microsecs_in_second ) {
-    last_send = current_time;
-    second_elapsed = true;
-  }
-  return second_elapsed;
-  
+bool registry::one_second_elapsed( boost::posix_time::ptime& last_send )
+{
+    bool second_elapsed = false;
+    const int microsecs_in_second = 1000000;
+    boost::posix_time::ptime current_time( boost::posix_time::microsec_clock::local_time() );
+    boost::posix_time::time_duration diff = current_time - last_send;
+    if( diff.total_microseconds() > microsecs_in_second )
+    {
+        last_send = current_time;
+        second_elapsed = true;
+    }
+    return second_elapsed;
 }

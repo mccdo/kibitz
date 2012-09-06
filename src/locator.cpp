@@ -19,8 +19,12 @@
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <assert.h>
 #include <zmq.h>
+
 #include "locator.hpp"
+#include "registry.hpp"
+
 #include <glog/logging.h>
+
 #include <iostream>
 #include <string>
 
@@ -41,7 +45,7 @@ GCC_DIAG_ON(unused-parameter)
 #include <boost/thread.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
-#include "registry.hpp"
+
 #include <signal.h>
 namespace fs = boost::filesystem;
 using boost::format;

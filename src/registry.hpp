@@ -20,16 +20,13 @@
 #ifndef registry_hpp
 #define registry_hpp
 
-#include <zmq.h>
 #include <map>
-#include <set>
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include "heartbeat.hpp"
-#include <sys/time.h>
 
-using std::string;
+#include <boost/shared_ptr.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+#include "heartbeat.hpp"
 
 /**
  *  This object aggregates heartbeats from workers and rebroadcasts
@@ -38,7 +35,7 @@ using std::string;
 class registry {
   typedef boost::shared_ptr<kibitz::heartbeat> heartbeat_ptr_t;
   typedef std::map< int, heartbeat_ptr_t > worker_map_t;
-  typedef std::map< string, worker_map_t > worker_type_map_t;
+  typedef std::map< std::string, worker_map_t > worker_type_map_t;
 
 
   void* publisher_socket_;
@@ -46,12 +43,12 @@ class registry {
   void* inproc_sub_socket_; 
 
 
-  bool one_second_elapsed( timeval& last_send ); 
+  bool one_second_elapsed( boost::posix_time::ptime& last_send ); 
   
 public:
   registry(  void* inproc_pub_socket, void* inproc_sub_socket, void* publisher_socket ); 
   virtual ~registry() ;
-  void push_message( const string& msg ) ;
+  void push_message( const std::string& msg ) ;
   void push_message( const kibitz::message& message );
   /**
    *  Thread function
