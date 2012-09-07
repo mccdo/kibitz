@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LOCATOR=./src/apps/locator/worker-locator
+REGRESSION_TESTER=./src/tests/regression-tester
+
 test_name=
 
 function test_passed
@@ -11,6 +14,7 @@ function test_failed
 {
     echo -e "\033[40m\033[1;31m ${test_name} ...Test Failed!   \033[0m"
 }
+
 
 
 function check_result
@@ -33,7 +37,7 @@ function restart_locator
 	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
     fi
 
-    GLOG_log_dir=./log ./src/worker-locator -d --pid-file=${HOME}/kibitz-locator.pid 
+    GLOG_log_dir=./log $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid 
 }
 
 
@@ -46,10 +50,10 @@ echo "Starting workers for traversal test"
 echo "A -> B,C -> D"
 
 
-KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 ./src/regression-tester -I1 -Ttest_worker_a -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100 & 
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 ./src/regression-tester -I1 -Ttest_worker_b -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101 -ftest/traversal/test-worker-b.yaml &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 ./src/regression-tester -I1 -Ttest_worker_c -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -ftest/traversal/test-worker-c.yaml &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 ./src/regression-tester -I1 -Ttest_worker_d -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -ftest/traversal/test-worker-d.yaml &
+KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_a -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100 & 
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_b -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101 -ftest/traversal/test-worker-b.yaml &
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_c -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -ftest/traversal/test-worker-c.yaml &
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_d -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -ftest/traversal/test-worker-d.yaml &
 
 echo "wait for heartbeats to perculate throughout system"
 sleep 5
