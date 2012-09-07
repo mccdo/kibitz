@@ -45,6 +45,7 @@ include(VESSetupCompiler)
 include(VESBinAndLibDirs)
 
 add_subdirectory(src)
+add_subdirectory(script)
 
 include(VESInstallPDBFiles)
 
