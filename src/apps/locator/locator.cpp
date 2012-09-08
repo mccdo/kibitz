@@ -142,20 +142,27 @@ int main( int argc, char* argv[] ) {
     registry reg(  inproc_pub_socket, inproc_sub_socket, outsocket );
     boost::thread sender_thread( reg );
 
-    try {
-      while( true ) {
-	string message;
-	kibitz::util::recv( insocket, message );
-	if( !message.empty() ) {
-	  DLOG(INFO) << "got message -> " << message ;
-	  reg.push_message(  message  );
-	}
-      }
-    } catch( const kibitz::util::queue_interrupt& ) {
-      LOG(INFO) << "Caught signal shutting down" ;
-    } catch( const std::exception& ex ) {
-      LOG(ERROR) << "Something bad killed us. What => " << ex.what() ;
-      exit_code = 1;
+    try 
+    {
+        while( true ) 
+        {
+            string message;
+            kibitz::util::recv( insocket, message );
+            if( !message.empty() ) 
+            {
+                DLOG(INFO) << "got message -> " << message ;
+                reg.push_message(  message  );
+            }
+        }
+    } 
+    catch( const kibitz::util::queue_interrupt& ) 
+    {
+        LOG(INFO) << "Caught signal shutting down" ;
+    } 
+    catch( const std::exception& ex ) 
+    {
+        LOG(ERROR) << "Something bad killed us. What => " << ex.what() ;
+        exit_code = 1;
     }
 
     kibitz::inproc_notification_message inproc_notification_message( kibitz::message::stop );

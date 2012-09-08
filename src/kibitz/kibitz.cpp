@@ -77,13 +77,13 @@ namespace kibitz {
     po::notify( command_line );
 
 
-   if( command_line.count( "help" ) ) {
-      std::cout << options << std::endl;
-      exit( 1 );
-    }
-    
+      if( command_line.count( "help" ) ) 
+      {
+          std::cout << options << std::endl;
+          exit( 1 );
+      }
 
-    validate_command_line( command_line );
+      validate_command_line( command_line );
  
       try 
       {
