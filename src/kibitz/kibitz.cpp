@@ -64,14 +64,14 @@ namespace kibitz {
       ( "help,h", "Show help message" )
       ( "worker-id,I", po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
       ( "worker-type,T", po::value< string >(), "(Required) Name of the type of worker." )
-      ( "configuration-file,f", po::value< string >(), "(Required) Path to configuration file containing in edges and out edges" ) 
+      ( "configuration-file,f", po::value< string >(), "Path to configuration file containing in edges and out edges" ) 
       ( "heartbeat-binding,b", po::value<string>(), "zmq tcp binding for publishing heartbeats" )
       ( "discovery-binding,d", po::value<string>(), "zmq tcp binding for recieving locator information" )
       ( "publish-port,p", po::value<int>()->default_value(8999), "Port to publish for collaboration messages" )
       ( "notification-port,P", po::value<int>()->default_value(9999), "Port to publish notification messages")
       ( "context-threads,t", po::value< int >()->default_value( 1 ), "Thread count passed to zmq_init" )
-      ( "heartbeat-frequency,h", po::value< int >()->default_value( 1000 ), "Heartbeat frequency in milliseconds" )
-      ;
+      ( "heartbeat-frequency,h", po::value< int >()->default_value( 1000 ), "Heartbeat frequency in milliseconds" );
+
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );
     po::notify( command_line );
@@ -85,8 +85,16 @@ namespace kibitz {
 
     validate_command_line( command_line );
  
-    context_=  new context( command_line ) ;
-
+      try 
+      {
+          context_=  new context( command_line ) ;
+      } 
+      catch( std::exception& e ) 
+      {
+          std::cout << "Failed to create zmq context: " 
+            << zmq_strerror(errno) << std::endl;
+          throw;
+      }
   }
 
   void start() {
