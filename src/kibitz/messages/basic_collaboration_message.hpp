@@ -23,12 +23,12 @@
 
 
 #include <kibitz/messages/collaboration_message.hpp>
-
+#include <kibitz/export_config.hpp>
 
 
 
 namespace kibitz {
-  class basic_collaboration_message : public collaboration_message {
+  class KIBITZ_MESSAGE_EXPORT basic_collaboration_message : public collaboration_message {
     string worker_type_;
     string payload_;
 

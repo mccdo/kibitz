@@ -22,6 +22,7 @@
 #define __COLLABORATION_MESSAGE_HPP__
 
 #include <kibitz/messages/message.hpp>
+#include <kibitz/export_config.hpp>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -35,7 +36,7 @@ using boost::lexical_cast;
 namespace kibitz {
 
 
-  class collaboration_message : public message {
+  class KIBITZ_MESSAGE_EXPORT collaboration_message : public message {
     string collaboration_type_;
     string job_id_;
   protected:
