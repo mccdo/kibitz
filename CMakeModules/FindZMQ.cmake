@@ -32,7 +32,7 @@ else (ZMQ_LIBRARIES AND ZMQ_INCLUDE_DIRS)
 
   find_library(ZMQ_LIBRARY
     NAMES
-      zmq
+      zmq libzmq
     PATHS
       /usr/lib
       /usr/local/lib
