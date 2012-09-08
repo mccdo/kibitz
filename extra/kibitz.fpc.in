@@ -6,7 +6,7 @@ includedir=${prefix}/include
 Name: kibitz
 Description: kibitz release pre-compiled for VES
 Provides: kibitz
-Requires:
+Requires: yaml-cpp libglog libzmq
 Version: @kibitz_VERSION@
 Libs: @kibitz_FPC_LIBRARIES@
 Cflags: @kibitz_FPC_INCLUDES@
