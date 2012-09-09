@@ -24,20 +24,25 @@
 #include <kibitz/messages/worker_info.hpp>
 #include <kibitz/messages/notification_message.hpp>
 
-namespace kibitz {
-  class in_edge_manager {
+namespace kibitz
+{
+class in_edge_manager
+{
 
-    struct collaboration_context_t {
-      int count_items;
-      std::map< string, std::map< string, string >  > job_messages;
-      zmq_pollitem_t* pollitems;
-      std::vector<string> get_job_messages( const string& job_id ) {
-	std::vector<string> result;
-	for( std::map<string,string>::iterator it = job_messages[job_id].begin(); it != job_messages[job_id].end(); ++it ){
-	  result.push_back( it->second );
-	}
-	return result;
-      }
+    struct collaboration_context_t
+    {
+        int count_items;
+        std::map< string, std::map< string, string >  > job_messages;
+        zmq_pollitem_t* pollitems;
+        std::vector<string> get_job_messages( const string& job_id )
+        {
+            std::vector<string> result;
+            for( std::map<string, string>::iterator it = job_messages[job_id].begin(); it != job_messages[job_id].end(); ++it )
+            {
+                result.push_back( it->second );
+            }
+            return result;
+        }
     };
 
     context& context_;
@@ -50,12 +55,12 @@ namespace kibitz {
     void handle_collaboration_message( collaboration_context_t& context );
     bool all_messages_arrived( const string& job_id, collaboration_context_t& collab_context ) const;
     void check_and_start_job( notification_message_ptr_t message ) ;
-  public:
+public:
     in_edge_manager( context& ctx );
     virtual ~in_edge_manager() ;
     void operator()() ;
 
-  };
+};
 }
 
 #endif

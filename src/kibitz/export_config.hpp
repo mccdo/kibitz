@@ -25,78 +25,78 @@
 #endif
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-    #  if defined( KIBITZ_LIBRARY_STATIC )
-    #    define KIBITZ_EXPORT
-    #    define KIBITZ_LOCAL
-    #  elif defined( KIBITZ_LIBRARY )
-    #    define KIBITZ_EXPORT   __declspec(dllexport)
-    #    define KIBITZ_LOCAL
-    #  else
-    #    define KIBITZ_EXPORT   __declspec(dllimport)
-    #    define KIBITZ_LOCAL
-    #  endif
+#  if defined( KIBITZ_LIBRARY_STATIC )
+#    define KIBITZ_EXPORT
+#    define KIBITZ_LOCAL
+#  elif defined( KIBITZ_LIBRARY )
+#    define KIBITZ_EXPORT   __declspec(dllexport)
+#    define KIBITZ_LOCAL
+#  else
+#    define KIBITZ_EXPORT   __declspec(dllimport)
+#    define KIBITZ_LOCAL
+#  endif
 
-    #  if defined( KIBITZ_MESSAGE_LIBRARY_STATIC )
-    #    define KIBITZ_MESSAGE_EXPORT
-    #    define KIBITZ_MESSAGE_LOCAL
-    #  elif defined( KIBITZ_MESSAGE_LIBRARY )
-    #    define KIBITZ_MESSAGE_EXPORT   __declspec(dllexport)
-    #    define KIBITZ_MESSAGE_LOCAL
-    #  else
-    #    define KIBITZ_MESSAGE_EXPORT   __declspec(dllimport)
-    #    define KIBITZ_MESSAGE_LOCAL
-    #  endif
+#  if defined( KIBITZ_MESSAGE_LIBRARY_STATIC )
+#    define KIBITZ_MESSAGE_EXPORT
+#    define KIBITZ_MESSAGE_LOCAL
+#  elif defined( KIBITZ_MESSAGE_LIBRARY )
+#    define KIBITZ_MESSAGE_EXPORT   __declspec(dllexport)
+#    define KIBITZ_MESSAGE_LOCAL
+#  else
+#    define KIBITZ_MESSAGE_EXPORT   __declspec(dllimport)
+#    define KIBITZ_MESSAGE_LOCAL
+#  endif
 
-    #  if defined( KIBITZ_LOCATOR_LIBRARY_STATIC )
-    #    define KIBITZ_LOCATOR_EXPORT
-    #    define KIBITZ_LOCATOR_LOCAL
-    #  elif defined( KIBITZ_LOCATOR_LIBRARY )
-    #    define KIBITZ_LOCATOR_EXPORT   __declspec(dllexport)
-    #    define KIBITZ_LOCATOR_LOCAL
-    #  else
-    #    define KIBITZ_LOCATOR_EXPORT   __declspec(dllimport)
-    #    define KIBITZ_LOCATOR_LOCAL
-    #  endif
+#  if defined( KIBITZ_LOCATOR_LIBRARY_STATIC )
+#    define KIBITZ_LOCATOR_EXPORT
+#    define KIBITZ_LOCATOR_LOCAL
+#  elif defined( KIBITZ_LOCATOR_LIBRARY )
+#    define KIBITZ_LOCATOR_EXPORT   __declspec(dllexport)
+#    define KIBITZ_LOCATOR_LOCAL
+#  else
+#    define KIBITZ_LOCATOR_EXPORT   __declspec(dllimport)
+#    define KIBITZ_LOCATOR_LOCAL
+#  endif
 #else
-  #if __GNUC__ >= 4
-    # if defined( KIBITZ_LIBRARY_STATIC )
-    #    define KIBITZ_EXPORT
-    #    define KIBITZ_LOCAL
-    # else
-    #    define KIBITZ_EXPORT   __attribute__ ((visibility ("default")))
-    #    define KIBITZ_LOCAL   __attribute__ ((visibility ("hidden")))
-    # endif
+#if __GNUC__ >= 4
+# if defined( KIBITZ_LIBRARY_STATIC )
+#    define KIBITZ_EXPORT
+#    define KIBITZ_LOCAL
+# else
+#    define KIBITZ_EXPORT   __attribute__ ((visibility ("default")))
+#    define KIBITZ_LOCAL   __attribute__ ((visibility ("hidden")))
+# endif
 
-    # if defined( KIBITZ_MESSAGE_LIBRARY_STATIC )
-    #    define KIBITZ_MESSAGE_EXPORT
-    #    define KIBITZ_MESSAGE_LOCAL
-    # else
-    #    define KIBITZ_MESSAGE_EXPORT   __attribute__ ((visibility ("default")))
-    #    define KIBITZ_MESSAGE_LOCAL   __attribute__ ((visibility ("hidden")))
-    # endif
+# if defined( KIBITZ_MESSAGE_LIBRARY_STATIC )
+#    define KIBITZ_MESSAGE_EXPORT
+#    define KIBITZ_MESSAGE_LOCAL
+# else
+#    define KIBITZ_MESSAGE_EXPORT   __attribute__ ((visibility ("default")))
+#    define KIBITZ_MESSAGE_LOCAL   __attribute__ ((visibility ("hidden")))
+# endif
 
-    # if defined( KIBITZ_LOCATOR_LIBRARY_STATIC )
-    #    define KIBITZ_LOCATOR_EXPORT
-    #    define KIBITZ_LOCATOR_LOCAL
-    # else
-    #    define KIBITZ_LOCATOR_EXPORT   __attribute__ ((visibility ("default")))
-    #    define KIBITZ_LOCATOR_LOCAL   __attribute__ ((visibility ("hidden")))
-    # endif
-  #else
-    #  define KIBITZ_MESSAGE_EXPORT
-    #  define KIBITZ_MESSAGE_LOCAL
+# if defined( KIBITZ_LOCATOR_LIBRARY_STATIC )
+#    define KIBITZ_LOCATOR_EXPORT
+#    define KIBITZ_LOCATOR_LOCAL
+# else
+#    define KIBITZ_LOCATOR_EXPORT   __attribute__ ((visibility ("default")))
+#    define KIBITZ_LOCATOR_LOCAL   __attribute__ ((visibility ("hidden")))
+# endif
+#else
+#  define KIBITZ_MESSAGE_EXPORT
+#  define KIBITZ_MESSAGE_LOCAL
 
-    #  define KIBITZ_EXPORT
-    #  define KIBITZ_LOCAL
+#  define KIBITZ_EXPORT
+#  define KIBITZ_LOCAL
 
-    #  define KIBITZ_LOCATOR_EXPORT
-    #  define KIBITZ_LOCATOR_LOCAL
-  #endif
+#  define KIBITZ_LOCATOR_EXPORT
+#  define KIBITZ_LOCATOR_LOCAL
+#endif
 #endif
 
 
 #if defined(_MSC_VER)
-    #define KIBITZ_DEPRECATED(x) __declspec(deprecated) x
+#define KIBITZ_DEPRECATED(x) __declspec(deprecated) x
 #else
-    #define KIBITZ_DEPRECATED(x) x __attribute__ ((deprecated))
+#define KIBITZ_DEPRECATED(x) x __attribute__ ((deprecated))
 #endif

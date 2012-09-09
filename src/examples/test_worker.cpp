@@ -25,52 +25,59 @@
 
 using std::string;
 
-void message_handler( const kibitz::collaboration_messages_t& messages ) ; 
+void message_handler( const kibitz::collaboration_messages_t& messages ) ;
 void notification_handler( );
 
-int main( int argc, char* argv[] ) {
+int main( int argc, char* argv[] )
+{
     std::cout << "starting test worker" << std::endl;
     int result = 0;
 
-    try 
+    try
     {
         kibitz::initialize( argc, argv );
         kibitz::set_in_message_handler( message_handler );
         kibitz::set_initialization_notification_handler( notification_handler );
         kibitz::start();
         kibitz::terminate();
-    } 
-    catch( std::exception& e ) 
+    }
+    catch( std::exception& e )
     {
         result = 1;
         std::cout << "Program failed. " << e.what() << std::endl;
     }
-  
-  return result;
+
+    return result;
 
 
 }
 
 
-void message_handler( const kibitz::collaboration_messages_t& messages )  {
-  string payload ;
-  BOOST_FOREACH( const string& message, messages ) {
-    if( payload.empty() ) {
-      payload = message;
-    } else {
-      payload += " > ";
-      payload += message;
+void message_handler( const kibitz::collaboration_messages_t& messages )
+{
+    string payload ;
+    BOOST_FOREACH( const string & message, messages )
+    {
+        if( payload.empty() )
+        {
+            payload = message;
+        }
+        else
+        {
+            payload += " > ";
+            payload += message;
+        }
+
     }
-    
-  }
 
-  payload += " > ";
-  payload += "next message";
+    payload += " > ";
+    payload += "next message";
 
-  kibitz::send_out_message( payload );
-} 
+    kibitz::send_out_message( payload );
+}
 
 
-void notification_handler( ) {
-  kibitz::send_out_message( "initial message" );
+void notification_handler( )
+{
+    kibitz::send_out_message( "initial message" );
 }

@@ -29,22 +29,25 @@
 
 using std::string;
 
-namespace kibitz {
-  namespace util {
+namespace kibitz
+{
+namespace util
+{
 
-    class queue_interrupt : public std::runtime_error {
-    public :
-      queue_interrupt( const string& msg ) ;
-      virtual ~queue_interrupt() throw(); 
-    };
+class queue_interrupt : public std::runtime_error
+{
+public :
+    queue_interrupt( const string& msg ) ;
+    virtual ~queue_interrupt() throw();
+};
 
-    KIBITZ_EXPORT void recv( void* socket, string& message ) ;
-    KIBITZ_EXPORT void send( void* socket, const string& message );
-    KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;
-    KIBITZ_EXPORT void* create_socket( void* context, int socktype ) ;
-    KIBITZ_EXPORT void close_socket( void* socket );
-    KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
-  }
+KIBITZ_EXPORT void recv( void* socket, string& message ) ;
+KIBITZ_EXPORT void send( void* socket, const string& message );
+KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;
+KIBITZ_EXPORT void* create_socket( void* context, int socktype ) ;
+KIBITZ_EXPORT void close_socket( void* socket );
+KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
+}
 }
 
 #endif

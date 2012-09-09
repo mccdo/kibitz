@@ -20,7 +20,8 @@
 #include <kibitz/common.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
 
 

@@ -23,23 +23,25 @@
 #include <kibitz/kibitz.hpp>
 #include <kibitz/context.hpp>
 
-namespace kibitz {
+namespace kibitz
+{
 
 
-  class message_base {
+class message_base
+{
 
 
-  protected:
+protected:
     bool* shutdown_;
     context* context_;
-  
-  public:
+
+public:
     message_base( context* context ) ;
-    ~message_base(); 
+    ~message_base();
 
     bool shutdown() const ;
-    void internal_command_handler(   );  
-  };
+    void internal_command_handler( );
+};
 
 }
 

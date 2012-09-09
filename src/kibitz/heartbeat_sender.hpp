@@ -23,16 +23,18 @@
 #include <kibitz/message_base.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
-  class heartbeat_sender : public message_base {
+class heartbeat_sender : public message_base
+{
 
-  public:
-    heartbeat_sender( context* context ) ; 
+public:
+    heartbeat_sender( context* context ) ;
 
-    ~heartbeat_sender();  
+    ~heartbeat_sender();
     void operator()();
-  };
+};
 
 
 

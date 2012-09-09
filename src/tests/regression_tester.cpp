@@ -18,15 +18,15 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 /********************************************************************
- *  Program to run kibitz regression tests.  We use a number of 
+ *  Program to run kibitz regression tests.  We use a number of
  *  environment variables to control tests
- * 
+ *
  *  ENVIRONMENT VARIABLES
- *   
- *  KIBITZ_ROLE = CHILD | ROOT 
+ *
+ *  KIBITZ_ROLE = CHILD | ROOT
  *  If valued as CHILD the program will handle inbound collaboration messages
- *  If ROOT, we handle the initialization notification to start the 
- *  test running.  
+ *  If ROOT, we handle the initialization notification to start the
+ *  test running.
  ********************************************************************/
 
 #include <boost/uuid/uuid.hpp>
@@ -50,92 +50,105 @@ using kibitz::context_information_t;
 using boost::lexical_cast;
 using namespace boost::filesystem;
 
-void message_handler( const kibitz::collaboration_messages_t& messages ) ; 
+void message_handler( const kibitz::collaboration_messages_t& messages ) ;
 void notification_handler( );
 void record_in_message( const string& in );
 void record_out_message( const string& out );
 void record_message( const string& filename, const string& message );
 
 
-int main( int argc, char* argv[] ) {
-  std::cout << "starting" << std::endl;
-  int result = 0;
+int main( int argc, char* argv[] )
+{
+    std::cout << "starting" << std::endl;
+    int result = 0;
 
-  try {
-    kibitz::initialize( argc, argv );
-    // ROOT, CHILD
-    string role = getenv( "KIBITZ_ROLE" );
-    CHECK( !role.empty() ) << "Role is not defined";
-    DLOG(INFO) << "Role is " << role;
+    try
+    {
+        kibitz::initialize( argc, argv );
+        // ROOT, CHILD
+        string role = getenv( "KIBITZ_ROLE" );
+        CHECK( !role.empty() ) << "Role is not defined";
+        DLOG( INFO ) << "Role is " << role;
 
-    if( role == "ROOT" ) {
-      kibitz::set_initialization_notification_handler( notification_handler );
-    } else if( role == "CHILD" ) {
-      kibitz::set_in_message_handler( message_handler );      
+        if( role == "ROOT" )
+        {
+            kibitz::set_initialization_notification_handler( notification_handler );
+        }
+        else if( role == "CHILD" )
+        {
+            kibitz::set_in_message_handler( message_handler );
+        }
+
+        kibitz::start();
+        kibitz::terminate();
+    }
+    catch( std::exception& e )
+    {
+        result = 1;
+        std::cout << "Program failed. " << e.what() << std::endl;
     }
 
-    kibitz::start();
-    kibitz::terminate();
-  } catch( std::exception& e ) {
-    result = 1;
-    std::cout << "Program failed. " << e.what() << std::endl;
-  }
-  
-  return result;
+    return result;
 
 
 }
 
 
-void message_handler( const kibitz::collaboration_messages_t& messages )  {
-  
-  stringstream stm;
-  BOOST_FOREACH( const string& message, messages ) {
-    stm << message << "\n";
-  }
+void message_handler( const kibitz::collaboration_messages_t& messages )
+{
 
-  record_in_message( stm.str() );
-  
-  string payload = lexical_cast<string>( boost::uuids::random_generator()());
+    stringstream stm;
+    BOOST_FOREACH( const string & message, messages )
+    {
+        stm << message << "\n";
+    }
 
-  record_out_message( payload );
-  kibitz::send_out_message( payload );
-} 
+    record_in_message( stm.str() );
+
+    string payload = lexical_cast<string>( boost::uuids::random_generator()() );
+
+    record_out_message( payload );
+    kibitz::send_out_message( payload );
+}
 
 
-void notification_handler( ) {
-  string payload = lexical_cast<string>( boost::uuids::random_generator()());
-  record_out_message( payload );
-  kibitz::send_out_message( payload );
+void notification_handler( )
+{
+    string payload = lexical_cast<string>( boost::uuids::random_generator()() );
+    record_out_message( payload );
+    kibitz::send_out_message( payload );
 }
 
 
 
 
-void record_message( const string& filename, const string& message ) {
-  DLOG(INFO) << "Writing test file " << filename << " with " << message;  
-  path test_file_path = (current_path() /= "test") /= filename;
-  ofstream stm ;
-  stm.open( test_file_path.c_str() );
-  stm << message;
-  stm.close();
+void record_message( const string& filename, const string& message )
+{
+    DLOG( INFO ) << "Writing test file " << filename << " with " << message;
+    path test_file_path = ( current_path() /= "test" ) /= filename;
+    ofstream stm ;
+    stm.open( test_file_path.c_str() );
+    stm << message;
+    stm.close();
 
 }
 
-void record_out_message( const string& out ) {
-  context_information_t context_info;
-  kibitz::get_context_information( context_info );
-  stringstream stm;
-  stm << context_info.worker_type << "." << context_info.worker_id << ".out";
+void record_out_message( const string& out )
+{
+    context_information_t context_info;
+    kibitz::get_context_information( context_info );
+    stringstream stm;
+    stm << context_info.worker_type << "." << context_info.worker_id << ".out";
 
-  record_message( stm.str(), out );
+    record_message( stm.str(), out );
 
 }
 
-void record_in_message( const string& in ) {
-  context_information_t context_info;
-  kibitz::get_context_information( context_info );
-  stringstream stm;
-  stm << context_info.worker_type << "." << context_info.worker_id << ".in";
-  record_message( stm.str(), in );
+void record_in_message( const string& in )
+{
+    context_information_t context_info;
+    kibitz::get_context_information( context_info );
+    stringstream stm;
+    stm << context_info.worker_type << "." << context_info.worker_id << ".in";
+    record_message( stm.str(), in );
 }

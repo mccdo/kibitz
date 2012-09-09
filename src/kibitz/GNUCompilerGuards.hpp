@@ -26,7 +26,7 @@
 //#include <boost/program_options.hpp>
 //GCC_DIAG_ON(unused-parameter)
 
-//From: 
+//From:
 //https://svn.boost.org/trac/boost/wiki/Guidelines/WarningsGuidelines
 #if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 402
 #define GCC_DIAG_STR(s) #s

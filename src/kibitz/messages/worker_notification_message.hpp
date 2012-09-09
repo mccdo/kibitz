@@ -25,16 +25,18 @@
 #include <kibitz/messages/heartbeat.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
-  class KIBITZ_MESSAGE_EXPORT worker_notification_message : public notification_message {
+class KIBITZ_MESSAGE_EXPORT worker_notification_message : public notification_message
+{
     string worker_type_;
     int32_t worker_id_;
     string host_name_;
     int16_t port_;
 
 
-  public:
+public:
     worker_notification_message( const ptree& json ) ;
     worker_notification_message( heartbeat_ptr_t hb );
     worker_notification_message( const string& worker_type );
@@ -43,12 +45,12 @@ namespace kibitz {
     const string& host_name() const;
     int32_t worker_id() const;
     int16_t port() const ;
-    virtual string to_json() const;    
+    virtual string to_json() const;
 
-    
-  };
 
-  typedef shared_ptr<worker_notification_message> worker_notification_message_ptr_t;
+};
+
+typedef shared_ptr<worker_notification_message> worker_notification_message_ptr_t;
 
 }
 #endif

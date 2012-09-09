@@ -25,11 +25,13 @@
 
 #include <kibitz/messages/notification_message.hpp>
 
-namespace kibitz {
+namespace kibitz
+{
 
-  class worker_notification_message;
+class worker_notification_message;
 
-  class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message {
+class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
+{
     string worker_type_;
     int worker_id_;
     string host_name_;
@@ -37,19 +39,19 @@ namespace kibitz {
     int port_;
     int ticks_;
     friend class worker_notification_message;
-  public :
-    heartbeat(const boost::program_options::variables_map& config) ;
+public :
+    heartbeat( const boost::program_options::variables_map& config ) ;
     heartbeat( const ptree& json );
     virtual ~heartbeat() ;
     virtual string to_json() const ;
-  
+
     const string& worker_type() const ;
     const int& worker_id() const ;
     void increment_tick_count();
     //virtual message_type_t message_type() const { return heartbeat; }
-  };
+};
 
-  typedef shared_ptr<heartbeat> heartbeat_ptr_t;
+typedef shared_ptr<heartbeat> heartbeat_ptr_t;
 
 }
 

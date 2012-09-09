@@ -24,20 +24,25 @@
 #include <kibitz/messages/notification_message.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
 
 
-  class KIBITZ_MESSAGE_EXPORT inproc_notification_message : public notification_message {
+class KIBITZ_MESSAGE_EXPORT inproc_notification_message : public notification_message
+{
     int notification_;
-  public:
+public:
     inproc_notification_message( const ptree& json ) ;
     inproc_notification_message( int notification );
     virtual string to_json() const ;
-    int get_notification() const { return notification_; }
-  };
+    int get_notification() const
+    {
+        return notification_;
+    }
+};
 
-  typedef shared_ptr<inproc_notification_message> inproc_notification_ptr_t;
+typedef shared_ptr<inproc_notification_message> inproc_notification_ptr_t;
 }
 
 #endif

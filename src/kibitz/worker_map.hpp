@@ -32,9 +32,11 @@
 
 #include <map>
 
-namespace kibitz {
-  
-  class KIBITZ_EXPORT worker_map {
+namespace kibitz
+{
+
+class KIBITZ_EXPORT worker_map
+{
     typedef int worker_id_t;
     typedef string worker_type_t;
     typedef std::map< worker_id_t, worker_notification_message_ptr_t > worker_by_id_t;
@@ -44,9 +46,9 @@ namespace kibitz {
 
     worker_map( void* send_socket );
     void handle_worker_notification( message_ptr_t message, worker_map_t& workers ) ;
-    worker_infos_t process_query( const string& worker_type, const worker_map_t& workers ) const; 
-  public:
-    worker_map(context* context) ;
+    worker_infos_t process_query( const string& worker_type, const worker_map_t& workers ) const;
+public:
+    worker_map( context* context ) ;
     virtual ~worker_map();
     void operator()();
     void send_worker_notification_from_heartbeat( const string& json ) ;
@@ -55,10 +57,10 @@ namespace kibitz {
      */
     worker_infos_t get_in_edge_workers( const string& worker_type ) const ;
     static shared_ptr<worker_map> get_worker_map( void* context );
-    
-  };
 
-  typedef shared_ptr<worker_map> worker_map_ptr_t;
+};
+
+typedef shared_ptr<worker_map> worker_map_ptr_t;
 }
 
 #endif

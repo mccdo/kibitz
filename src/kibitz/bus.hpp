@@ -23,33 +23,40 @@
 #include <kibitz/common.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
-  class bus {
+class bus
+{
 
-  protected:
-    void* socket_;   
+protected:
+    void* socket_;
     bus( void* zmq_context, const char* binding, int sock_type ) ;
     virtual ~bus();
-  public:
-    void* socket() { return socket_; }
-    void close() ; 
-  };
+public:
+    void* socket()
+    {
+        return socket_;
+    }
+    void close() ;
+};
 
-  class pub : public bus {
-  public: 
+class pub : public bus
+{
+public:
     pub( void* zmq_context, const char* binding );
-    virtual ~pub(){}
-    void send( const string& json ); 
-  };
-  
-  class sub : public bus {
-  public: 
+    virtual ~pub() {}
+    void send( const string& json );
+};
+
+class sub : public bus
+{
+public:
     sub( void* zmq_context, const char* binding ) ;
     virtual ~sub() {}
 
-    
-  };
+
+};
 
 }
 

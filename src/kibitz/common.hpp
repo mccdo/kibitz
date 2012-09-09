@@ -28,7 +28,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <vector> 
+#include <vector>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
@@ -54,7 +54,7 @@ typedef unsigned __int64 uint64_t;
 # pragma warning(disable: 4275)
 #else
 #include <kibitz/GNUCompilerGuards.hpp>
-GCC_DIAG_OFF(unused-parameter)
+GCC_DIAG_OFF( unused - parameter )
 #endif
 
 #include <boost/program_options.hpp>
@@ -64,7 +64,7 @@ GCC_DIAG_OFF(unused-parameter)
 #ifdef BOOST_WINDOWS
 # pragma warning(default: 4275)
 #else
-GCC_DIAG_ON(unused-parameter)
+GCC_DIAG_ON( unused - parameter )
 #endif
 
 #include <boost/filesystem.hpp>
@@ -90,7 +90,7 @@ using boost::lexical_cast;
 using boost::format;
 using boost::shared_ptr;
 using boost::thread_group;
-using boost::property_tree::ptree; 
+using boost::property_tree::ptree;
 using boost::dynamic_pointer_cast;
 using boost::static_pointer_cast;
 using namespace boost::posix_time;
@@ -104,14 +104,15 @@ using namespace google;
 #include <kibitz/kibitz.hpp>
 
 // misc helper functions
-namespace kibitz {
+namespace kibitz
+{
 
 
 
-  // declared in kibitz.cpp
-  class context;
-  extern context* context_;
+// declared in kibitz.cpp
+class context;
+extern context* context_;
 
 }
 
-#endif 
+#endif

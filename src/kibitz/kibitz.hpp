@@ -29,31 +29,33 @@
 #include <string>
 #include <vector>
 
-namespace kibitz {
-  typedef std::string payload_t;
-  typedef std::vector< payload_t > collaboration_messages_t;
-  typedef void ( *collaboration_callback )( const collaboration_messages_t& messages  );
-  typedef void ( *initialization_callback )( void );
+namespace kibitz
+{
+typedef std::string payload_t;
+typedef std::vector< payload_t > collaboration_messages_t;
+typedef void ( *collaboration_callback )( const collaboration_messages_t& messages );
+typedef void ( *initialization_callback )( void );
 
-  struct context_information_t {
+struct context_information_t
+{
     std::string worker_type;
     std::string job_id;
     int worker_id;
 
-  };
+};
 
-  KIBITZ_EXPORT void initialize( int argc, char* argv[] ) ; 
-  KIBITZ_EXPORT void start() ;
-  KIBITZ_EXPORT void terminate();
-  KIBITZ_EXPORT void set_in_message_handler( collaboration_callback fn );
-  KIBITZ_EXPORT void set_initialization_notification_handler( initialization_callback fn );
-  KIBITZ_EXPORT void send_out_message( const payload_t& payload ) ;
-  KIBITZ_EXPORT void send_notification_message( const payload_t& payload ) ;
-  /**
-   * Retrieves information about worker, for diagnostic purposes only
-   */
-  KIBITZ_EXPORT void get_context_information( context_information_t& context_information );
-  
+KIBITZ_EXPORT void initialize( int argc, char* argv[] ) ;
+KIBITZ_EXPORT void start() ;
+KIBITZ_EXPORT void terminate();
+KIBITZ_EXPORT void set_in_message_handler( collaboration_callback fn );
+KIBITZ_EXPORT void set_initialization_notification_handler( initialization_callback fn );
+KIBITZ_EXPORT void send_out_message( const payload_t& payload ) ;
+KIBITZ_EXPORT void send_notification_message( const payload_t& payload ) ;
+/**
+ * Retrieves information about worker, for diagnostic purposes only
+ */
+KIBITZ_EXPORT void get_context_information( context_information_t& context_information );
+
 
 }
 

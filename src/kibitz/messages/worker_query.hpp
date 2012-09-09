@@ -24,19 +24,24 @@
 
 #include <kibitz/messages/notification_message.hpp>
 
-namespace kibitz {
-  class KIBITZ_MESSAGE_EXPORT worker_query : public notification_message {
+namespace kibitz
+{
+class KIBITZ_MESSAGE_EXPORT worker_query : public notification_message
+{
     const string worker_type_;
-  public:
+public:
     worker_query( const string& worker_type ) ;
     worker_query( const ptree& tree ) ;
     virtual ~worker_query();
-    const string& worker_type() const { return worker_type_; }
-    
-    virtual string to_json() const;
-  };
+    const string& worker_type() const
+    {
+        return worker_type_;
+    }
 
-  typedef shared_ptr<worker_query> worker_query_ptr_t;
+    virtual string to_json() const;
+};
+
+typedef shared_ptr<worker_query> worker_query_ptr_t;
 }
 
 #endif
