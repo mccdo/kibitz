@@ -21,12 +21,17 @@
 #include <stdexcept>
 #include <string>
 #include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+#include <glog/logging.h>
 #include <kibitz/kibitz.hpp>
 
 using std::string;
 
+typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+
 void message_handler( const kibitz::collaboration_messages_t& messages ) ;
-void notification_handler( );
+
 
 int main( int argc, char* argv[] )
 {
@@ -36,8 +41,9 @@ int main( int argc, char* argv[] )
     try
     {
         kibitz::initialize( argc, argv );
+	// set callback that will be invoked when 
+	// upstream workers send us messages
         kibitz::set_in_message_handler( message_handler );
-        kibitz::set_initialization_notification_handler( notification_handler );
         kibitz::start();
         kibitz::terminate();
     }
@@ -52,32 +58,35 @@ int main( int argc, char* argv[] )
 
 }
 
-
+////////////////////////////////////////////////////////////////////////
+//  This is a message handler for a terminal worker.  A terminal worker
+//  is the last worker called in a collaboration and does not forward
+//  messages to other workers, the job is done. 
+//  A terminal worker calls send_notification_message instead of 
+//  send_out_message.  send_notification_message will publish results
+//  to other services that are listening outside the collaboration.  You
+//  could think of this as a signal that the job is complete.  You could
+//  just as well write data to a database or a file at this point, the 
+//  notification call is not required.  
+////////////////////////////////////////////////////////////////////////
 void message_handler( const kibitz::collaboration_messages_t& messages )
 {
-    string payload ;
-    BOOST_FOREACH( const string & message, messages )
-    {
-        if( payload.empty() )
-        {
-            payload = message;
-        }
-        else
-        {
-            payload += " > ";
-            payload += message;
-        }
 
+  DLOG(INFO) << "Got messages";
+  CHECK( messages.size() == 2 ) << "Expect a two messages" ;
+  string result ;
+
+  BOOST_FOREACH( const string& message, messages ) {
+    if( !result.empty() ) {
+      result += ";";
     }
+    result += message;
+  }
 
-    payload += " > ";
-    payload += "next message";
-
-    kibitz::send_out_message( payload );
+  // Note send notification instead of send out message. 
+  DLOG(INFO) << "Sending notification -> " << result;
+  kibitz::send_notification_message( result );
 }
 
 
-void notification_handler( )
-{
-    kibitz::send_out_message( "initial message" );
-}
+

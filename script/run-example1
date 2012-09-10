@@ -1,0 +1,57 @@
+#!/bin/bash
+
+LOCATOR=./src/apps/locator/worker-locator
+INITWORKER=./src/examples/init-worker
+WORKER=./src/examples/worker
+TERMINUS=./src/examples/terminus
+
+test_name=
+
+
+function restart_locator
+{
+    echo "(re)starting locator"
+    if [ -e ${HOME}/kibitz-locator.pid ]
+    then
+	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+    fi
+
+    GLOG_log_dir=./log $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid 
+}
+
+
+rm -fv test/*
+
+# we have to start a locator first so workers can find each other
+restart_locator
+
+
+echo "Starting workers for example 1"
+
+
+## kick off all our workers
+#  initial worker
+INITDATA=./src/examples/example1/initdata GLOG_log_dir=log GLOG_minloglevel=0 $INITWORKER -I1 -Tinit_worker -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100 & 
+# sends messages to these workers
+ROLE=multiplier GLOG_log_dir=log GLOG_minloglevel=0 $WORKER -I1 -Tmultiplier -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101 -f./src/examples/example1/worker.yaml &
+ROLE=adder GLOG_log_dir=log GLOG_minloglevel=0 $WORKER -I1 -Tadder -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -f./src/examples/example1/worker.yaml & 
+# terminal worker sends notification message signaling job is complete
+GLOG_log_dir=log GLOG_minloglevel=0 $TERMINUS -I1 -Tterminus -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -f./src/examples/example1/terminus.yaml &
+# example notification listener 
+script/notification-listener --notifier-binding="tcp://localhost:9103" &
+echo "wait for heartbeats to perculate throughout system"
+sleep 5
+echo "Workers started establishing collaboration connections and running jobs"
+KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=init_worker --worker-id=1 
+# block until we get notification
+sleep 2
+
+KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
+
+
+echo "shutting down locator"
+if [ -e ${HOME}/kibitz-locator.pid ]
+then
+kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+fi
+

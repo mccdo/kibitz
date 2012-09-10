@@ -8,9 +8,13 @@ set(VES_INCLUDE_DIRECTORY_NAME ${CMAKE_PROJECT_NAME})
 #
 set(VES_TARGET_CATEGORY Test)
 
-add_executable( test-worker  test_worker.cpp )
-target_link_libraries( test-worker kibitz )
-set(VES_TARGET_NAME test-worker)
+add_executable( worker  worker.cpp )
+add_executable( init-worker init_worker.cpp )
+add_executable( terminus terminus.cpp )
+target_link_libraries( worker kibitz )
+target_link_libraries( init-worker kibitz )
+target_link_libraries( terminus kibitz )
+set(VES_TARGET_NAME worker)
 include(VESModuleInstall)
 
 

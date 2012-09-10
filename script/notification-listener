@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'ffi-rzmq'
+require 'trollop'
+
+
+opts = Trollop::options do 
+     banner "Test listener for notifications"
+     opt :notifier_binding, "tcp binding to subscribe to notification message", :default => ""
+end
+
+ctx = nil
+socket = nil
+
+begin 
+  ctx = ZMQ::Context.new
+  socket = ctx.socket ZMQ::SUB
+  rc = socket.setsockopt( ZMQ::SUBSCRIBE, "" )
+  raise "setsockopt failed" if rc != 0
+  rc = socket.connect( opts[:notifier_binding] )
+  raise "Connection to #{opts[:notifier_binding]} failed" if rc != 0
+
+  message = ""
+  socket.recv_string( message )
+  puts "JOB COMPLETE! Got notification message => #{message}"
+ 
+rescue => e
+  puts "script failed #{e.message}"
+  puts e.backtrace.join("\n")
+end
+
+
+socket.close unless socket.nil?
+ctx.terminate unless ctx.nil?
+

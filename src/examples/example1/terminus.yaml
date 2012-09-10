@@ -1,0 +1,4 @@
+---
+in-edges:
+- adder
+- multiplier
