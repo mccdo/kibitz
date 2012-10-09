@@ -51,7 +51,7 @@ using boost::lexical_cast;
 using namespace boost::filesystem;
 
 void message_handler( const kibitz::collaboration_messages_t& messages ) ;
-void notification_handler( );
+void notification_handler( const kibitz::payload_t&  );
 void record_in_message( const string& in );
 void record_out_message( const string& out );
 void record_message( const string& filename, const string& message );
@@ -112,7 +112,7 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
 }
 
 
-void notification_handler( )
+void notification_handler(const kibitz::payload_t& p )
 {
     string payload = lexical_cast<string>( boost::uuids::random_generator()() );
     record_out_message( payload );

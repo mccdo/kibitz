@@ -106,9 +106,6 @@ const int& heartbeat::worker_id() const
     return worker_id_;
 }
 
-
-
 }
-
 
 #endif

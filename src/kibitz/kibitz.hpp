@@ -34,7 +34,7 @@ namespace kibitz
 typedef std::string payload_t;
 typedef std::vector< payload_t > collaboration_messages_t;
 typedef void ( *collaboration_callback )( const collaboration_messages_t& messages );
-typedef void ( *initialization_callback )( void );
+typedef void ( *initialization_callback )( const payload_t&  );
 
 struct context_information_t
 {

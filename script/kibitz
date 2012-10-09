@@ -12,25 +12,26 @@ def send_initiate_message( socket, worker_type, worker_id, global_opts )
   raise "Missing worker type" if worker_type.nil?
   raise "Missing worker id" if worker_id.nil?
 
-  message = { 
+  message = {
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "worker_broadcast",
-    "notification" => "create_bindings" 
+    "notification" => "create_bindings"
   }
 
   socket.send_string message.to_json
-  
-  sleep global_opts[:command_pause] 
 
-  message = { 
+  sleep global_opts[:command_pause]
+
+  message = {
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "job_initialization",
     "worker_type" => worker_type,
-    "worker_id" => worker_id
+    "worker_id" => worker_id,
+    "payload" => "my payload"
   }
-  
+
   socket.send_string message.to_json
 
 end
@@ -38,11 +39,11 @@ end
 # tells all workers to stop
 def send_stop_message( socket )
 
-  message = { 
+  message = {
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "worker_broadcast",
-    "notification" => "shutdown" 
+    "notification" => "shutdown"
   }
 
   

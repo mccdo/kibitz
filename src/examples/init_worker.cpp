@@ -28,7 +28,7 @@
 using std::string;
 
 
-void notification_handler( );
+void notification_handler( const kibitz::payload_t& payload );
 
 int main( int argc, char* argv[] )
 {
@@ -64,8 +64,9 @@ int main( int argc, char* argv[] )
 //  cocantenate them with each separated by a semicolon
 //  send then send the result to listening workers. 
 /////////////////////////////////////////////////////////
-void notification_handler( ) {
+void notification_handler(const kibitz::payload_t& payload ) {
   string filename = getenv("INITDATA");
+  DLOG(INFO) << "Payload " << payload ;
   DLOG(INFO) << "Reading initial data from file " <<  filename;
   std::ifstream stm( filename.c_str() );
   string result;

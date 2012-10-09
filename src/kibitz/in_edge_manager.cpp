@@ -142,7 +142,7 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
         {
             initialization_callback cb = context_.get_initialization_notification_callback();
             CHECK( cb != NULL ) << "Sent a job initialization message to a worker without an initialization callback";
-            cb();
+            cb(job_init_message->payload());
         }
     }
 }
