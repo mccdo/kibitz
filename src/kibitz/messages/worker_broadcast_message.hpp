@@ -35,17 +35,24 @@ class worker_broadcast_message : public notification_message
 {
 
     string notification_;
+  string payload_;
 public:
 
 
     worker_broadcast_message( const ptree& json ) ;
-    worker_broadcast_message( const string& notification ) ;
+  worker_broadcast_message( const string& notification, const string& payload ) ;
     virtual ~worker_broadcast_message() {}
     virtual string to_json() const;
     const string& notification() const
     {
         return notification_;
     }
+  const string& payload() const  
+  {
+    return payload_;
+  }
+  
+
 };
 
 typedef shared_ptr<worker_broadcast_message> worker_broadcast_message_ptr_t;

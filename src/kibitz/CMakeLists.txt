@@ -58,4 +58,4 @@ include(VESModuleInstall)
 
 add_subdirectory(messages)
 add_subdirectory(locator)
-
+add_subdirectory(validator)

@@ -43,7 +43,8 @@ def send_stop_message( socket )
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "worker_broadcast",
-    "notification" => "shutdown"
+    "notification" => "shutdown",
+    "payload" => ""
   }
 
   
@@ -66,6 +67,7 @@ cmd_opts = case cmd
              Trollop::options do
     opt :worker_type, "Type of worker that will perform the initialization", :type => :string
     opt :worker_id, "ID of worker that will perform the initialization", :default => 1
+    opt :binding_file, "YAML file that defines collaboration", :type => :string
   end
            when "stop"  
              Trollop::options do
