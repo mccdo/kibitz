@@ -68,7 +68,7 @@ int test_main( int argc, char* argv[] )
 
     std::vector< string > edges;
     string scalar;
-    std::fstream stm( "../config/test-worker-b.yaml" );
+    std::fstream stm( "../../config/test-worker-b.yaml" );
     YAML::Parser parser( stm );
     YAML::Node doc ;
     parser.GetNextDocument( doc );
