@@ -1,4 +1,9 @@
 #include "worker_graph.hpp"
+#include <boost/tokenizer.hpp>
+
+
+typedef boost::char_separator< char > separator_t;
+typedef boost::tokenizer< separator_t > tokenizer_t;
 
 
 namespace kibitz {
@@ -68,9 +73,48 @@ namespace kibitz {
       return ptr;
     }
 
+    string strip_comments( const string& commented_line ) {
+      const char COMMENT_DELIMITER = '#';
+      size_t pos = commented_line.find_first_of( commented_line,COMMENT_DELIMITER );
+      if( string::npos == pos ) {
+	return commented_line;
+      }
+      return commented_line.substr( pos );
+    }
+
     worker_graph_ptr create_worker_graph_from_string( const string& graph_definition ) {
-      worker_graph_ptr ptr;
-      return ptr;
+      worker_graph_ptr graph_ptr( new worker_graph() ) ;
+      separator_t line_delimiter( "\n" );
+      tokenizer_t line_tokenizer( graph_definition, line_delimiter );
+      BOOST_FOREACH( const string& line, line_tokenizer ) {
+	// skip comment lines
+	string decommented_line = strip_comments( line );
+	if( decommented_line.empty() ) {
+	  continue;
+	}
+
+	separator_t node_delimiter( " " );
+	tokenizer_t node_tokenizer( decommented_line, node_delimiter );
+	std::deque< string > nodes;
+	
+	BOOST_FOREACH( const string& s, node_tokenizer ) {
+	  nodes.push_back( s );
+	}
+	if( nodes.size() < 2 ) {
+	  throw std::runtime_error( (boost::format( "Invalid line in graph definition, lines must have at minimum, two nodes. %1%" ) % line ).str() );
+	}
+
+	string parent_worker_name = nodes.front();
+	nodes.pop_front();
+	graph_ptr->add_worker( parent_worker_name );
+
+	while( !nodes.empty() ) {
+	  graph_ptr->add_worker_child( parent_worker_name, nodes.front() );
+	  graph_ptr->add_worker_parent( nodes.front(), parent_worker_name );
+	  nodes.pop_front();
+	}
+      } 
+      return graph_ptr;
     }
 
 

@@ -53,6 +53,8 @@ namespace kibitz {
       void add_worker_child( const string& worker_name, const string& child_name );
       void add_worker_parent( const string& worker_name, const string& parent_name );
       node_ptr get_worker( const string& worker_name );
+
+
       void validate( ) const ;
     };
 
@@ -60,7 +62,11 @@ namespace kibitz {
 
     worker_graph_ptr create_worker_graph_from_file( const string& file_name );
     worker_graph_ptr create_worker_graph_from_string( const string& graph_definition );
-
+    /**
+     * Strips comment delimiter and any characters on line following, returns
+     * portion of line preceding comment delimiter
+     */
+    string strip_comments( const string& commented_line ) ;
   }
 }
  

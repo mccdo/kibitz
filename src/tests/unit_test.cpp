@@ -22,6 +22,7 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/worker_query_response.hpp>
 #include <kibitz/messages/worker_query.hpp>
+#include <kibitz/validator/worker_graph.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
@@ -39,6 +40,7 @@
 #include <yaml-cpp/yaml.h>
 
 namespace k = kibitz;
+namespace kg = kibitz::graph;
 using boost::dynamic_pointer_cast;
 
 int test_main( int argc, char* argv[] )
@@ -114,6 +116,10 @@ int test_main( int argc, char* argv[] )
     k::worker_query_ptr_t worker_query_ptr = dynamic_pointer_cast<k::worker_query>( k::message_factory( json ) );
     BOOST_CHECK( worker_query_ptr != NULL );
     BOOST_CHECK( worker_query_ptr->worker_type() == "worker-type-a" );
+
+    string graph_definition = "A B C\nB D\nC D";
+    kg::worker_graph_ptr wgp = kg::create_worker_graph_from_string( graph_definition );
+    BOOST_CHECK( wgp != NULL );
 
     return 0;
 }
