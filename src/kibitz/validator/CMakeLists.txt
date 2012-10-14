@@ -24,8 +24,6 @@ add_library( validator SHARED
 )
 
 target_link_libraries( validator
-  kibitz_messages
-  kibitz
   ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}
 )

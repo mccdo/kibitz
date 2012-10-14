@@ -49,15 +49,15 @@ add_subdirectory(script)
 
 include(VESInstallPDBFiles)
 
-set(VES_EXPORT_LIBRARY_TARGETS kibitz kibitz_messages locator)
+set(VES_EXPORT_LIBRARY_TARGETS kibitz kibitz_messages locator validator)
 set(VES_CONFIGURE_VARS CMAKE_INSTALL_LIBDIR)
 
 if(WIN32)
-    set(${CMAKE_PROJECT_NAME}_FPC_LIBRARIES "/libpath:\"\${libdir}\" kibitz_messages.lib kibitz.lib locator.lib")
+    set(${CMAKE_PROJECT_NAME}_FPC_LIBRARIES "/libpath:\"\${libdir}\" kibitz_messages.lib kibitz.lib locator.lib validator.lib")
     set(${CMAKE_PROJECT_NAME}_FPC_INCLUDES "/I\"\${includedir}\"")
 else(WIN32)
     set(${CMAKE_PROJECT_NAME}_FPC_INCLUDES "-I\${includedir}")
-    set(${CMAKE_PROJECT_NAME}_FPC_LIBRARIES "-L\${libdir} -lkibitz_messages -lkibitz -llocator")
+    set(${CMAKE_PROJECT_NAME}_FPC_LIBRARIES "-L\${libdir} -lkibitz_messages -lkibitz -llocator -lvalidator")
 endif(WIN32)
 
 include(VESInstallAutoDiscoveryTools)

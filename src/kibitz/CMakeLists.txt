@@ -47,6 +47,7 @@ add_library( kibitz SHARED
 
 target_link_libraries( kibitz
   kibitz_messages		       
+  validator			       
   ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${ZMQ_LIBRARIES}
