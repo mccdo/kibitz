@@ -15,11 +15,11 @@ namespace kibitz {
     node::~node() {
     }
 
-    void node::add_in_edge( const string& node_name, node_ptr ptr ) {
+    void node::add_in_edge( const string& node_name, node_ptr_t ptr ) {
       in_edges_[ node_name ] = ptr;
     }
 
-    void node::add_out_edge( const string& node_name, node_ptr ptr ) {
+    void node::add_out_edge( const string& node_name, node_ptr_t ptr ) {
       out_edges_[ node_name ] = ptr;
     }
 
@@ -30,34 +30,34 @@ namespace kibitz {
     worker_graph::~worker_graph() {
     }
 
-    node_ptr worker_graph::get_or_add_node( const string& node_name ) {
+    node_ptr_t worker_graph::get_or_add_node( const string& node_name ) {
 
       while( !node_map_.count( node_name ) ) {
-	node_map_[node_name] = node_ptr( new node() );
+	node_map_[node_name] = node_ptr_t( new node() );
       }
 
       return node_map_[node_name];
 
     }
 
-    node_ptr worker_graph::add_worker( const string& worker_name ) {
+    node_ptr_t worker_graph::add_worker( const string& worker_name ) {
       return get_or_add_node( worker_name );
     }
 
     void worker_graph::add_worker_child( const string& worker_name, const string& child_name ) {
-      node_ptr begin_node = get_or_add_node( worker_name );
-      node_ptr end_node = get_or_add_node( child_name );
+      node_ptr_t begin_node = get_or_add_node( worker_name );
+      node_ptr_t end_node = get_or_add_node( child_name );
       begin_node->add_out_edge( child_name, end_node );
     }
 
     void worker_graph::add_worker_parent( const string& worker_name, const string& parent_name ) {
-      node_ptr end_node = get_or_add_node( worker_name );
-      node_ptr begin_node = get_or_add_node( parent_name );
+      node_ptr_t end_node = get_or_add_node( worker_name );
+      node_ptr_t begin_node = get_or_add_node( parent_name );
       end_node->add_in_edge( parent_name, begin_node );
     }
 
-    node_ptr worker_graph::get_worker( const string& worker_name ) {
-      node_ptr np;
+    node_ptr_t worker_graph::get_worker( const string& worker_name ) {
+      node_ptr_t np;
       if( node_map_.count( worker_name ) ) { 
 	np = node_map_[ worker_name ];
       }
