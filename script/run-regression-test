@@ -58,7 +58,7 @@ KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Tt
 echo "wait for heartbeats to perculate throughout system"
 sleep 5
 echo "Workers started establishing collaboration connections and running jobs"
-KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=test_worker_a --worker-id=1 
+KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=test_worker_a --worker-id=1 --binding-file=config/test1.graph
 sleep 5 
 KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
 

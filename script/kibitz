@@ -5,18 +5,26 @@ require 'json'
 require 'trollop'
 
 # kick off job
-def send_initiate_message( socket, worker_type, worker_id, global_opts )
+def send_initiate_message( socket, opts,  global_opts )
   # first tell all workers to query locator for their bindings to 
   # parent workers
 
-  raise "Missing worker type" if worker_type.nil?
-  raise "Missing worker id" if worker_id.nil?
+  raise "Missing worker type" if opts[:worker_type].nil?
+  raise "Missing worker id" if opts[:worker_id].nil?
+  raise "Missing path for binding file" if opts[:binding_file].nil?
+
+  graph_description = ""
+
+  File.open( opts[:binding_file] ) do | f |
+   graph_description = f.read
+  end
 
   message = {
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "worker_broadcast",
-    "notification" => "create_bindings"
+    "notification" => "create_bindings",
+    "payload" => graph_description
   }
 
   socket.send_string message.to_json
@@ -27,8 +35,8 @@ def send_initiate_message( socket, worker_type, worker_id, global_opts )
     "message_type" => "notification",
     "version" => "1.0",
     "notification_type" => "job_initialization",
-    "worker_type" => worker_type,
-    "worker_id" => worker_id,
+    "worker_type" => opts[:worker_type],
+    "worker_id" => opts[:worker_id],
     "payload" => "my payload"
   }
 
@@ -67,7 +75,7 @@ cmd_opts = case cmd
              Trollop::options do
     opt :worker_type, "Type of worker that will perform the initialization", :type => :string
     opt :worker_id, "ID of worker that will perform the initialization", :default => 1
-    opt :binding_file, "YAML file that defines collaboration", :type => :string
+    opt :binding_file, "File that defines collaboration", :type => :string
   end
            when "stop"  
              Trollop::options do
@@ -95,7 +103,7 @@ begin
 
   case cmd
   when "initiate"
-    send_initiate_message( socket, cmd_opts[:worker_type], cmd_opts[:worker_id], global_opts )
+    send_initiate_message( socket, cmd_opts,  global_opts )
   when "stop"
     send_stop_message( socket )
   end

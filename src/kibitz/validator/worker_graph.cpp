@@ -1,6 +1,7 @@
 #include "worker_graph.hpp"
 #include <boost/tokenizer.hpp>
-
+#include <fstream>
+#include <sstream>
 
 typedef boost::char_separator< char > separator_t;
 typedef boost::tokenizer< separator_t > tokenizer_t;
@@ -69,8 +70,17 @@ namespace kibitz {
     }
 
     worker_graph_ptr create_worker_graph_from_file( const string& file_name ) {
-      worker_graph_ptr ptr ;
-      return ptr;
+
+      std::ifstream stm( file_name.c_str() );
+      if( !stm.good() ) {
+	throw std::runtime_error( (format( "Unable to read graph file %1%" ) % file_name).str() );
+      }
+      
+      std::stringbuf buf;
+
+      stm.get( buf, 0 );
+      return create_worker_graph_from_string( buf.str() );
+      
     }
 
     string strip_comments( const string& commented_line ) {

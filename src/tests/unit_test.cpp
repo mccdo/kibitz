@@ -156,6 +156,27 @@ int test_main( int argc, char* argv[] )
   st.workers.clear();
   ptr->traverse_out_edges( st );
   BOOST_CHECK( st.workers.empty() );
+
+  std::cout << "create worker graph from file" << std::endl;
+  wgp = kg::create_worker_graph_from_file( "../../config/test1.graph" );
+  BOOST_CHECK( wgp != NULL );
+  ptr = wgp->get_worker( "A" );
+  BOOST_CHECK( ptr != NULL );
+  st.workers.clear();
+  ptr->traverse_out_edges( st ) ;
+  BOOST_CHECK( st.workers.size() == 2 );
+  BOOST_CHECK( st.workers.count( "B" ) == 1 );
+  BOOST_CHECK( st.workers.count( "C" ) == 1 );
+  ptr = wgp->get_worker( "B" );
+  BOOST_CHECK( ptr != NULL );
+  st.workers.clear();
+  ptr->traverse_in_edges( st );
+  BOOST_CHECK( st.workers.size() == 1);
+  BOOST_CHECK( st.workers.count( "A" ) == 1 );
+  st.workers.clear() ;
+  ptr->traverse_out_edges( st ) ;
+  BOOST_CHECK( st.workers.count( "D" ) == 1 );
+  
     
 
   return 0;
