@@ -10,7 +10,7 @@ namespace kibitz {
     typedef shared_ptr< node > node_ptr_t;
     typedef std::map< string, node_ptr_t > node_map_t;
     typedef std::pair< string, node_ptr_t > node_entry_t;
-    //    typedef std::vector< string > node_names_t;
+    typedef std::vector< string > node_names_t;
 
     class node {
       node_map_t in_edges_;
@@ -21,6 +21,14 @@ namespace kibitz {
 	BOOST_FOREACH(  const node_entry_t& node_entry, nodes ) {
 	  f( node_entry.first, node_entry.second );
 	}
+      }
+
+      node_names_t get_edges( const node_map_t& nodes ) const {
+	node_names_t names;
+	BOOST_FOREACH( const node_entry_t& node, nodes ) {
+	  names.push_back( node.first );
+	}
+	return names;
       }
 
       void add_in_edge( const string& node_name, node_ptr_t ptr ) ;
@@ -51,6 +59,15 @@ namespace kibitz {
       void traverse_in_edges( Functor& f ) {
 	traverse_edges( in_edges_, f );
       }
+
+      node_names_t get_out_edges() const {
+	return get_edges( out_edges_ );
+      }
+
+      node_names_t get_in_edges() const {
+	return get_edges( in_edges_ );
+      }
+
 
     };
     

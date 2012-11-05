@@ -120,22 +120,6 @@ void context::set_worker_id( const string& worker_id )
     worker_id_ = worker_id ;
 }
 
-worker_types_t context::get_worker_types() const
-{
-    worker_types_t worker_types;
-    if( application_configuration_.count( "configuration-file" ) )
-    {
-        std::fstream stream( application_configuration_["configuration-file"].as<string>().c_str() );
-        YAML::Parser parser( stream );
-        YAML::Node doc;
-        parser.GetNextDocument( doc );
-        YAML::Iterator it = doc.begin();
-        it.second() >> worker_types;
-    }
-    return worker_types;
-}
-
-
 
 
 void context::start()

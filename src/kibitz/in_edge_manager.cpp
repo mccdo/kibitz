@@ -27,6 +27,10 @@
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
 
+#include <kibitz/validator/worker_graph.hpp>
+
+namespace wg = kibitz::graph;
+
 namespace kibitz
 {
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,13 +48,17 @@ in_edge_manager::~in_edge_manager()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::create_bindings( zmq_pollitem_t** pollitems, int& count_items, int& size_items )
+  void in_edge_manager::create_bindings( const string& binding_info, zmq_pollitem_t** pollitems, int& count_items, int& size_items )
 {
     release_bindings( *pollitems, count_items );
+
+    wg::worker_graph_ptr worker_graph_ptr = wg::create_worker_graph_from_string( binding_info );
+    wg::node_ptr_t worker_ptr = worker_graph_ptr->get_worker( context_.worker_type() );
+    wg::node_names_t workers = worker_ptr->get_in_edges() ;
     worker_infos_t all_infos;
     worker_map_ptr_t worker_map_ptr = worker_map::get_worker_map( context_.zmq_context() );
-    worker_types_t worker_types = context_.get_worker_types();
-    BOOST_FOREACH( const string & worker_type, worker_types )
+    
+    BOOST_FOREACH( const string & worker_type, workers )
     {
         DLOG( INFO ) << "Resolving workers for " << worker_type ;
         worker_infos_t worker_infos = worker_map_ptr->get_in_edge_workers( worker_type );
@@ -116,7 +124,7 @@ void in_edge_manager::handle_notification_message( zmq_pollitem_t** pollitems, i
             if( notification == notification::CREATE_BINDINGS )
             {
                 DLOG( INFO ) << "creating bindings";
-                create_bindings( pollitems, count_items, size_items );
+                create_bindings( broadcast_ptr->payload(), pollitems, count_items, size_items );
             }
         }
         else if( notification_type == notification::JOB_INITIALIZATION )

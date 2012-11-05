@@ -48,7 +48,7 @@ class in_edge_manager
     context& context_;
     const string worker_type_ ;
     const int worker_id_;
-    void create_bindings( zmq_pollitem_t** pollitems, int& count_items, int& size_items );
+  void create_bindings( const string& binding_info, zmq_pollitem_t** pollitems, int& count_items, int& size_items );
     void create_binding( const worker_info& info, zmq_pollitem_t& pollitem );
     void release_bindings( zmq_pollitem_t* pollitems, int count_items ) ;
     void handle_notification_message( zmq_pollitem_t** pollitems, int& count_items, int& size_items );

@@ -71,7 +71,6 @@ public:
     void terminate();
     void* zmq_context() ;
     void send_internal_message( const char* message ) ;
-    worker_types_t get_worker_types() const;
 
     const po::variables_map& get_config() const;
 
