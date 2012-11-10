@@ -34,6 +34,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <glog/logging.h>
 
 #include <iostream>
@@ -66,8 +67,9 @@ int main( int argc, char* argv[] )
     {
         kibitz::initialize( argc, argv );
         // ROOT, CHILD
-        string role = getenv( "KIBITZ_ROLE" );
-        CHECK( !role.empty() ) << "Role is not defined";
+	char* env = getenv( "KIBITZ_ROLE" );	
+        CHECK_NOTNULL( env );
+	string role = env;
         DLOG( INFO ) << "Role is " << role;
 
         if( role == "ROOT" )
@@ -77,7 +79,9 @@ int main( int argc, char* argv[] )
         else if( role == "CHILD" )
         {
             kibitz::set_in_message_handler( message_handler );
-        }
+        } else {
+	  throw std::runtime_error( (boost::format( "Unknown role %1%" ) % role ).str() );
+	}
 
         kibitz::start();
         kibitz::terminate();

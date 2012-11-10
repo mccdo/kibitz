@@ -36,8 +36,8 @@ INCLUDE_DIRECTORIES(
 if(WIN32)
     add_definitions( -DBOOST_ALL_DYN_LINK )
 else(WIN32)
-    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-    #set( CMAKE_CXX_FLAGS "-g" )
+    #set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+    set( CMAKE_CXX_FLAGS "-g" )
 endif(WIN32)
 
 include(VESSetupCompiler)

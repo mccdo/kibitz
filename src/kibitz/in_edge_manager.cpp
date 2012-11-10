@@ -50,10 +50,16 @@ in_edge_manager::~in_edge_manager()
 ////////////////////////////////////////////////////////////////////////////////
   void in_edge_manager::create_bindings( const string& binding_info, zmq_pollitem_t** pollitems, int& count_items, int& size_items )
 {
-    release_bindings( *pollitems, count_items );
-
     wg::worker_graph_ptr worker_graph_ptr = wg::create_worker_graph_from_string( binding_info );
+
     wg::node_ptr_t worker_ptr = worker_graph_ptr->get_worker( context_.worker_type() );
+    if( worker_ptr == NULL ) {
+      DLOG( ERROR ) << "Attempt to create bindings failed because the collaboration graph does not contain a worker named " <<
+	context_.worker_type() << ".";
+      return;
+    }
+
+    release_bindings( *pollitems, count_items );
     wg::node_names_t workers = worker_ptr->get_in_edges() ;
     worker_infos_t all_infos;
     worker_map_ptr_t worker_map_ptr = worker_map::get_worker_map( context_.zmq_context() );
