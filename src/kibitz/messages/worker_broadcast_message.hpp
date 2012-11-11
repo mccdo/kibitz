@@ -27,6 +27,7 @@ namespace kibitz
 
 namespace notification
 {
+  static const char* WORKER_BROADCAST = "worker_broadcast";
 static const char* CREATE_BINDINGS = "create_bindings";
 static const char* INITIALIZE_JOB = "initialize_job";
 }

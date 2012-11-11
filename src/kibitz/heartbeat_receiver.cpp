@@ -75,7 +75,7 @@ void heartbeat_receiver::operator()()
                 {
                     worker_map_ptr->send_worker_notification_from_heartbeat( json );
                 }
-                else if( notification_type == "worker_broadcast" )
+                else if( notification_type == notification::WORKER_BROADCAST )
                 {
                     worker_broadcast_message_ptr_t wb = dynamic_pointer_cast<worker_broadcast_message>( message_ptr ) ;
                     if( wb->notification() == "shutdown" )

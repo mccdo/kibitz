@@ -48,7 +48,7 @@ message_ptr_t notification_message_factory( const ptree& tree )
         result = message_ptr_t( new inproc_notification_message( tree ) );
     }
 
-    if( notification_type == "worker_broadcast" )
+    if( notification_type == notification::WORKER_BROADCAST )
     {
         result = message_ptr_t( new worker_broadcast_message( tree ) );
     }

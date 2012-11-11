@@ -54,6 +54,7 @@ class sub : public bus
 public:
     sub( void* zmq_context, const char* binding ) ;
     virtual ~sub() {}
+  void recv( string& message );
 
 
 };

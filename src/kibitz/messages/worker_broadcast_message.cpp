@@ -23,7 +23,7 @@ namespace kibitz
 {
 worker_broadcast_message::worker_broadcast_message( const ptree& json )
     :
-    notification_message( "worker_broadcast" ),
+  notification_message( notification::WORKER_BROADCAST  ),
     notification_( json.get<string>( "notification" ) ),
     payload_( json.get<string>( "payload" ) )
 {
@@ -32,7 +32,7 @@ worker_broadcast_message::worker_broadcast_message( const ptree& json )
 
   worker_broadcast_message::worker_broadcast_message( const string& notification, const string& payload )
     :
-    notification_message( "worker_broadcast" ),
+    notification_message( notification::WORKER_BROADCAST ),
     notification_( notification ),
     payload_(payload)
 {

@@ -62,4 +62,8 @@ sub::sub( void* zmq_context, const char* binding )
     util::check_zmq( zmq_setsockopt( socket_, ZMQ_SUBSCRIBE, "", 0 ) );
 }
 
+  void sub::recv( string& message ) {
+    util::recv( socket_, message );
+  }
+
 }

@@ -96,7 +96,7 @@ void registry::operator()()
                 }
             }
 
-            if( notification_type == "worker_broadcast" )
+            if( notification_type == kibitz::notification::WORKER_BROADCAST )
             {
                 kibitz::worker_broadcast_message_ptr_t broadcast_ptr = boost::dynamic_pointer_cast<kibitz::worker_broadcast_message>( message_ptr );
                 LOG( INFO ) << "Publishing " << broadcast_ptr->notification() << " to all workers";

@@ -122,14 +122,14 @@ void in_edge_manager::handle_notification_message( zmq_pollitem_t** pollitems, i
         DLOG( INFO ) << "in edge manger got " << json ;
         notification_message_ptr_t notification_message_ptr = dynamic_pointer_cast<notification_message>( message_factory( json ) );
         string notification_type = notification_message_ptr->notification_type() ;
-        if( notification_type == "worker_broadcast" )
+        if( notification_type == notification::WORKER_BROADCAST )
         {
             worker_broadcast_message_ptr_t broadcast_ptr = dynamic_pointer_cast<worker_broadcast_message>( notification_message_ptr );
             string notification = broadcast_ptr->notification();
             // create subscriptions for in edges
             if( notification == notification::CREATE_BINDINGS )
             {
-                DLOG( INFO ) << "creating bindings";
+                DLOG( INFO ) << "creating in edge bindings";
                 create_bindings( broadcast_ptr->payload(), pollitems, count_items, size_items );
             }
         }
@@ -234,7 +234,7 @@ void in_edge_manager::operator()()
         sleep( 5 );
 #endif
         sub broadcast_subscriber( context_.zmq_context(), HEARTBEAT_RECEIVER_BROADCASTS );
-        boost::thread*  edge_monitor_thread = NULL;
+        //boost::thread*  edge_monitor_thread = NULL;
         zmq_pollitem_t broadcast_pollitem =
         {
             broadcast_subscriber.socket(),
