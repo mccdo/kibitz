@@ -46,7 +46,7 @@ class context
     string current_job_id_;
     shared_ptr< pub > collaboration_publisher_ptr_;
     shared_ptr< pub > notification_publisher_ptr_;
-
+  shared_ptr< pub > inproc_collaboration_publisher_ptr_;
 public:
     context( const po::variables_map& application_configuration );
     ~context();

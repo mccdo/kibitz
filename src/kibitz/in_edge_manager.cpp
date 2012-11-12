@@ -115,7 +115,7 @@ void in_edge_manager::handle_notification_message( zmq_pollitem_t** pollitems, i
 {
     zmq_pollitem_t* items = *pollitems;
 
-    if( ( items[0].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
+    if(  items[0].revents & ZMQ_POLLIN ) 
     {
         string json;
         util::recv( items[0].socket, json );
@@ -170,7 +170,7 @@ void in_edge_manager::handle_collaboration_message( collaboration_context_t& con
 {
     for( int item = 1; item < context.count_items; ++item )
     {
-        if( ( context.pollitems[item].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
+        if( context.pollitems[item].revents & ZMQ_POLLIN ) 
         {
             string json ;
             util::recv( context.pollitems[item].socket, json );

@@ -27,6 +27,7 @@ set(VES_PUBLIC_HEADERS
     in_edge_manager.hpp
     in_edge.hpp
     out_edge_manager.hpp
+    zmq_socket.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -44,6 +45,7 @@ add_library( kibitz SHARED
   bus.cpp
   in_edge_manager.cpp
   out_edge_manager.cpp
+  zmq_socket.cpp
   ${VES_PUBLIC_HEADERS}
 )
 

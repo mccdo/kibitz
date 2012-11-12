@@ -27,7 +27,7 @@ namespace kibitz
 
 static const char* HEARTBEAT_RECEIVER_BROADCASTS = "inproc://heartbeat-receiver-broadcasts";
 static const char* WORKER_MANAGER_BINDING = "inproc://worker_manager";
-
+  static const char* INPROC_COLLABORATION_MESSAGE = "inproc://inproc_collaboration_message";
 }
 
 #endif

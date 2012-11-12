@@ -24,6 +24,7 @@
 #include <kibitz/worker_map.hpp>
 #include <yaml-cpp/yaml.h>
 #include <kibitz/in_edge_manager.hpp>
+#include <kibitz/out_edge_manager.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 
 namespace kibitz
@@ -50,6 +51,7 @@ context::context( const po::variables_map& application_configuration )
     collaboration_publisher_ptr_ = shared_ptr<pub>( new pub( zmq_context_, stm1.str().c_str() ) );
 
     notification_publisher_ptr_ = shared_ptr<pub>( new pub( zmq_context_, stm2.str().c_str() ) );
+    inproc_collaboration_publisher_ptr_ = shared_ptr<pub>( new pub( zmq_context_, kibitz::INPROC_COLLABORATION_MESSAGE ) );
 }
 
 context::~context()
@@ -128,12 +130,13 @@ void context::start()
     heartbeat_receiver hb_receiver( this );
     worker_map wmap( this );
     kibitz::in_edge_manager in_edge_manager( *this );
+    kibitz::out_edge_manager out_edge_manager( *this );
 
     threads_.create_thread( wmap );
     threads_.create_thread( hb_sender );
     threads_.create_thread( hb_receiver );
     threads_.create_thread( in_edge_manager );
-
+    threads_.create_thread( out_edge_manager );
 
     threads_.join_all();
 
