@@ -51,9 +51,9 @@ echo "A -> B,C -> D"
 
 
 KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100  &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101  &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102  &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103  &
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=2 $REGRESSION_TESTER -I1 -TB -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101  &
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=2 $REGRESSION_TESTER -I1 -TC -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102  &
+KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=2 $REGRESSION_TESTER -I1 -TD -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103  &
 
 echo "wait for heartbeats to perculate throughout system"
 sleep 5

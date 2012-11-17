@@ -54,7 +54,7 @@ in_edge_manager::~in_edge_manager()
 
     wg::node_ptr_t worker_ptr = worker_graph_ptr->get_worker( context_.worker_type() );
     if( worker_ptr == NULL ) {
-      DLOG( ERROR ) << "Attempt to create bindings failed because the collaboration graph does not contain a worker named " <<
+      LOG( ERROR ) << "Attempt to create bindings failed because the collaboration graph does not contain a worker named " <<
 	context_.worker_type() << ".";
       return;
     }
