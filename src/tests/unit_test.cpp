@@ -70,13 +70,33 @@ int test_main( int argc, char* argv[] )
   po::store( po::parse_command_line( argc, argv, options ), command_line );
   po::notify( command_line );
 
-  kibitz::heartbeat heartbeat( command_line );
-  string json = heartbeat.to_json() ;
-  BOOST_CHECK( !json.empty() );
+
+  std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
+                      "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"
+                      "1000,\"publisher_ports\":{\"B\":10001,\"C\":10002}}";
   kibitz::message_ptr_t message = kibitz::message_factory( json );
   BOOST_CHECK( message != NULL );
-  shared_ptr<kibitz::heartbeat> heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>( message );
+  shared_ptr<kibitz::heartbeat> heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>( message );  
   BOOST_CHECK( heartbeat_ptr != NULL );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().count( "B" ) == 1 );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().find( "B" )->second == 10001 );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().count( "C" ) == 1 );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().find("C")->second == 10002 );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().count("A") == 0 );
+  heartbeat_ptr->set_publisher( "D", 10003 );
+  heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>( kibitz::message_factory( heartbeat_ptr->to_json() ) );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().find("D")->second == 10003 );
+  BOOST_CHECK( heartbeat_ptr->get_publishers().size() == 3 );
+
+  kibitz::heartbeat heartbeat( command_line );
+  json = heartbeat.to_json() ;
+  BOOST_CHECK( !json.empty() );
+  message = kibitz::message_factory( json );
+  BOOST_CHECK( message != NULL );
+  heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>( message );
+  BOOST_CHECK( heartbeat_ptr != NULL );
+
+  
 
   std::vector< string > edges;
   string scalar;

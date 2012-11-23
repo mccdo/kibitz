@@ -33,6 +33,11 @@
 #include <kibitz/messages/heartbeat.hpp>
 
 #include <kibitz/messages/worker_notification_message.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
+using boost::lexical_cast;
+
 namespace kibitz
 {
 
@@ -48,7 +53,6 @@ heartbeat::heartbeat( const boost::program_options::variables_map& config )
 #else
       pid_( getpid() ),
 #endif
-      port_( config["publish-port"].as<int>() ),
       ticks_( 0 )
 {
 
@@ -61,15 +65,23 @@ heartbeat::heartbeat( const ptree& json )
       worker_id_( json.get<int>( "worker_id" ) ),
       host_name_( json.get<string>( "host" ) ),
       pid_( json.get<int>( "process_id" ) ),
-      port_( json.get<int>( "port" ) ),
       ticks_( json.get<int>( "ticks" ) )
 {
+
+  BOOST_FOREACH( const ptree::value_type& pub, json.get_child( "publisher_ports" ) ) {
+    publisher_ports_[ pub.first ] = lexical_cast<int>( pub.second.data() ) ;
+  }
 
 }
 
 heartbeat::~heartbeat()
 {
 }
+
+
+  void heartbeat::set_publisher( const std::string& worker_type, int worker_port ) {
+    publisher_ports_[worker_type] = worker_port;
+  }
 
 void heartbeat::increment_tick_count()
 {
@@ -83,13 +95,19 @@ string heartbeat::to_json() const
 
     stringstream stm;
     ptree tree;
+    ptree publisher_tree;
     notification_message::populate_header( tree );
     tree.put( "worker_type", worker_type_ );
     tree.put( "worker_id", worker_id_ );
     tree.put( "host", host_name_ );
     tree.put( "process_id", pid_ );
-    tree.put( "port" , port_ );
     tree.put( "ticks", ticks_ );
+ 
+    BOOST_FOREACH( publisher_entry_t entry, publisher_ports_ ) {
+      publisher_tree.put( entry.first, entry.second );
+    }
+    
+   tree.push_back( std::make_pair( "publisher_ports", publisher_tree ) ); 
     boost::property_tree::json_parser::write_json( stm, tree );
     return stm.str();
 }

@@ -37,7 +37,7 @@ worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
       worker_type_( hb->worker_type_ ),
       worker_id_( hb->worker_id_ ),
       host_name_( hb->host_name_ ),
-      port_( hb->port_ )
+      port_( PORT_UNASSIGNED )
 {
 }
 

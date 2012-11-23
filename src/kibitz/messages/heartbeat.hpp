@@ -24,11 +24,15 @@
 #include <kibitz/export_config.hpp>
 
 #include <kibitz/messages/notification_message.hpp>
+#include <map>
 
 namespace kibitz
 {
 
 class worker_notification_message;
+
+  typedef std::map<std::string, int > publisher_map_t;
+  typedef const std::pair<std::string, int > publisher_entry_t;
 
 class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
 {
@@ -36,8 +40,8 @@ class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
     int worker_id_;
     string host_name_;
     int pid_;
-    int port_;
     int ticks_;
+    publisher_map_t publisher_ports_;
     friend class worker_notification_message;
 public :
     heartbeat( const boost::program_options::variables_map& config ) ;
@@ -48,6 +52,8 @@ public :
     const string& worker_type() const ;
     const int& worker_id() const ;
     void increment_tick_count();
+    const publisher_map_t& get_publishers() const { return publisher_ports_; }
+    void set_publisher( const std::string& worker_type, int worker_port );
     //virtual message_type_t message_type() const { return heartbeat; }
 };
 
