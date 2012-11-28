@@ -120,6 +120,24 @@ void send( void* socket, const string& message )
     zmq_msg_close( &msg );
 }
 
+  void recv_async( void* socket, string& message ) {
+    assert( message.empty() );
+    zmq_msg_t msg;
+    zmq_msg_init( &msg );
+    int rc = zmq_recvmsg( socket, &msg, ZMQ_DONTWAIT );
+    if( rc < 0 ) {
+      int err = zmq_errno() ;
+      if( EINTR == err ) {
+            throw queue_interrupt( "Received interrupt" );	
+      }
+
+      if( EAGAIN == err ) {
+	return ;
+      }
+
+      throw std::runtime_error( (format( "Error reading queue. Err = %1%" ) % err ).str() );
+    }
+  }
 void recv( void* socket, string& message )
 {
     assert( message.empty() );

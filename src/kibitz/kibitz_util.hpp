@@ -40,7 +40,7 @@ public :
     queue_interrupt( const string& msg ) ;
     virtual ~queue_interrupt() throw();
 };
-
+  KIBITZ_EXPORT void recv_async( void* socket, string& message );
 KIBITZ_EXPORT void recv( void* socket, string& message ) ;
 KIBITZ_EXPORT void send( void* socket, const string& message );
 KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;

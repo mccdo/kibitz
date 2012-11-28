@@ -27,7 +27,7 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
-
+#include <kibitz/locator/notification_message_bus.hpp>
 
 #include <iostream>
 #include <string>
@@ -79,8 +79,7 @@ int main( int argc, char* argv[] )
     po::options_description options( "locator" );
     options.add_options()
     ( "help,h", "Show help message" )
-    ( "heartbeat-binding,b", po::value<string>()->default_value( "tcp://*:5556" ), "Binding to listen for worker heartbeats" )
-    ( "port,p", po::value<int>()->default_value( 5557 ), "Port used to distribute locator messages" )
+    ( "port,p", po::value<int>()->default_value( 5557 ), "Port used by locator to distribute notifications." )
     ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
     ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
@@ -95,7 +94,6 @@ int main( int argc, char* argv[] )
         pid_file = command_line["pid-file"].as<string>();
         kibitz::util::daemonize( pid_file );
         signal( SIGINT, signal_callback );
-
     }
 
 
@@ -108,7 +106,6 @@ int main( int argc, char* argv[] )
     DLOG( INFO ) << "Start locator" ;
 
 
-    const char* in_binding = command_line["heartbeat-binding"].as<string>().c_str() ;
     const int port = command_line["port"].as<int>() ;
     int exit_code = 0;
     int rc = 0;
@@ -133,18 +130,24 @@ int main( int argc, char* argv[] )
 
     try
     {
+      string notification_binding = ( format( "tcp://*:%1%" ) % port ).str();
+
+      boost::thread_group threads;
+      locator::notification_message_bus notification_message_bus( context, notification_binding );
+      threads.create_thread( notification_message_bus );
+      threads.join_all();
 
         insocket = create_socket( context, ZMQ_PULL );
-        check_zmq( zmq_bind( insocket, in_binding ) );
+        //check_zmq( zmq_bind( insocket, in_binding ) );
         inproc_pub_socket = create_socket( context, ZMQ_PUB );
         check_zmq( zmq_bind( inproc_pub_socket, "inproc://x" ) );
         inproc_sub_socket = create_socket( context, ZMQ_SUB );
         check_zmq( zmq_connect( inproc_sub_socket, "inproc://x" ) );
         check_zmq( zmq_setsockopt( inproc_sub_socket, ZMQ_SUBSCRIBE, "", 0 ) );
         outsocket = create_socket( context, ZMQ_PUB );
-        string pub_binding = ( format( "tcp://*:%1%" ) % command_line["port"].as<int>() ).str();
-        LOG( INFO ) << "Locator will publish on " << pub_binding;
-        check_zmq( zmq_bind( outsocket, pub_binding.c_str() ) );
+
+        //LOG( INFO ) << "Locator will publish on " << pub_binding;
+        //check_zmq( zmq_bind( outsocket, pub_binding.c_str() ) );
 
         registry reg( inproc_pub_socket, inproc_sub_socket, outsocket );
         boost::thread sender_thread( reg );

@@ -146,7 +146,7 @@ void context::start()
     kibitz::in_edge_manager in_edge_manager( *this );
 
     threads_.create_thread( wmap );
-    threads_.create_thread( hb_sender );
+    //    threads_.create_thread( hb_sender );
     threads_.create_thread( hb_receiver );
     threads_.create_thread( in_edge_manager );
 
