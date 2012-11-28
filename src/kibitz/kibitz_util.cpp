@@ -35,135 +35,159 @@
 using boost::format;
 
 namespace fs = boost::filesystem;
+namespace bpt = boost::posix_time;
 
 using std::stringstream;
 using std::runtime_error;
 
 namespace kibitz
 {
-namespace util
-{
-queue_interrupt::queue_interrupt( const string& msg )
-    : runtime_error( msg )
-{
-}
-
-queue_interrupt::~queue_interrupt() throw()
-{
-}
-
-void daemonize( const string& pid_file )
-{
-    fs::path pid_path( pid_file );
-    if( fs::exists( pid_path ) )
+  namespace util
+  {
+    queue_interrupt::queue_interrupt( const string& msg )
+      : runtime_error( msg )
     {
-        throw std::runtime_error( ( format( "Lock file, %1% exists." ) % pid_file ).str() );
     }
 
-#ifndef BOOST_WINDOWS
-    int err = daemon( 0, 0 );
-    if( err )
+    queue_interrupt::~queue_interrupt() throw()
     {
-#endif
-        throw std::runtime_error( ( format( "Could not daemonize process. errno %1%" ) % errno ).str() );
-#ifndef BOOST_WINDOWS
     }
+
+    bpt::ptime get_current_local_time( ) {
+      return bpt::microsec_clock::local_time() ;
+    }
+
+    bool time_elapsed( int duration_millisec, bpt::ptime& last_time ) {
+      bool elapsed = false;
+      const int microsec_in_millisec = 10000;
+      bpt::ptime current_time( get_current_local_time() );
+      bpt::time_duration duration = current_time - last_time;
+      if( duration.total_microseconds() > ( duration_millisec * microsec_in_millisec ) ) {
+	last_time = current_time;
+	elapsed = true;
+      }
+      return elapsed;
+    }
+
+    void daemonize( const string& pid_file )
+    {
+      fs::path pid_path( pid_file );
+      if( fs::exists( pid_path ) )
+	{
+	  throw std::runtime_error( ( format( "Lock file, %1% exists." ) % pid_file ).str() );
+	}
+
+#ifndef BOOST_WINDOWS
+      int err = daemon( 0, 0 );
+      if( err )
+	{
 #endif
-    std::fstream stm( pid_path.c_str(), std::ios::out | std::ios::trunc );
+	  throw std::runtime_error( ( format( "Could not daemonize process. errno %1%" ) % errno ).str() );
+#ifndef BOOST_WINDOWS
+	}
+#endif
+      std::fstream stm( pid_path.c_str(), std::ios::out | std::ios::trunc );
 #if defined(BOOST_WINDOWS)
-    stm << _getpid();
+      stm << _getpid();
 #else
-    stm << getpid();
+      stm << getpid();
 #endif
-    stm.close();
+      stm.close();
 
 
-}
-
-
-void close_socket( void* socket )
-{
-    if( socket )
-    {
-        zmq_close( socket );
     }
-}
 
-void* create_socket( void* context, int socktype )
-{
-    void* result = zmq_socket( context, socktype ) ;
-    if( !result )
+
+    void close_socket( void* socket )
     {
-        stringstream stm;
-        stm << "zmq_socket failed with " << zmq_errno();
-        throw std::runtime_error( stm.str() );
+      if( socket )
+	{
+	  zmq_close( socket );
+	}
     }
-    return result;
-}
 
-void check_zmq( int return_code )
-{
-    if( return_code )
+    void* create_socket( void* context, int socktype )
     {
-        stringstream stm;
-        stm << "zmq call failed with error code " << zmq_errno() ;
-        throw std::runtime_error( stm.str() );
+      void* result = zmq_socket( context, socktype ) ;
+      if( !result )
+	{
+	  stringstream stm;
+	  stm << "zmq_socket failed with " << zmq_errno();
+	  throw std::runtime_error( stm.str() );
+	}
+      return result;
     }
-}
 
-void send( void* socket, const string& message )
-{
-    zmq_msg_t msg;
-    zmq_msg_init_size( &msg, message.length() );
-    memcpy( zmq_msg_data( &msg ), message.data(), message.length() );
-    zmq_sendmsg( socket, &msg, 0 );
-    zmq_msg_close( &msg );
-}
+    void check_zmq( int return_code )
+    {
+      if( return_code )
+	{
+	  stringstream stm;
+	  stm << "zmq call failed with error code " << zmq_errno() ;
+	  throw std::runtime_error( stm.str() );
+	}
+    }
 
-  void recv_async( void* socket, string& message ) {
-    assert( message.empty() );
-    zmq_msg_t msg;
-    zmq_msg_init( &msg );
-    int rc = zmq_recvmsg( socket, &msg, ZMQ_DONTWAIT );
-    if( rc < 0 ) {
-      int err = zmq_errno() ;
-      if( EINTR == err ) {
-            throw queue_interrupt( "Received interrupt" );	
+    void send( void* socket, const string& message )
+    {
+      zmq_msg_t msg;
+      zmq_msg_init_size( &msg, message.length() );
+      memcpy( zmq_msg_data( &msg ), message.data(), message.length() );
+      zmq_sendmsg( socket, &msg, 0 );
+      zmq_msg_close( &msg );
+    }
+
+    bool recv_async( void* socket, string& message ) {
+      assert( message.empty() );
+      bool message_arrived = false;
+      zmq_msg_t msg;
+      zmq_msg_init( &msg );
+      int rc = zmq_recvmsg( socket, &msg, ZMQ_DONTWAIT );
+
+      if( rc < 0 ) {
+	int err = zmq_errno() ;
+	if( EINTR == err ) {
+	  throw queue_interrupt( "Received interrupt" );	
+	}
+	// EAGAIN indicates no message available to be read, but 
+	// no error exists either, everything else throw
+	if( EAGAIN != err ) {
+	  throw std::runtime_error( (format( "Error reading queue. Err = %1%" ) % err ).str() );
+	}
+
+      } else {
+	message_arrived = true;
       }
 
-      if( EAGAIN == err ) {
-	return ;
-      }
+      return message_arrived;    
+    }
 
-      throw std::runtime_error( (format( "Error reading queue. Err = %1%" ) % err ).str() );
+    void recv( void* socket, string& message )
+    {
+      assert( message.empty() );
+      zmq_msg_t msg;
+      zmq_msg_init( &msg );
+      int rc = zmq_recvmsg( socket, &msg, 0 );
+
+      if( rc < 0 )
+	{
+	  int error = zmq_errno();
+	  if( EINTR == error )
+	    {
+	      throw queue_interrupt( "Received interrupt" );
+	    }
+	  else
+	    {
+	      stringstream stm;
+	      stm << "Error " << error ;
+	      throw runtime_error( stm.str() );
+	    }
+	}
+
+      int size = zmq_msg_size( &msg );
+      const char* data = static_cast<const char*>( zmq_msg_data( &msg ) );
+      message.append( data, size );
+      zmq_msg_close( &msg );
     }
   }
-void recv( void* socket, string& message )
-{
-    assert( message.empty() );
-    zmq_msg_t msg;
-    zmq_msg_init( &msg );
-    int rc = zmq_recvmsg( socket, &msg, 0 );
-
-    if( rc < 0 )
-    {
-        int error = zmq_errno();
-        if( EINTR == error )
-        {
-            throw queue_interrupt( "Received interrupt" );
-        }
-        else
-        {
-            stringstream stm;
-            stm << "Error " << error ;
-            throw runtime_error( stm.str() );
-        }
-    }
-
-    int size = zmq_msg_size( &msg );
-    const char* data = static_cast<const char*>( zmq_msg_data( &msg ) );
-    message.append( data, size );
-    zmq_msg_close( &msg );
-}
-}
 }

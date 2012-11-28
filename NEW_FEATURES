@@ -1,0 +1,29 @@
+Route collaboration messages through locator
+      - in case where a worker has multiple in edges, in edge messages are persisted in locator until all in edges are present, 
+        then in edge messages are aggregated and dispatched to a single worker using push
+
+     - workers listen for create bindings message, message contains worker type and port to bind to, if worker type 
+       matches the worker type in the create binding message the worker binds to the port with a pull socket, 
+       otherwise the message is ignored
+
+Locator implemented as high availability pair
+
+Collaboration messages are routed using round robin between multiple workers of a particular type for load balancing
+
+Locator publishes collab messages on seperate push socket for each worker type
+
+
+SOCKETS (LOCATOR)
+
+Notification socket (PUB) publishes heartbeats, create_bindings, and other notifications on a well known port, all workers bind to this 
+well known port
+
+** NOTE we no longer have workers publisher heartbeats to locator, locator doesn't need to know where workers are, workers 
+   just need to know where locator is, probably should call it a 'router' instead
+
+Collaboration socket(s) (PUSH) publish collaboration messages to workers.  Workers bind to the socket (PULL) that 
+corresponds to their type when they recieve a 'create_bindings' notification. Messages are grouped by job id, aggregated
+in the case where worker type has multiple in edges and pushed to worker type round robin to achieve nice load
+balancing. 
+
+

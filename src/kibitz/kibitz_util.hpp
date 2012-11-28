@@ -26,8 +26,10 @@
 #include <stdexcept>
 
 #include <kibitz/export_config.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using std::string;
+namespace bpt = boost::posix_time;
 
 namespace kibitz
 {
@@ -40,7 +42,23 @@ public :
     queue_interrupt( const string& msg ) ;
     virtual ~queue_interrupt() throw();
 };
-  KIBITZ_EXPORT void recv_async( void* socket, string& message );
+
+  /// Attempts to recieve a message and returns immediately.
+  ///
+  /// \return true if a message was recieved .
+  ///
+  KIBITZ_EXPORT bool recv_async( void* socket, string& message );
+  
+  /// Indicates if a period of time has elapsed.  
+  ///
+  /// \param duration_millisec the time period 
+  /// \param last_time [in,out] the last time the duration elapsed
+  ///
+  /// \return true if duration has elapsed since last_time
+  ///
+  KIBITZ_EXPORT bool time_elapsed( int duration_millisec, bpt::ptime& last_time ) ;
+  KIBITZ_EXPORT bpt::ptime get_current_local_time() ;
+
 KIBITZ_EXPORT void recv( void* socket, string& message ) ;
 KIBITZ_EXPORT void send( void* socket, const string& message );
 KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;

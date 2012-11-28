@@ -71,6 +71,7 @@ int test_main( int argc, char* argv[] )
       BOOST_CHECK( json == response );
       ku::close_socket( socket );
   }
+
   if( zmq_context ) {
     zmq_term( zmq_context );
   }
