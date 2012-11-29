@@ -2,6 +2,7 @@
 #define notification_message_bus_hpp
 
 #include <string>
+#include <kibitz/messages/notification_message.hpp>
 
 namespace locator {
   /// Free function to use to send notification messages to workers  
@@ -17,6 +18,7 @@ namespace locator {
     // world
     static const char* INPROC_BINDING; 
 
+    void handle_inproc_message( void* sock, kibitz::notification_message_ptr_t message_ptr, bool& continue_flag );
     friend void send_notification_message( void*, const std::string& );
   public:
     notification_message_bus( void* zmq_context, const std::string& publish_binding, int heartbeat_frequency_ms = 100 ) ;
