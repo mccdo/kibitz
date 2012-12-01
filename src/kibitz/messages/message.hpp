@@ -74,6 +74,7 @@ static const char* WORKER_TYPE = "worker_type";
 static const char* WORKER_ID = "worker_id";
 static const char* PAYLOAD = "payload";
   static const char* INPROC_NOTIFICATION = "inproc";
+  static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
 }
 
 

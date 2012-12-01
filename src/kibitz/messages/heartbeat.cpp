@@ -39,7 +39,7 @@ namespace kibitz
 
 
 heartbeat::heartbeat( const boost::program_options::variables_map& config )
-    : notification_message( "heartbeat" ),
+  : notification_message( notification::HEARTBEAT_NOTIFICATION ),
       worker_type_( config["worker-type"].as<string>() ),
       worker_id_( config["worker-id"].as<int>() ),
       host_name_( boost::asio::ip::host_name() ),
@@ -56,7 +56,7 @@ heartbeat::heartbeat( const boost::program_options::variables_map& config )
 }
 
 heartbeat::heartbeat( const ptree& json )
-    : notification_message( "heartbeat" ),
+  : notification_message( notification::HEARTBEAT_NOTIFICATION ),
       worker_type_( json.get<string>( "worker_type" ) ),
       worker_id_( json.get<int>( "worker_id" ) ),
       host_name_( json.get<string>( "host" ) ),

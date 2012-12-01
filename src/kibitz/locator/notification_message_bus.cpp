@@ -18,19 +18,16 @@ namespace locator {
 
   }
 
-  notification_message_bus::notification_message_bus( void* zmq_context, const std::string& publish_binding, int heartbeat_frequency_ms  )
+  notification_message_bus::notification_message_bus( void* zmq_context, const std::string& publish_binding  )
     :publish_binding_(publish_binding),
-     zmq_context_( zmq_context),
-     heartbeat_frequency_ms_( heartbeat_frequency_ms ) {
+     zmq_context_( zmq_context) { 
 
   }
 
   notification_message_bus::~notification_message_bus() {
   }
 
-  void notification_message_bus::handle_inproc_message( void* sock, k::notification_message_ptr_t message_ptr, bool& continue_flag ) {
-    
-  }
+
 
   void notification_message_bus::operator()() {
     DLOG(INFO) << "Started notification message bus" ;
@@ -49,19 +46,27 @@ namespace locator {
 	string json;
 	ku::recv( interthread_sock, json );
 	VLOG(2) << "Received " << json ;
+	k::inproc_notification_message notification_response( message::ok );
+	ku::send( interthread_sock, notification_response.to_json() );
+
 	k::notification_message_ptr_t notification_message_ptr = dynamic_pointer_cast< k::notification_message >( k::message_factory( json ) );
 	
 	if( notification_message_ptr->notification_type() == k::notification::INPROC_NOTIFICATION ) {
-	  handle_inproc_message( interthread_sock, notification_message_ptr, continue_flag );
-	  continue;
+	  k::inproc_notification_ptr_t notification_ptr = dynamic_pointer_cast< inproc_notification_message >( notification_message_ptr );
+	  if( notification_ptr->get_notification() == message::stop ) {
+	    continue_flag = false;
+	  } else {
+	    continue;
+	  }
+	  
 	}
-
 	
-
-
+	ku::send( publish_sock, notification_message_ptr->to_json() );
       }
 
       ku::close_socket( interthread_sock );
+      ku::close_socket( publish_sock );
+
     } catch( const std::exception& e ) {
       LOG(ERROR) << "Notification message bus thread died. Exception => " << e.what() ;
     }
