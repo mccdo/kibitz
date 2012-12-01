@@ -27,6 +27,7 @@
 
 #include <kibitz/export_config.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/shared_ptr.hpp>
 
 using std::string;
 namespace bpt = boost::posix_time;
@@ -42,6 +43,8 @@ public :
     queue_interrupt( const string& msg ) ;
     virtual ~queue_interrupt() throw();
 };
+
+
 
   /// Attempts to recieve a message and returns immediately.
   ///
@@ -65,6 +68,24 @@ KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;
 KIBITZ_EXPORT void* create_socket( void* context, int socktype ) ;
 KIBITZ_EXPORT void close_socket( void* socket );
 KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
+
+
+  class socket_manager : boost::noncopyable {
+    void* socket_;
+  public:
+    socket_manager( void* socket ) 
+      :socket_(socket) {
+    }
+    ~socket_manager( ) {
+      close_socket( socket_ );
+    }
+    void* socket() const { return socket_; }
+  };
+
+  typedef boost::shared_ptr<socket_manager> zmq_socket_ptr_t;
+
+  
+
 }
 }
 

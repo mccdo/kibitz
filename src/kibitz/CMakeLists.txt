@@ -26,6 +26,7 @@ set(VES_PUBLIC_HEADERS
     bus.hpp
     in_edge_manager.hpp
     in_edge.hpp
+    publisher.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -42,6 +43,7 @@ add_library( kibitz SHARED
   worker_map.cpp
   bus.cpp
   in_edge_manager.cpp
+  publisher.cpp
   ${VES_PUBLIC_HEADERS}
 )
 

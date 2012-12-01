@@ -10,6 +10,6 @@ set(VES_INCLUDE_DIRECTORY_NAME ${CMAKE_PROJECT_NAME})
 set(VES_TARGET_CATEGORY App)
 
 add_executable( worker-locator locator.cpp ) 
-target_link_libraries( worker-locator locator kibitz)
+target_link_libraries( worker-locator locator kibitz )
 set(VES_TARGET_NAME worker-locator)
 include(VESModuleInstall)

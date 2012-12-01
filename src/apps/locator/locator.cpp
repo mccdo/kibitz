@@ -27,7 +27,7 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
-#include <kibitz/locator/notification_message_bus.hpp>
+
 
 #include <iostream>
 #include <string>
@@ -133,8 +133,8 @@ int main( int argc, char* argv[] )
       string notification_binding = ( format( "tcp://*:%1%" ) % port ).str();
 
       boost::thread_group threads;
-      locator::notification_message_bus notification_message_bus( context, notification_binding );
-      threads.create_thread( notification_message_bus );
+      //      locator::notification_message_bus notification_message_bus( context, notification_binding );
+      // threads.create_thread( notification_message_bus );
       threads.join_all();
 
         insocket = create_socket( context, ZMQ_PULL );

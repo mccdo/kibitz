@@ -20,6 +20,6 @@ set(VES_TARGET_NAME locator-test)
 include(VESModuleInstall)
 
 add_executable( regression-tester regression_tester.cpp )
-target_link_libraries( regression-tester kibitz )
+target_link_libraries( regression-tester kibitz ${Boost_LIBRARIES} )
 set(VES_TARGET_NAME regression-tester)
 include(VESModuleInstall)

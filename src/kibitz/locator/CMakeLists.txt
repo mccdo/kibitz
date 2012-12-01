@@ -20,7 +20,6 @@ add_definitions(-DKIBITZ_LOCATOR_LIBRARY)
 
 add_library( locator SHARED
   registry.cpp
-  notification_message_bus.cpp
   ${VES_PUBLIC_HEADERS}
 )
 
