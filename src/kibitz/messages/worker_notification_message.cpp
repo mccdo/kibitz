@@ -34,8 +34,8 @@ worker_notification_message::worker_notification_message( const ptree& json )
 
 worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
     : notification_message( "worker_notification" ),
-      worker_type_( hb->worker_type_ ),
-      worker_id_( hb->worker_id_ ),
+      worker_type_( "unassigned"),
+      worker_id_( WORKER_ID_UNASSIGNED ),
       host_name_( hb->host_name_ ),
       port_( hb->port_ )
 {

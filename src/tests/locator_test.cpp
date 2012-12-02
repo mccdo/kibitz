@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#include <kibitz/locator/notification_message_bus.hpp>
+
 #include <kibitz/publisher.hpp>
 
 #include <boost/config.hpp>
@@ -38,7 +38,7 @@
 #include <iostream>
 
 #include <zmq.h>
-#include <kibitz/locator/notification_message_bus.hpp>
+
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <glog/logging.h>

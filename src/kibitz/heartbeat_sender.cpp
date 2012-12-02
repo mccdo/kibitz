@@ -49,8 +49,8 @@ void heartbeat_sender::operator()()
         socket = create_socket( context_->zmq_context(), ZMQ_PUSH );
         const char* binding = context_->get_config()["heartbeat-binding"].as<string>().c_str();
         check_zmq( zmq_connect( socket, binding ) );
-
-        heartbeat beater( context_->get_config() );
+	// TODO: THIS NEEDS TO GO BYE BYE
+        heartbeat beater( 0 );
         boost::condition_variable condition;
         boost::mutex mutex;
         boost::unique_lock<boost::mutex> lock( mutex );

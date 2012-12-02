@@ -112,7 +112,8 @@ void registry::operator()()
             if( notification_type == "heartbeat" )
             {
                 heartbeat_ptr_t heartbeat_ptr = boost::dynamic_pointer_cast<kibitz::heartbeat>( message_ptr );
-                workers[heartbeat_ptr->worker_type()][heartbeat_ptr->worker_id()] = heartbeat_ptr;
+		// TODO: this needs to go bye bye
+		//workers[heartbeat_ptr->worker_type()][heartbeat_ptr->worker_id()] = heartbeat_ptr;
 
                 if( one_second_elapsed( last_send ) )
                 {

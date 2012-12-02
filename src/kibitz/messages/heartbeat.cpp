@@ -38,17 +38,15 @@ namespace kibitz
 
 
 
-heartbeat::heartbeat( const boost::program_options::variables_map& config )
+heartbeat::heartbeat( int port )
   : notification_message( notification::HEARTBEAT_NOTIFICATION ),
-      worker_type_( config["worker-type"].as<string>() ),
-      worker_id_( config["worker-id"].as<int>() ),
       host_name_( boost::asio::ip::host_name() ),
 #if defined(BOOST_WINDOWS)
       pid_( _getpid() ),
 #else
       pid_( getpid() ),
 #endif
-      port_( config["publish-port"].as<int>() ),
+      port_( port ),
       ticks_( 0 )
 {
 
@@ -57,8 +55,6 @@ heartbeat::heartbeat( const boost::program_options::variables_map& config )
 
 heartbeat::heartbeat( const ptree& json )
   : notification_message( notification::HEARTBEAT_NOTIFICATION ),
-      worker_type_( json.get<string>( "worker_type" ) ),
-      worker_id_( json.get<int>( "worker_id" ) ),
       host_name_( json.get<string>( "host" ) ),
       pid_( json.get<int>( "process_id" ) ),
       port_( json.get<int>( "port" ) ),
@@ -80,12 +76,9 @@ void heartbeat::increment_tick_count()
 
 string heartbeat::to_json() const
 {
-
     stringstream stm;
     ptree tree;
     notification_message::populate_header( tree );
-    tree.put( "worker_type", worker_type_ );
-    tree.put( "worker_id", worker_id_ );
     tree.put( "host", host_name_ );
     tree.put( "process_id", pid_ );
     tree.put( "port" , port_ );
@@ -96,15 +89,7 @@ string heartbeat::to_json() const
 
 
 
-const string& heartbeat::worker_type() const
-{
-    return worker_type_;
-}
 
-const int& heartbeat::worker_id() const
-{
-    return worker_id_;
-}
 
 }
 

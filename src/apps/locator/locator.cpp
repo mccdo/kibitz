@@ -27,7 +27,7 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
-
+#include <kibitz/locator/heartbeat_generator.hpp>
 
 #include <iostream>
 #include <string>
@@ -63,14 +63,16 @@ using kibitz::util::create_socket;
 using kibitz::util::check_zmq;
 using kibitz::util::close_socket;
 
+using kibitz::locator::heartbeat_generator;
+
+
 string pid_file;
-void signal_callback( int sig )
-{
-    fs::path path( pid_file );
-    if( fs::exists( path ) )
-    {
-        fs::remove_all( path );
-    }
+void signal_handler( int, siginfo_t*, void* ) {
+  fs::path path( pid_file );
+  if( fs::exists(  path ) ) {
+    fs::remove_all( path );
+  }
+  raise( SIGINT );
 }
 
 int main( int argc, char* argv[] )
@@ -79,10 +81,11 @@ int main( int argc, char* argv[] )
     po::options_description options( "locator" );
     options.add_options()
     ( "help,h", "Show help message" )
-    ( "port,p", po::value<int>()->default_value( 5557 ), "Port used by locator to distribute notifications." )
+    ( "port,p", po::value<int>()->default_value( 5557 ), "Port used by locator to distribute heartbeats." )
     ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
     ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
+      ( "heartbeat-frequency", po::value<int>()->default_value( 100 ), "Heartbeat frequency in milliseconds" )
     ;
 
     po::variables_map command_line;
@@ -93,7 +96,11 @@ int main( int argc, char* argv[] )
     {
         pid_file = command_line["pid-file"].as<string>();
         kibitz::util::daemonize( pid_file );
-        signal( SIGINT, signal_callback );
+	struct sigaction act;
+	memset( &act, 0, sizeof( act ) );
+	act.sa_sigaction = &signal_handler;
+	act.sa_flags = SA_SIGINFO | SA_RESETHAND;
+	sigaction( SIGINT, &act, NULL );
     }
 
 
@@ -107,6 +114,7 @@ int main( int argc, char* argv[] )
 
 
     const int port = command_line["port"].as<int>() ;
+    const int heartbeat_frequency = command_line["heartbeat-frequency"].as<int>() ;
     int exit_code = 0;
     int rc = 0;
 
@@ -117,10 +125,6 @@ int main( int argc, char* argv[] )
     }
 
     void* context = zmq_init( command_line["context-threads"].as<int>() );
-    void* inproc_pub_socket = NULL;
-    void* inproc_sub_socket = NULL;
-    void* outsocket = NULL;
-    void* insocket = NULL;
 
     if( !context )
     {
@@ -130,56 +134,16 @@ int main( int argc, char* argv[] )
 
     try
     {
-      string notification_binding = ( format( "tcp://*:%1%" ) % port ).str();
+      string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
+      
+      kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
+      heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
 
       boost::thread_group threads;
-      //      locator::notification_message_bus notification_message_bus( context, notification_binding );
-      // threads.create_thread( notification_message_bus );
+      threads.create_thread( publisher );
+      threads.create_thread( heartbeats );
       threads.join_all();
-
-        insocket = create_socket( context, ZMQ_PULL );
-        //check_zmq( zmq_bind( insocket, in_binding ) );
-        inproc_pub_socket = create_socket( context, ZMQ_PUB );
-        check_zmq( zmq_bind( inproc_pub_socket, "inproc://x" ) );
-        inproc_sub_socket = create_socket( context, ZMQ_SUB );
-        check_zmq( zmq_connect( inproc_sub_socket, "inproc://x" ) );
-        check_zmq( zmq_setsockopt( inproc_sub_socket, ZMQ_SUBSCRIBE, "", 0 ) );
-        outsocket = create_socket( context, ZMQ_PUB );
-
-        //LOG( INFO ) << "Locator will publish on " << pub_binding;
-        //check_zmq( zmq_bind( outsocket, pub_binding.c_str() ) );
-
-        registry reg( inproc_pub_socket, inproc_sub_socket, outsocket );
-        boost::thread sender_thread( reg );
-
-        try
-        {
-            while( true )
-            {
-                string message;
-                kibitz::util::recv( insocket, message );
-                if( !message.empty() )
-                {
-                    DLOG( INFO ) << "got message -> " << message ;
-                    reg.push_message( message );
-                }
-            }
-        }
-        catch( const kibitz::util::queue_interrupt& )
-        {
-            LOG( INFO ) << "Caught signal shutting down" ;
-        }
-        catch( const std::exception& ex )
-        {
-            LOG( ERROR ) << "Something bad killed us. What => " << ex.what() ;
-            exit_code = 1;
-        }
-
-        kibitz::inproc_notification_message inproc_notification_message( kibitz::message::stop );
-        reg.push_message( inproc_notification_message );
-        sender_thread.join();
-
-
+      DLOG(INFO) << "Exiting";
     }
     catch( const std::exception& ex )
     {
@@ -187,11 +151,15 @@ int main( int argc, char* argv[] )
         LOG( ERROR ) << "An exception killed worker locator " << ex.what() ;
     }
 
-    close_socket( inproc_pub_socket );
-    close_socket( inproc_sub_socket );
-    close_socket( outsocket );
-    close_socket( insocket ) ;
+    fs::path path( pid_file );
+    if( fs::exists( path ) )
+    {
+        fs::remove_all( path );
+    }
+
+
     zmq_term( context );
+
 
 
 

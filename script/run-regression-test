@@ -32,55 +32,62 @@ function check_result
 function restart_locator
 {
     echo "(re)starting locator"
+    
     if [ -e ${HOME}/kibitz-locator.pid ]
     then
 	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
     fi
-
-    GLOG_log_dir=./log $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid 
+    #GLOG_v=1 GLOG_logtostderr=1  $LOCATOR --pid-file=${HOME}/kibitz-locator.pid --port=19001 --heartbeat-frequency=1000 &
+    GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid 
 }
 
 
-rm -fv test/*
+#rm -fv test/*
 
 restart_locator
 
+echo "Waiting for locator to initialize..."
+sleep 3
+echo "Test heartbeats."
+script/capture-heartbeat.rb "tcp://localhost:5557"
 
-echo "Starting workers for traversal test"
-echo "A -> B,C -> D"
-
-
-KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_a -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100 & 
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_b -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101 -ftest/traversal/test-worker-b.yaml &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_c -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -ftest/traversal/test-worker-c.yaml &
-KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_d -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -ftest/traversal/test-worker-d.yaml &
-
-echo "wait for heartbeats to perculate throughout system"
-sleep 5
-echo "Workers started establishing collaboration connections and running jobs"
-KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=test_worker_a --worker-id=1 
-sleep 5 
-KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
-
-test_name="Traversal A -> B"
-script/validate test/test_worker_b.1.in test/test_worker_a.1.out
 check_result
 
-test_name="Traversal A -> C"
-script/validate test/test_worker_c.1.in test/test_worker_a.1.out
-check_result
+# echo "Starting workers for traversal test"
+# echo "A -> B,C -> D"
 
-test_name="Traversal B -> D"
-script/validate test/test_worker_d.1.in test/test_worker_b.1.out
-check_result
 
-test_name="Traversal C -> D"
-script/validate test/test_worker_d.1.in test/test_worker_c.1.out
-check_result
+# KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_a -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100 & 
+# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_b -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9001 -P9101 -ftest/traversal/test-worker-b.yaml &
+# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_c -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -ftest/traversal/test-worker-c.yaml &
+# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_d -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -ftest/traversal/test-worker-d.yaml &
 
-test_name="D should have 2 messages"
-script/check_count test/test_worker_d.1.in 2
-check_result
+# echo "wait for heartbeats to perculate throughout system"
+# sleep 5
+# echo "Workers started establishing collaboration connections and running jobs"
+# KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=test_worker_a --worker-id=1 
+# sleep 5 
+# KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
+
+# test_name="Traversal A -> B"
+# script/validate test/test_worker_b.1.in test/test_worker_a.1.out
+# check_result
+
+# test_name="Traversal A -> C"
+# script/validate test/test_worker_c.1.in test/test_worker_a.1.out
+# check_result
+
+# test_name="Traversal B -> D"
+# script/validate test/test_worker_d.1.in test/test_worker_b.1.out
+# check_result
+
+# test_name="Traversal C -> D"
+# script/validate test/test_worker_d.1.in test/test_worker_c.1.out
+# check_result
+
+# test_name="D should have 2 messages"
+# script/check_count test/test_worker_d.1.in 2
+# check_result
 
 echo "shutting down locator"
 if [ -e ${HOME}/kibitz-locator.pid ]

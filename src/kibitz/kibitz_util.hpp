@@ -37,6 +37,8 @@ namespace kibitz
 namespace util
 {
 
+  static const int STARTUP_PAUSE=1000;
+
 class queue_interrupt : public std::runtime_error
 {
 public :
@@ -62,12 +64,18 @@ public :
   KIBITZ_EXPORT bool time_elapsed( int duration_millisec, bpt::ptime& last_time ) ;
   KIBITZ_EXPORT bpt::ptime get_current_local_time() ;
 
+  /// Pauses a thread for a period
+  /// \param duration_millisec the duration of the pause
+  ///
+  KIBITZ_EXPORT void wait( int duration_millisec ) ;
+
 KIBITZ_EXPORT void recv( void* socket, string& message ) ;
 KIBITZ_EXPORT void send( void* socket, const string& message );
 KIBITZ_EXPORT void check_zmq( int zmq_return_code ) ;
 KIBITZ_EXPORT void* create_socket( void* context, int socktype ) ;
 KIBITZ_EXPORT void close_socket( void* socket );
 KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
+
 
 
   /// Helper class to manage and safely dispose
@@ -81,6 +89,9 @@ KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
       :socket_(create_socket( context, zmq_socktype)) {
     }    
 
+    sockman( void* zmq_sock ) 
+      :socket_( zmq_sock ) {
+    }
 
     ~sockman( ) {
       close_socket( socket_ );
@@ -90,6 +101,9 @@ KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
     /// \return The underlying ZMQ socket.
     /// 
     void* get() { return socket_; }
+
+    /// Conversion operator so you can pass sockman 
+    /// to ZMQ functions that take sockets
     operator void*() { return socket_; }
     
     

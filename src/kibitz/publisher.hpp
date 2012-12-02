@@ -40,7 +40,8 @@ namespace kibitz {
     /// performance you probably shouldn't use this 
     /// because it instantiates a socket for each message send 
     void send( const std::string& json ) ;
-
+    
+    void send( void* zmq_socket, const std::string& json );
     /// Thread function for publisher
     ///
     void operator()(); 

@@ -26,7 +26,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-
+#include <boost/thread.hpp>
 #include <boost/config.hpp>
 #if defined(BOOST_WINDOWS)
 #include <process.h>
@@ -97,6 +97,13 @@ namespace kibitz
 
     }
 
+    void wait( int duration_millisec ) {
+      boost::condition_variable condition;
+      boost::mutex mutex;
+      boost::unique_lock<boost::mutex> lock( mutex );
+      boost::posix_time::time_duration pause_duration = boost::posix_time::millisec( duration_millisec );
+      condition.timed_wait( lock, pause_duration );
+    }
 
     void close_socket( void* socket )
     {
@@ -122,8 +129,10 @@ namespace kibitz
     {
       if( return_code )
 	{
+	  int error = zmq_errno();
 	  stringstream stm;
-	  stm << "zmq call failed with error code " << zmq_errno() ;
+	  stm << "ZMQ call failed with error code " << error ;
+	  stm << ". Description -> " << zmq_strerror(error);
 	  throw std::runtime_error( stm.str() );
 	}
     }
