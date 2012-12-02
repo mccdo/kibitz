@@ -75,8 +75,14 @@ static const char* WORKER_ID = "worker_id";
 static const char* PAYLOAD = "payload";
   static const char* INPROC_NOTIFICATION = "inproc";
   static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
+  static const char* WORKER_BROADCAST = "worker_broadcast";
+  static const char* SHUTDOWN_NOTIFICATION = "shutdown";
+  
 }
 
+
+  static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
+  static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
 
 class KIBITZ_MESSAGE_EXPORT message
 {

@@ -18,7 +18,7 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <kibitz/locator/notification_message_bus.hpp>
-
+#include <kibitz/publisher.hpp>
 
 #include <boost/config.hpp>
 #include <boost/thread.hpp>
@@ -40,41 +40,56 @@
 #include <zmq.h>
 #include <kibitz/locator/notification_message_bus.hpp>
 #include <kibitz/kibitz_util.hpp>
-
+#include <kibitz/messages/inproc_notification_message.hpp>
+#include <glog/logging.h>
 using boost::dynamic_pointer_cast;
 
 namespace ku = kibitz::util;
+namespace k = kibitz;
 
 int test_main( int argc, char* argv[] )
 {
+  google::InitGoogleLogging(argv[0]);
 
   std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
     "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"
-    "1000,\"publisher_ports\":{\"B\":10001,\"C\":10002}}";
+    "1000,\"port\":10000}";
 
 
-  // void* zmq_context = zmq_init(2);
-  // BOOST_CHECK( zmq_context );
-  // {
-  //   std::cout << "Testing notification message bus" << std::endl;
-  //   std::string inproc_publish_binding = "inproc:://inproc_publish_binding";
-  //     locator::notification_message_bus notification_message_bus( zmq_context, inproc_publish_binding ); 
-  //     boost::thread test_thread_1( notification_message_bus );
-  
-  //     void* socket = ku::create_socket(  zmq_context, ZMQ_SUB );
-  //     zmq_connect( socket, inproc_publish_binding.c_str() );
-  //     ku::check_zmq( zmq_setsockopt( socket, ZMQ_SUBSCRIBE, "", 0 ) );
+  void* zmq_context = zmq_init(2);
+  BOOST_CHECK( zmq_context );
 
-  //     locator::send_notification_message( zmq_context, json );
-  //     std::string response;
-  //     ku::recv_async( socket, response ) ;
-  //     BOOST_CHECK( json == response );
-  //     ku::close_socket( socket );
-  // }
+  {
+    std::cout << "Testing notification message bus" << std::endl;
+        
+    std::string publish_binding = "inproc://pub_binding";
+    std::string inproc_binding = "inproc://inproc_binding";
+    k::publisher publisher( zmq_context, publish_binding, ZMQ_PUB, inproc_binding );
+    
+    boost::thread test_thread_1( publisher );
+    sleep(1);
+    
+    void* sub = ku::create_socket( zmq_context, ZMQ_SUB );
 
-  // if( zmq_context ) {
-  //   zmq_term( zmq_context );
-  // }
+    zmq_connect( sub, publish_binding.c_str() );
+    ku::check_zmq( zmq_setsockopt( sub, ZMQ_SUBSCRIBE, 0, 0 ) );
+
+    publisher.send( json ) ;
+   
+    string response;
+    ku::recv( sub, response );
+    std::cout << "Got subscription response " << response << std::endl;
+    BOOST_CHECK( json == response );
+    k::inproc_notification_message stop_message( k::message::stop ) ;
+    publisher.send( stop_message.to_json() );
+    
+    test_thread_1.join();
+    std::cout << "thread exited" << std::endl;
+  }
+
+  if( zmq_context ) {
+    zmq_term( zmq_context );
+  }
 
 
   return 0;

@@ -58,6 +58,7 @@ int test_main( int argc, char* argv[] )
     po::store( po::parse_command_line( argc, argv, options ), command_line );
     po::notify( command_line );
 
+
     kibitz::heartbeat heartbeat( command_line );
     string json = heartbeat.to_json() ;
     BOOST_CHECK( !json.empty() );
