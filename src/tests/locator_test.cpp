@@ -41,15 +41,44 @@
 
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
+#include <kibitz/validator/validator.hpp>
 #include <glog/logging.h>
+
 using boost::dynamic_pointer_cast;
 
 namespace ku = kibitz::util;
 namespace k = kibitz;
+namespace kg = kibitz::graph;
+
+struct graph_traversal_t {
+  std::set<std::string> nodes;
+  void operator()( const std::string& worker, const kg::node_ptr_t& ) {
+    nodes.insert( worker );
+  }
+};
 
 int test_main( int argc, char* argv[] )
 {
   google::InitGoogleLogging(argv[0]);
+
+
+  std::cout << "Testing graph validator" << std::endl;
+
+  std::string graph_definition = "A B C\nB D\nC D";
+
+  kg::worker_graph_ptr wgp = kg::create_worker_graph_from_string( graph_definition );
+  BOOST_CHECK( wgp != NULL );
+  graph_traversal_t traversor ;
+  kg::node_ptr_t node = wgp->get_worker( "A" );
+  BOOST_CHECK( node != NULL );
+  node->traverse_in_edges( traversor );
+  BOOST_CHECK( traversor.nodes.empty() );
+  traversor.nodes.clear();
+  node->traverse_out_edges( traversor );
+  BOOST_CHECK( traversor.nodes.size() == 2 );
+  BOOST_CHECK( traversor.nodes.count( "B" ) == 1 );
+  BOOST_CHECK( traversor.nodes.count( "C" ) == 1 );
+  std::cout << "Graph validator tests passed..." << std::endl;
 
   std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
     "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"
@@ -84,12 +113,14 @@ int test_main( int argc, char* argv[] )
     publisher.send( stop_message.to_json() );
     
     test_thread_1.join();
-    std::cout << "thread exited" << std::endl;
+    std::cout << "thread exited Ctl+C exits" << std::endl;
   }
 
   if( zmq_context ) {
     zmq_term( zmq_context );
   }
+
+
 
 
   return 0;

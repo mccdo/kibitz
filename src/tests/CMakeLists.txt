@@ -15,7 +15,7 @@ set(VES_TARGET_NAME unit-test)
 include(VESModuleInstall)
 
 add_executable( locator-test locator_test.cpp ) 
-target_link_libraries( locator-test locator kibitz ${Boost_LIBRARIES} )
+target_link_libraries( locator-test locator kibitz validator ${Boost_LIBRARIES} )
 set(VES_TARGET_NAME locator-test)
 include(VESModuleInstall)
 
