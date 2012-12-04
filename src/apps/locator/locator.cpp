@@ -142,10 +142,12 @@ int main( int argc, char* argv[] )
       kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( command_line["graph-definition-file"].as<string>() );
       kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
       heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
+      binding_broadcaster binder( publisher, worker_graph_ptr );
 
       boost::thread_group threads;
       threads.create_thread( publisher );
       threads.create_thread( heartbeats );
+      threads.create_thread( binder ); 
       threads.join_all();
       DLOG(INFO) << "Exiting";
     }
