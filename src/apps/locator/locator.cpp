@@ -28,6 +28,7 @@
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/locator/heartbeat_generator.hpp>
+#include <kibitz/validator/validator.hpp>
 
 #include <iostream>
 #include <string>
@@ -64,7 +65,7 @@ using kibitz::util::check_zmq;
 using kibitz::util::close_socket;
 
 using kibitz::locator::heartbeat_generator;
-
+namespace kg = kibitz::graph;
 
 string pid_file;
 void signal_handler( int, siginfo_t*, void* ) {
@@ -84,6 +85,7 @@ int main( int argc, char* argv[] )
     ( "port,p", po::value<int>()->default_value( 5557 ), "Port used by locator to distribute heartbeats." )
     ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
+      ("graph-definition-file,f", po::value<string>(), "File containing collaboration graph definition" )
     ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
       ( "heartbeat-frequency", po::value<int>()->default_value( 100 ), "Heartbeat frequency in milliseconds" )
     ;
@@ -96,6 +98,8 @@ int main( int argc, char* argv[] )
     {
         pid_file = command_line["pid-file"].as<string>();
         kibitz::util::daemonize( pid_file );
+	// we want to capture SIGINT so we 
+	// can clean up pid file and re-raise signal
 	struct sigaction act;
 	memset( &act, 0, sizeof( act ) );
 	act.sa_sigaction = &signal_handler;
@@ -135,7 +139,7 @@ int main( int argc, char* argv[] )
     try
     {
       string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
-      
+      kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( command_line["graph-definition-file"].as<string>() );
       kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
       heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
 

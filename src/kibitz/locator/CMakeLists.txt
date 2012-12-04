@@ -14,6 +14,7 @@ set(VES_INCLUDE_DIRECTORY_NAME kibitz/locator)
 set(VES_PUBLIC_HEADERS
   registry.hpp
   heartbeat_generator.hpp
+  binding_broadcaster.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -22,6 +23,7 @@ add_definitions(-DKIBITZ_LOCATOR_LIBRARY)
 add_library( locator SHARED
   registry.cpp
   heartbeat_generator.cpp
+  binding_broadcaster.cpp
   ${VES_PUBLIC_HEADERS}
 )
 

@@ -78,7 +78,18 @@ int test_main( int argc, char* argv[] )
   BOOST_CHECK( traversor.nodes.size() == 2 );
   BOOST_CHECK( traversor.nodes.count( "B" ) == 1 );
   BOOST_CHECK( traversor.nodes.count( "C" ) == 1 );
+
   std::cout << "Graph validator tests passed..." << std::endl;
+
+  wgp = kg::create_worker_graph_from_file( "../../config/test1.graph" );
+  BOOST_CHECK( wgp != NULL );
+  node = wgp->get_worker("D");
+  BOOST_CHECK( node != NULL );
+  BOOST_CHECK( node->get_in_edges().size() == 2 );
+  BOOST_CHECK( node->get_out_edges().empty() );
+  node = wgp->get_worker( "B" );
+  BOOST_CHECK( node->get_in_edges().size() == 1 );
+  BOOST_CHECK( node->get_out_edges().size() == 1 );
 
   std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
     "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"
@@ -113,7 +124,8 @@ int test_main( int argc, char* argv[] )
     publisher.send( stop_message.to_json() );
     
     test_thread_1.join();
-    std::cout << "thread exited Ctl+C exits" << std::endl;
+    std::cout << "Publisher test passed." << std::endl;
+    std::cout << "Thread exited Ctl+C exits." << std::endl;
   }
 
   if( zmq_context ) {
