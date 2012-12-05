@@ -5,7 +5,7 @@
 #include <map>
 #include <kibitz/validator/validator.hpp>
 
-using kibitz::graph::worker_graph;
+using kibitz::graph::worker_graph_ptr;
 
 namespace kibitz {
   namespace locator {
@@ -21,7 +21,7 @@ namespace kibitz {
     /// \param [in,out] will be returned with list of a binding for each worker. A binding
     /// with the port is returned, each worker type will have a different port. 
     void create_bindings( const worker_binding_t& binding_root, 
-			  const worker_graph& graph, 
+			  worker_graph_ptr graph, 
 			  int base_port,
 			  binding_map_t& bindings ); 
  }

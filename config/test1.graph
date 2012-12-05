@@ -1,8 +1,4 @@
-# This file defines a collaboration
-# The file format is as follows each line a list of space seperate worker type names
-# The first worker type on a line is the root node, subsequent worker types on the same line are the 
-# children of the first worker on the line, so each line defines out edges
-# A -> B,C -> D
 A B C
 B D
 C D
+

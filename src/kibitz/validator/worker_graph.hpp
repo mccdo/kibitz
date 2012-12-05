@@ -11,6 +11,8 @@ namespace kibitz {
     typedef std::map< string, node_ptr_t > node_map_t;
     typedef std::pair< string, node_ptr_t > node_entry_t;
     typedef std::vector< string > node_names_t;
+    typedef std::pair< string, node_ptr_t> node_pair_t;
+    typedef std::set< string > ordered_node_names_t;
 
     /// \brief Represents a worker type.
     ///
@@ -117,6 +119,9 @@ namespace kibitz {
       /// \return node for worker. 
       node_ptr_t get_worker( const string& worker_name );
 
+      /// Gets ordered list of names of worker types
+      /// \return names of worker types in ascending order
+      ordered_node_names_t get_workers() const;
 
       void validate( ) const ;
     };

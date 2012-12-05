@@ -2,6 +2,7 @@
 #include <boost/tokenizer.hpp>
 #include <fstream>
 #include <sstream>
+#include <boost/foreach.hpp>
 
 typedef boost::char_separator< char > separator_t;
 typedef boost::tokenizer< separator_t > tokenizer_t;
@@ -64,6 +65,14 @@ namespace kibitz {
       }
 
       return np;
+    }
+
+    ordered_node_names_t worker_graph::get_workers() const {
+      ordered_node_names_t result;
+      BOOST_FOREACH( const node_pair_t& node, node_map_ ) {
+	result.insert( node.first );
+      }
+      return result;
     }
 
     void worker_graph::validate( ) const {

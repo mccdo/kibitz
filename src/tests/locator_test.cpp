@@ -42,6 +42,7 @@
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/validator/validator.hpp>
+#include <kibitz/locator/common.hpp>
 #include <glog/logging.h>
 
 using boost::dynamic_pointer_cast;
@@ -49,6 +50,7 @@ using boost::dynamic_pointer_cast;
 namespace ku = kibitz::util;
 namespace k = kibitz;
 namespace kg = kibitz::graph;
+namespace kl = kibitz::locator;
 
 struct graph_traversal_t {
   std::set<std::string> nodes;
@@ -79,8 +81,6 @@ int test_main( int argc, char* argv[] )
   BOOST_CHECK( traversor.nodes.count( "B" ) == 1 );
   BOOST_CHECK( traversor.nodes.count( "C" ) == 1 );
 
-  std::cout << "Graph validator tests passed..." << std::endl;
-
   wgp = kg::create_worker_graph_from_file( "../../config/test1.graph" );
   BOOST_CHECK( wgp != NULL );
   node = wgp->get_worker("D");
@@ -90,6 +90,12 @@ int test_main( int argc, char* argv[] )
   node = wgp->get_worker( "B" );
   BOOST_CHECK( node->get_in_edges().size() == 1 );
   BOOST_CHECK( node->get_out_edges().size() == 1 );
+  std::cout << "Graph validator tests passed..." << std::endl;
+  std::cout << "Testing binding generator" << std::endl;
+  kl::binding_map_t bindings;
+  kl::create_bindings( "tcp://192.168.1.2", wgp, 10000, bindings );  
+  BOOST_CHECK( bindings.size() == 4 );
+  std::cout << "Binding generator testing complete" << std::endl;
 
   std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
     "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"
