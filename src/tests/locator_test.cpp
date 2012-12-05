@@ -95,7 +95,18 @@ int test_main( int argc, char* argv[] )
   kl::binding_map_t bindings;
   kl::create_bindings( "tcp://192.168.1.2", wgp, 10000, bindings );  
   BOOST_CHECK( bindings.size() == 4 );
+  BOOST_CHECK( bindings["A"] == "tcp://192.168.1.2:10000" );
+  BOOST_CHECK( bindings["B"] == "tcp://192.168.1.2:10001" );
+  BOOST_CHECK( bindings["C"] == "tcp://192.168.1.2:10002" );
+  BOOST_CHECK( bindings["D"] == "tcp://192.168.1.2:10003" );
+
   std::cout << "Binding generator testing complete" << std::endl;
+  std::string actual = kg::strip_comments( "# a commented line\n" );
+  BOOST_CHECK( actual  == "" );
+  actual = kg::strip_comments( "a # commented line\n" );
+  BOOST_CHECK( actual  == "a " );
+  BOOST_CHECK( kg::strip_comments( "a comme#nted line\n" ) == "a comme" );
+  BOOST_CHECK( kg::strip_comments( "a commented line\n" ) == "a commented line\n" );
 
   std::string json = "{\"message_type\":\"notification\",\"version\":\"1.0\",\"notification_type\":\"heartbeat\","
     "\"worker_type\":\"A\",\"worker_id\":1,\"host\":\"foo.com\",\"process_id\":200000,\"ticks\":"

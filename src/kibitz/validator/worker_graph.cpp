@@ -94,11 +94,12 @@ namespace kibitz {
 
     string strip_comments( const string& commented_line ) {
       const char COMMENT_DELIMITER = '#';
-      size_t pos = commented_line.find_first_of( commented_line,COMMENT_DELIMITER );
-      if( string::npos == pos ) {
-	return commented_line;
+      std::string result ;
+      BOOST_FOREACH( char c, commented_line ) {
+	if( c == COMMENT_DELIMITER ) break;
+	result += c;
       }
-      return commented_line.substr( pos );
+      return result ;
     }
 
     worker_graph_ptr create_worker_graph_from_string( const string& graph_definition ) {
