@@ -28,8 +28,8 @@
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/locator/heartbeat_generator.hpp>
+#include <kibitz/locator/binding_broadcaster.hpp>
 #include <kibitz/validator/validator.hpp>
-
 #include <iostream>
 #include <string>
 #include <assert.h>
@@ -65,6 +65,8 @@ using kibitz::util::check_zmq;
 using kibitz::util::close_socket;
 
 using kibitz::locator::heartbeat_generator;
+using kibitz::locator::binding_broadcaster;
+using kibitz::locator::binding_map_t;
 namespace kg = kibitz::graph;
 
 string pid_file;
@@ -139,10 +141,12 @@ int main( int argc, char* argv[] )
     try
     {
       string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
-      kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( command_line["graph-definition-file"].as<string>() );
+      std::string graph_file_name = command_line["graph-definition-file"].as<string>() ;
+      kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( graph_file_name  );
       kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
       heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
-      binding_broadcaster binder( publisher, worker_graph_ptr );
+      binding_map_t bindings;
+      binding_broadcaster binder( publisher, bindings );
 
       boost::thread_group threads;
       threads.create_thread( publisher );

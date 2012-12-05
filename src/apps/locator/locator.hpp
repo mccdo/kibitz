@@ -22,7 +22,7 @@
 
 #include <string>
 
-static const char* inproc_binding = "inproc://msgbus";
 
+static const char* inproc_binding = "inproc://msgbus";
 
 #endif

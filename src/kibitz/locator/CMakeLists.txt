@@ -15,6 +15,8 @@ set(VES_PUBLIC_HEADERS
   registry.hpp
   heartbeat_generator.hpp
   binding_broadcaster.hpp
+  router.hpp
+  common.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -24,6 +26,8 @@ add_library( locator SHARED
   registry.cpp
   heartbeat_generator.cpp
   binding_broadcaster.cpp
+  router.cpp
+  common.cpp
   ${VES_PUBLIC_HEADERS}
 )
 
