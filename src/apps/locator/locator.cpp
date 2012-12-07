@@ -30,6 +30,8 @@
 #include <kibitz/locator/heartbeat_generator.hpp>
 #include <kibitz/locator/binding_broadcaster.hpp>
 #include <kibitz/validator/validator.hpp>
+#include <kibitz/locator/router.hpp>
+
 #include <iostream>
 #include <string>
 #include <assert.h>
@@ -68,6 +70,7 @@ using kibitz::locator::heartbeat_generator;
 using kibitz::locator::binding_broadcaster;
 using kibitz::locator::binding_map_t;
 namespace kg = kibitz::graph;
+namespace kl = kibitz::locator;
 
 string pid_file;
 void signal_handler( int, siginfo_t*, void* ) {
@@ -84,12 +87,15 @@ int main( int argc, char* argv[] )
     po::options_description options( "locator" );
     options.add_options()
     ( "help,h", "Show help message" )
-    ( "port,p", po::value<int>()->default_value( 5557 ), "Port used by locator to distribute heartbeats." )
+    ( "port,p", po::value<int>()->default_value( 5556 ), "Port used by locator to distribute heartbeats." )
+      ("listen-port,l", po::value<int>()->default_value( 5557 ), "Port that will receive collaboration messages from workers" )
     ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
       ("graph-definition-file,f", po::value<string>(), "File containing collaboration graph definition" )
     ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
       ( "heartbeat-frequency", po::value<int>()->default_value( 100 ), "Heartbeat frequency in milliseconds" )
+      ( "host,H", po::value<string>(), "Host name or IP address that workers will connect to for collaboration messages." )
+      ( "base-port,P", po::value<int>()->default_value( 10000 ), "Start of port range that workers will bind to for collaboration messages" )
     ;
 
     po::variables_map command_line;
@@ -141,16 +147,24 @@ int main( int argc, char* argv[] )
     try
     {
       string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
+      string worker_root_binding = (format( "tcp://%1%" ) % command_line["host"].as<string>() ).str();
+      string listener_binding = (format("tcp://*:%1%" ) % command_line["listen-port"].as<int>() ).str();
       std::string graph_file_name = command_line["graph-definition-file"].as<string>() ;
       kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( graph_file_name  );
       kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
       heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
-      binding_map_t bindings;
+
+      kl::binding_map_t bindings;
+      kl::create_bindings( worker_root_binding, worker_graph_ptr, command_line["base-port"].as<int>(), bindings ); 
+
+      kl::router router( listener_binding, bindings, worker_graph_ptr ) ;
       binding_broadcaster binder( publisher, bindings );
 
+ 
       boost::thread_group threads;
       threads.create_thread( publisher );
       threads.create_thread( heartbeats );
+      threads.create_thread( router );
       threads.create_thread( binder ); 
       threads.join_all();
       DLOG(INFO) << "Exiting";
