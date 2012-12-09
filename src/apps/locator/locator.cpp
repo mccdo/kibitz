@@ -146,26 +146,36 @@ int main( int argc, char* argv[] )
 
     try
     {
+      LOG(INFO) << "Beginning initialization" ;
       string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
       string worker_root_binding = (format( "tcp://%1%" ) % command_line["host"].as<string>() ).str();
       string listener_binding = (format("tcp://*:%1%" ) % command_line["listen-port"].as<int>() ).str();
       std::string graph_file_name = command_line["graph-definition-file"].as<string>() ;
+      LOG(INFO) << "Preparing collaboration graph from " << graph_file_name;
       kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( graph_file_name  );
-      kibitz::publisher publisher( context, publisher_binding, ZMQ_PUB, "inproc://publisher" );
+      LOG(INFO) << "Graph creation succeeded" ;
+      kibitz::publisher publisher( context, 
+				   publisher_binding, 
+				   ZMQ_PUB, 
+				   kibitz::publisher::INPROC_BINDING );
       heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
 
       kl::binding_map_t bindings;
       kl::create_bindings( worker_root_binding, worker_graph_ptr, command_line["base-port"].as<int>(), bindings ); 
-
+      
       kl::router router( listener_binding, bindings, worker_graph_ptr ) ;
       binding_broadcaster binder( publisher, bindings );
 
- 
+      LOG(INFO) << "Creating worker threads";
       boost::thread_group threads;
       threads.create_thread( publisher );
+      LOG(INFO) << "Created notification message publisher";
       threads.create_thread( heartbeats );
+      LOG(INFO) <<  "Created heartbeat generator";
       threads.create_thread( router );
+      LOG(INFO) << "Created message router";
       threads.create_thread( binder ); 
+      LOG(INFO) << "Ready... Initialization complete";
       threads.join_all();
       DLOG(INFO) << "Exiting";
     }

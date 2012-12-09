@@ -110,9 +110,9 @@ KIBITZ_EXPORT void daemonize( const string& pid_file ) ;
     
   };
 
- 
+  typedef boost::shared_ptr< sockman > sockman_ptr_t;
 
-  
+  KIBITZ_EXPORT sockman_ptr_t create_socket_ptr( void* context, int socktype ) ;
 
 }
 }

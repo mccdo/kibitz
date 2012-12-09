@@ -25,7 +25,9 @@ set(VES_PUBLIC_HEADERS
     job_initialization_message.hpp
     basic_collaboration_message.hpp
     collaboration_message.hpp
+    collaboration_message_bundle.hpp
     notification_message.hpp
+    binding_notification.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -41,6 +43,8 @@ add_library( kibitz_messages SHARED
   worker_broadcast_message.cpp
   job_initialization_message.cpp
   basic_collaboration_message.cpp
+  binding_notification.cpp
+  collaboration_message_bundle.cpp
   ${VES_PUBLIC_HEADERS}
 )
 

@@ -1,6 +1,7 @@
 #include <kibitz/locator/common.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
 using boost::format;
 
@@ -14,6 +15,15 @@ namespace kibitz {
       BOOST_FOREACH( const worker_type_name_t& worker_type, graph->get_workers() ) {
 	bindings[worker_type] = (format( "%1%:%2%" ) % binding_root % base_port++ ).str();
       }
+    }
+
+    int get_port( const string& binding ) {
+      int pos = binding.find( ':' );
+      if( pos == string::npos ) {
+	throw std::runtime_error( "Invalid binding format" );
+      }
+      string portstring = binding.substr( pos );
+      return boost::lexical_cast<int>( portstring );
     }
   }
 }

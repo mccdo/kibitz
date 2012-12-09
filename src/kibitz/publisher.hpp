@@ -7,7 +7,9 @@
 
 
 namespace kibitz {
-  /// Thread safe publisher. This publishing takes place on a
+  /// \brief Thread safe publisher. 
+  ///
+  /// Publishing takes place on a
   /// seperate thread so that other threads can send message to
   /// publisher via inproc socket which are then picked up and
   /// published.  This lets us publish from multiple threads
@@ -46,7 +48,10 @@ namespace kibitz {
     ///
     void operator()(); 
     
-    
+    void* context() { return zmq_context_; }
+
+    /// Binding to send internal messages between threads
+    const static char* INPROC_BINDING;
   };
 }
 

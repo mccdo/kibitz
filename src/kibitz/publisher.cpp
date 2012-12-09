@@ -11,7 +11,8 @@ namespace ku = kibitz::util;
 
 namespace kibitz {
 
-
+  const char* publisher::INPROC_BINDING = "inproc://publisher";
+ 
   publisher::publisher( void* zmq_context, 
 			const std::string& pub_binding, 
 			int zmq_sock_type, 

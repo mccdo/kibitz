@@ -198,5 +198,10 @@ namespace kibitz
       message.append( data, size );
       zmq_msg_close( &msg );
     }
+
+    sockman_ptr_t create_socket_ptr( void* context, int socktype ) {
+      sockman_ptr_t ptr = sockman_ptr_t( new sockman( context, socktype ) );
+      return ptr;
+    }
   }
 }
