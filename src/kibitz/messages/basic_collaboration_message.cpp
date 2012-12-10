@@ -49,4 +49,16 @@ basic_collaboration_message::basic_collaboration_message( const ptree& json )
 {
 }
 
+  void basic_collaboration_message::to_ptree( ptree& response ) const {
+    collaboration_message::populate_header( response ) ;
+    response.put( "payload", payload_ ) ;
+    response.put("worker_type", worker_type_ );
+  }
+  
+  basic_collaboration_message_ptr_t basic_collaboration_message::from_ptree( const ptree& tree ) {
+    return basic_collaboration_message_ptr_t( new basic_collaboration_message( tree ) );
+  }
+
+
+
 }

@@ -8,6 +8,9 @@
 using kibitz::graph::worker_graph_ptr;
 using kibitz::basic_collaboration_message_ptr_t;
 
+using kibitz::graph::node_ptr_t;
+using kibitz::graph::node_names_t;
+
 namespace kibitz {
   namespace locator {
 
@@ -16,6 +19,7 @@ namespace kibitz {
     typedef string jobid_name_t;
 
     typedef std::map<inedge_worker_name_t,basic_collaboration_message_ptr_t> inedge_messages_t;
+    typedef std::pair<inedge_worker_name_t,basic_collaboration_message_ptr_t> inedge_message_pair_t;
     typedef std::map<jobid_name_t, inedge_messages_t> jobids_messages_t;
     typedef std::map< target_worker_name_t, jobids_messages_t > messages_by_worker_and_job_t;
     
@@ -56,6 +60,7 @@ namespace kibitz {
     /// a composite message is returned with can be sent to worker at
     /// terminus of inedges.
     /// 
+    /// \param target_worker the worker that the message is being sent to
     /// \param graph information about collaboration graph 
     /// \param new_message collaboration message
     /// \param cache [in,out] contains previously arrived collaboration messages
@@ -63,9 +68,11 @@ namespace kibitz {
     /// job will be removed.
     /// \return If all in edges for a particular job and worker have been populated
     /// a message containing all those messages will be returned. 
-    collaboration_message_bundle_ptr_t populate_inedge_messages( worker_graph_ptr graph, 
-							       basic_collaboration_message_ptr_t new_message, 
-							       messages_by_worker_and_job_t& cache ) const;
+    collaboration_message_bundle_ptr_t populate_inedge_messages( 
+								const target_worker_name_t& target_worker, 
+								worker_graph_ptr graph, 
+							        basic_collaboration_message_ptr_t new_message, 
+							        messages_by_worker_and_job_t& cache ) const;
   }; 
   }
 }

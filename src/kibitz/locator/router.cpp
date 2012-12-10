@@ -64,11 +64,14 @@ namespace kibitz {
       string sending_worker_type = msg->worker_type() ;
       node_ptr_t sending_worker_node = graph_ptr_->get_worker( sending_worker_type );
       if( sending_worker_node != NULL ) {
-	BOOST_FOREACH( const node_names_t& target_worker_type, sending_worker_node->get_out_edges() ) {
+	BOOST_FOREACH( const string& target_worker_type, sending_worker_node->get_out_edges() ) {
 	send_sockets_t::const_iterator it = send_sockets.find( target_worker_type );
 	if( it != send_sockets.end() ) { 
 	  DLOG(INFO) << "Routed collaboration message for " << target_worker_type ;
-	  collaboration_message_bundle_ptr messages = populate_inedge_messages( graph_ptr_, msg, inedge_cache ); 
+	  collaboration_message_bundle_ptr_t messages = populate_inedge_messages( target_worker_type,
+										graph_ptr_, 
+										msg, 
+										inedge_cache ); 
 	  if( inedges_have_messages( messages ) ) {
 	    ku::send( *(it->second), messages->to_json() );
 	  }
@@ -89,12 +92,43 @@ namespace kibitz {
       return (messages != NULL);
     } 
 
-    collaboration_message_bundle_ptr_t router::populate_inedge_messages( 
-						worker_graph_ptr graph, 
+    collaboration_message_bundle_ptr_t router::populate_inedge_messages(
+						const target_worker_name_t& target_worker,
+                                                worker_graph_ptr graph, 
 						basic_collaboration_message_ptr_t new_message, 
 						messages_by_worker_and_job_t& cache 
                                                                        ) const {
       collaboration_message_bundle_ptr_t messages;
+      
+      if( cache.count( target_worker ) == 0 ) {
+	cache[target_worker] = jobids_messages_t();
+      }
+      
+      if( cache[target_worker].count( new_message->job_id() ) == 0 ) {
+	cache[target_worker][new_message->job_id() ] = inedge_messages_t();
+      }
+
+      cache[target_worker][new_message->job_id()][new_message->worker_type()] = new_message;
+
+      node_ptr_t target_worker_node = graph->get_worker( target_worker ) ;
+      inedge_messages_t inedge_messages = cache[target_worker][new_message->job_id()];
+      // if we have messages on each in edge we bundle the messages up and return them
+      // so they can be sent to target worker
+      if( target_worker_node->get_in_edges().size() == inedge_messages.size() ){
+	collaboration_message_ptrs_t collaboration_messages;
+
+	BOOST_FOREACH( inedge_message_pair_t message, inedge_messages ) {
+	  collaboration_messages.push_back( message.second );	  
+	}
+
+	messages = collaboration_message_bundle_ptr_t( 
+					 new collaboration_message_bundle( collaboration_messages )
+						       );
+	// ditch the record associated with this job
+	cache[target_worker].erase( new_message->job_id() );	
+      }
+      
+
       return messages;
 
     }

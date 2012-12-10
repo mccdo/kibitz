@@ -50,6 +50,9 @@ public:
     }
     virtual string to_json() const ;
 
+    void to_ptree( ptree& response ) const;
+    static shared_ptr<basic_collaboration_message> from_ptree( const ptree& tree );
+
 };
 
 typedef shared_ptr<basic_collaboration_message> basic_collaboration_message_ptr_t;
