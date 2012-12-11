@@ -163,7 +163,7 @@ int main( int argc, char* argv[] )
       kl::binding_map_t bindings;
       kl::create_bindings( worker_root_binding, worker_graph_ptr, command_line["base-port"].as<int>(), bindings ); 
       
-      kl::router router( listener_binding, bindings, worker_graph_ptr ) ;
+      kl::router router( context, listener_binding, bindings, worker_graph_ptr ) ;
       binding_broadcaster binder( publisher, bindings );
 
       LOG(INFO) << "Creating worker threads";
