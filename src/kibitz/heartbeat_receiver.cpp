@@ -52,7 +52,7 @@ void heartbeat_receiver::operator()()
     try
     {
         pub broadcast_publisher( context_->zmq_context(), HEARTBEAT_RECEIVER_BROADCASTS );
-        socket = create_socket( context_->zmq_context(), ZMQ_SUB );
+	util::sockman_ptr_t listen_sock = util::create_socket_ptr( context_->zmq_context(), ZMQ_SUB );
         const char* binding = context_->get_config()["discovery-binding"].as<string>().c_str() ;
         LOG( INFO ) << "Will subscribe to messages from locator on " << binding;
         check_zmq( zmq_connect( socket, binding ) );

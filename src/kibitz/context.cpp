@@ -140,15 +140,15 @@ worker_types_t context::get_worker_types() const
 
 void context::start()
 {
-    heartbeat_sender hb_sender( this );
+  //    heartbeat_sender hb_sender( this );
     heartbeat_receiver hb_receiver( this );
-    worker_map wmap( this );
-    kibitz::in_edge_manager in_edge_manager( *this );
+    //   worker_map wmap( this );
+    //   kibitz::in_edge_manager in_edge_manager( *this );
 
-    threads_.create_thread( wmap );
+    //  threads_.create_thread( wmap );
     //    threads_.create_thread( hb_sender );
     threads_.create_thread( hb_receiver );
-    threads_.create_thread( in_edge_manager );
+    // threads_.create_thread( in_edge_manager );
 
 
     threads_.join_all();
