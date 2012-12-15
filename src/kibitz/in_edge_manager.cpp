@@ -24,7 +24,7 @@
 #include <kibitz/worker_map.hpp>
 
 #include <kibitz/messages/worker_broadcast_message.hpp>
-#include <kibitz/messages/basic_collaboration_message.hpp>
+#include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
@@ -69,91 +69,9 @@ in_edge_manager::~in_edge_manager()
     VLOG(1) << "RESPONSE " << response;
   }
 
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::create_bindings( zmq_pollitem_t** pollitems, int& count_items, int& size_items )
-{
-    release_bindings( *pollitems, count_items );
-    worker_infos_t all_infos;
-    worker_map_ptr_t worker_map_ptr = worker_map::get_worker_map( context_.zmq_context() );
-    worker_types_t worker_types = context_.get_worker_types();
-    BOOST_FOREACH( const string & worker_type, worker_types )
-    {
-        DLOG( INFO ) << "Resolving workers for " << worker_type ;
-        worker_infos_t worker_infos = worker_map_ptr->get_in_edge_workers( worker_type );
-        DLOG( INFO ) << "Got " << worker_infos.size() << " hits for " << worker_type;
-        all_infos.insert( all_infos.end(), worker_infos.begin(), worker_infos.end() );
-    }
-
-    DLOG( INFO ) << "Total in edges = " << all_infos.size() ;
-    if( size_items < ( all_infos.size() + 1 ) )
-    {
-        size_items = all_infos.size() + 1;
-        *pollitems = ( zmq_pollitem_t* )realloc( *pollitems, size_items * sizeof( zmq_pollitem_t ) );
-    }
-
-    // create bindings for all in edges, in edges
-    // start at index 1, index 0 is broadcast notifications
-    count_items = all_infos.size() + 1;
-    int current = 1;
-    BOOST_FOREACH( const worker_info & info, all_infos )
-    {
-        create_binding( info, ( *pollitems )[current] );
-        current++;
-    }
-}
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::create_binding( const worker_info& info, zmq_pollitem_t& pollitem )
-{
-    stringstream stm;
-    stm << "tcp://" << info.host << ":" << info.port;
-    pollitem.socket = util::create_socket( context_.zmq_context(), ZMQ_SUB );
-    pollitem.fd = 0;
-    pollitem.events = ZMQ_POLLIN;
-    pollitem.revents = 0;
-    util::check_zmq( zmq_connect( pollitem.socket, stm.str().c_str() ) );
-    util::check_zmq( zmq_setsockopt( pollitem.socket, ZMQ_SUBSCRIBE, "", 0 ) );
-}
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::release_bindings( zmq_pollitem_t* pollitems, int count_items )
-{
-    // don't close item zero socket, its managed by broadcast_subscriber
-    for( int item = 1; item < count_items; ++item )
-    {
-        util::close_socket( pollitems[item].socket );
-    }
-}
-
-void in_edge_manager::create_collaboration_binding( notification_context_t& context, notification_message_ptr_t message ) {
 
 
-}
 
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::handle_notification_message( notification_context_t& context ) {
-
-    if( ( context.pollitems[0].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
-    {
-        string json;
-        util::recv( context.pollitems[0].socket, json );
-        VLOG(1) << "notification handler got " << json ;
-	inproc_notification_message response( message::ok );
-	util::send( context.pollitems[0].socket, response.to_json() );
-
-        notification_message_ptr_t notification_message_ptr = dynamic_pointer_cast<notification_message>( message_factory( json ) );
-        string notification_type = notification_message_ptr->notification_type() ;
-
-        if( notification_type == notification::JOB_INITIALIZATION )
-        {
-            check_and_start_job( notification_message_ptr );
-        } else if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
-	  create_collaboration_binding( context, notification_message_ptr );
-	}	
-        else
-        {
-            LOG( WARNING ) << "in edge manager get a message that it doesn't understand - " << json ;
-        }
-    }
-}
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
 {
@@ -171,61 +89,8 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
         }
     }
 }
-////////////////////////////////////////////////////////////////////////////////
-bool in_edge_manager::all_messages_arrived( const string& job_id, collaboration_context_t& collab_context ) const
-{
-    return collab_context.job_messages[job_id].size() >= ( collab_context.count_items - 1 );
-}
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::handle_collaboration_message( collaboration_context_t& context )
-{
-    for( int item = 1; item < context.count_items; ++item )
-    {
-        if( ( context.pollitems[item].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
-        {
-            string json ;
-            util::recv( context.pollitems[item].socket, json );
-            LOG( INFO ) << "Got collaboration message -> " << json ;
-            collaboration_message_ptr_t collab_message = dynamic_pointer_cast<collaboration_message>( message_factory( json ) );
 
-            if( collab_message == NULL )
-            {
-                LOG( WARNING ) << "don't know how to handle collaboration message " << json;
-                return;
-            }
 
-            string collaboration_type = collab_message->collaboration_type();
-
-            if( collaboration_type == "generic" )
-            {
-                basic_collaboration_message_ptr_t basic_collaboration = static_pointer_cast<basic_collaboration_message>( collab_message ) ;
-                string job_id = basic_collaboration->job_id() ;
-                string worker_type = basic_collaboration->worker_type();
-                DLOG( INFO ) << "worker " << context_.worker_type() << ":" << context_.worker_id()  << " got a message from " << worker_type << " job " << job_id;
-                context.job_messages[job_id][worker_type] =  basic_collaboration->payload() ;
-                if( all_messages_arrived( job_id, context ) )
-                {
-                    collaboration_callback cbfn = context_.get_inedge_message_handler();
-                    if( cbfn )
-                    {
-                        // hang on to job id so we can attach it to send messages
-                        context_.set_job_id( job_id );
-                        cbfn( context.get_job_messages( job_id ) );
-                    }
-                    else
-                    {
-                        LOG( WARNING ) << "Got callaboration messages, no callback defined to handle messages";
-                    }
-                    context.job_messages.erase( job_id );
-                }
-            }
-            else
-            {
-                LOG( WARNING ) << "don't know how to handle collaboration type " << collaboration_type;
-            }
-        }
-    }
-}
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::operator()()
 {
@@ -277,16 +142,22 @@ void in_edge_manager::operator()()
 		      DLOG(INFO) << "Bind operation succeeded to [" << bind_msg->binding() << "]";
 		    }
 		  }		  
-		}
+		}		
+	      }
+	      
+	      // handle collaboration message
+	      if( pollitems[1].revents & ZMQ_POLLIN ) {
+		string json;
+		util::recv( pollitems[1].socket, json );
+		collaboration_message_bundle_ptr_t msg = static_pointer_cast<collaboration_message_bundle>( message_factory( json ) );
+		
 		
 	      }
 
-	      //	      handle_notification_message( thread_context ) ; 
-		//                collab_context.count_items = count_items;
-                // collab_context.pollitems = pollitems;
-                // handle_collaboration_message( collab_context );
-            }
-        }
+            } else {
+	      // TODO: handle bad return
+	    }
+        } // while
     }
     catch( const util::queue_interrupt& )
     {
