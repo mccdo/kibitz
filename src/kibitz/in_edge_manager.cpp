@@ -26,9 +26,14 @@
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
+#include <kibitz/messages/binding_notification.hpp>
+#include <kibitz/messages/inproc_notification_message.hpp>
 
 namespace kibitz
 {
+
+  const char* in_edge_manager::NOTIFICATION_BINDING = "inproc://in_edge_manager";
+
 ////////////////////////////////////////////////////////////////////////////////
 in_edge_manager::in_edge_manager( context& ctx )
     :
@@ -43,6 +48,27 @@ in_edge_manager::~in_edge_manager()
 {
     ;
 }
+
+  in_edge_manager::in_edge_manager( const in_edge_manager& iem ) 
+    :context_( iem.context_ ),
+     worker_type_( iem.worker_type_ ),
+     worker_id_( iem.worker_id_ ) {
+    // we do not initialize notification socket
+
+  }
+
+  void in_edge_manager::send_notification( const string& json ) {
+    if( notification_socket_ == NULL ) {
+      notification_socket_ = util::create_socket_ptr( context_.zmq_context(), ZMQ_REQ );
+      util::check_zmq( zmq_connect( *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
+    }
+
+    util::send( *notification_socket_, json );
+    string response;
+    util::recv( *notification_socket_, response );
+    VLOG(1) << "RESPONSE " << response;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::create_bindings( zmq_pollitem_t** pollitems, int& count_items, int& size_items )
 {
@@ -96,33 +122,32 @@ void in_edge_manager::release_bindings( zmq_pollitem_t* pollitems, int count_ite
         util::close_socket( pollitems[item].socket );
     }
 }
-////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::handle_notification_message( zmq_pollitem_t** pollitems, int& count_items, int& size_items )
-{
-    zmq_pollitem_t* items = *pollitems;
 
-    if( ( items[0].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
+void in_edge_manager::create_collaboration_binding( notification_context_t& context, notification_message_ptr_t message ) {
+
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void in_edge_manager::handle_notification_message( notification_context_t& context ) {
+
+    if( ( context.pollitems[0].revents | ZMQ_POLLIN ) == ZMQ_POLLIN )
     {
         string json;
-        util::recv( items[0].socket, json );
-        DLOG( INFO ) << "in edge manger got " << json ;
+        util::recv( context.pollitems[0].socket, json );
+        VLOG(1) << "notification handler got " << json ;
+	inproc_notification_message response( message::ok );
+	util::send( context.pollitems[0].socket, response.to_json() );
+
         notification_message_ptr_t notification_message_ptr = dynamic_pointer_cast<notification_message>( message_factory( json ) );
         string notification_type = notification_message_ptr->notification_type() ;
-        if( notification_type == "worker_broadcast" )
-        {
-            worker_broadcast_message_ptr_t broadcast_ptr = dynamic_pointer_cast<worker_broadcast_message>( notification_message_ptr );
-            string notification = broadcast_ptr->notification();
-            // create subscriptions for in edges
-            if( notification == notification::CREATE_BINDINGS )
-            {
-                DLOG( INFO ) << "creating bindings";
-                create_bindings( pollitems, count_items, size_items );
-            }
-        }
-        else if( notification_type == notification::JOB_INITIALIZATION )
+
+        if( notification_type == notification::JOB_INITIALIZATION )
         {
             check_and_start_job( notification_message_ptr );
-        }
+        } else if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
+	  create_collaboration_binding( context, notification_message_ptr );
+	}	
         else
         {
             LOG( WARNING ) << "in edge manager get a message that it doesn't understand - " << json ;
@@ -205,48 +230,61 @@ void in_edge_manager::handle_collaboration_message( collaboration_context_t& con
 void in_edge_manager::operator()()
 {
     DLOG( INFO ) << "in edge manager thread started" ;
-    zmq_pollitem_t* pollitems = NULL;
-    int count_items = 0;
-    int size_items = 0;
 
     try
     {
-        // TODO: fix this if broadcast subscriber is created before broadcast publisher
-        //       an exception errno 111 is raised, thus this sleep hack
-        //       we want to give the publisher time to be instantiated
-#ifdef BOOST_WINDOWS
-        Sleep( 5000 );
-#else
-        sleep( 5 );
-#endif
-        sub broadcast_subscriber( context_.zmq_context(), HEARTBEAT_RECEIVER_BROADCASTS );
-        boost::thread*  edge_monitor_thread = NULL;
-        zmq_pollitem_t broadcast_pollitem =
-        {
-            broadcast_subscriber.socket(),
-            0,
-            ZMQ_POLLIN,
-            0
-        };
+	util::sockman_ptr_t notification_sock = util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
+	util::check_zmq( zmq_bind( *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
 
-        pollitems = ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) );
-        count_items = size_items = 1;
-        pollitems[0].socket = broadcast_subscriber.socket();
+        zmq_pollitem_t* pollitems = ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) * 2 );
+        int count_items = 1;
+        pollitems[0].socket = *notification_sock;
         pollitems[0].fd = 0;
         pollitems[0].events = ZMQ_POLLIN;
-        pollitems[0].revents = 0;
+	pollitems[0].revents = 0;
+	memset( &pollitems[1], 0, sizeof( zmq_pollitem_t ) );
 
-        collaboration_context_t collab_context;
+	string current_binding;
 
         while( true )
         {
             int rc = zmq_poll( pollitems, count_items, -1 );
             if( rc > 0 )
             {
-                handle_notification_message( &pollitems, count_items, size_items );
-                collab_context.count_items = count_items;
-                collab_context.pollitems = pollitems;
-                handle_collaboration_message( collab_context );
+	      if( pollitems[0].revents & ZMQ_POLLIN ) { 
+		string json;
+		util::recv( pollitems[0].socket, json );
+
+		notification_message_ptr_t msg = static_pointer_cast<notification_message>(message_factory( json ) );
+
+		inproc_notification_message response( message::ok );
+		util::send( pollitems[0].socket, response.to_json() );
+
+		if( msg->notification_type() == binding_notification::NOTIFICATION_TYPE ) {
+		  binding_notification_ptr_t bind_msg = static_pointer_cast<binding_notification>( msg ) ;
+		  if( bind_msg->target_worker() == worker_type_ ) {
+		    if( bind_msg->binding() != current_binding ) {
+		      LOG(INFO) << "Binding worker to [" << bind_msg->binding() << "]";
+		      if( count_items > 1 ) {
+			util::close_socket(  pollitems[1].socket );
+		      }
+
+		      count_items = 2;
+		      current_binding = bind_msg->binding();
+		      pollitems[1].socket = util::create_socket( context_.zmq_context(), ZMQ_PULL );
+		      util::check_zmq( zmq_connect( pollitems[1].socket, current_binding.c_str() ) );
+		      pollitems[1].events = ZMQ_POLLIN;
+		      DLOG(INFO) << "Bind operation succeeded to [" << bind_msg->binding() << "]";
+		    }
+		  }		  
+		}
+		
+	      }
+
+	      //	      handle_notification_message( thread_context ) ; 
+		//                collab_context.count_items = count_items;
+                // collab_context.pollitems = pollitems;
+                // handle_collaboration_message( collab_context );
             }
         }
     }

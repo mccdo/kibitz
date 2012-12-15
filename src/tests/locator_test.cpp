@@ -63,6 +63,16 @@ int test_main( int argc, char* argv[] )
 {
   google::InitGoogleLogging(argv[0]);
 
+  {
+    std::cout << "checking get_port" << std::endl;;
+    std::string binding = "tcp://*:1234";
+    int actual = kl::get_port( binding );
+    BOOST_CHECK( actual == 1234 );
+    binding = "tcp://10.10.1.150.23:56789";
+    actual = kl::get_port( binding );
+    BOOST_CHECK( actual == 56789 );
+    std::cout << "get_port complete" << std::endl;
+  }
 
   std::cout << "Testing graph validator" << std::endl;
 

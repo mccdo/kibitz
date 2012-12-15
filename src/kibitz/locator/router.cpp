@@ -11,11 +11,13 @@ namespace kibitz {
 
 
 
-    router::router(void* context,
+    router::router(void* context, 
+		   const publisher& pub, 
 		   const string& listener_binding, 
 		   const binding_map_t& bindings, 
 		   worker_graph_ptr graph_ptr   ) 
-      :context_( context ),
+      :context_( context ), 
+       publisher_( pub ),
        listener_binding_( listener_binding ),
        push_bindings_(bindings),
        graph_ptr_( graph_ptr) {
@@ -34,14 +36,27 @@ namespace kibitz {
 	ku::check_zmq( zmq_bind( *message_listener, listener_binding_.c_str() ) );
 	
 	send_sockets_t out_socks;
+	util::sockman notification_socket( publisher_.get_publish_socket() );
+
 	bind_out_sockets( out_socks );
 	
 	while( true ) {
-	  VLOG(1) << "Waiting for collaboration message";
+	  VLOG(1) << "Router waiting for  message";
 	  string json; 
 	  ku::recv( *message_listener, json );
-	  VLOG(1) << "Recieved collaboration message " << json;
-	  route_message( out_socks, json, inedge_cache );
+	  VLOG(1) << "Router got message " << json;
+	  message_ptr_t message_ptr = message_factory( json );
+
+	  if( message_ptr->message_type() == NOTIFICATION_MESSAGE_TYPE ) {
+	    VLOG(1) << "Router received notification message" ;
+	    publisher_.send( notification_socket, json );
+	  } else if( message_ptr->message_type() == COLLABORATION_MESSAGE_TYPE ) {
+	    VLOG(1) << "Router recieved collaboration message " << json;
+	    route_message( out_socks, json, inedge_cache );
+	  } else {
+	    LOG(WARNING) << "Unknown message type received.";
+	    LOG(WARNING) << "Unknown Message = " << json;
+	  }
 	}
 	
       } catch( const std::exception& ex ) {

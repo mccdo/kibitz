@@ -88,7 +88,7 @@ int main( int argc, char* argv[] )
     options.add_options()
     ( "help,h", "Show help message" )
     ( "port,p", po::value<int>()->default_value( 5556 ), "Port used by locator to distribute heartbeats." )
-      ("listen-port,l", po::value<int>()->default_value( 5557 ), "Port that will receive collaboration messages from workers" )
+      ("listen-port,l", po::value<int>()->default_value( 5557 ), "Port listens for messages from workers and control scripts." )
     ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
       ("graph-definition-file,f", po::value<string>(), "File containing collaboration graph definition" )
@@ -154,21 +154,21 @@ int main( int argc, char* argv[] )
       LOG(INFO) << "Preparing collaboration graph from " << graph_file_name;
       kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( graph_file_name  );
       LOG(INFO) << "Graph creation succeeded" ;
-      kibitz::publisher publisher( context, 
+      kibitz::publisher pub( context, 
 				   publisher_binding, 
 				   ZMQ_PUB, 
 				   kibitz::publisher::INPROC_BINDING );
-      heartbeat_generator heartbeats( publisher, heartbeat_frequency, port );
+      heartbeat_generator heartbeats( pub, heartbeat_frequency, port );
 
       kl::binding_map_t bindings;
       kl::create_bindings( worker_root_binding, worker_graph_ptr, command_line["base-port"].as<int>(), bindings ); 
       
-      kl::router router( context, listener_binding, bindings, worker_graph_ptr ) ;
-      binding_broadcaster binder( publisher, bindings );
+      kl::router router( context, pub, listener_binding, bindings, worker_graph_ptr ) ;
+      binding_broadcaster binder( pub, bindings );
 
       LOG(INFO) << "Creating worker threads";
       boost::thread_group threads;
-      threads.create_thread( publisher );
+      threads.create_thread( pub );
       LOG(INFO) << "Created notification message publisher";
       threads.create_thread( heartbeats );
       LOG(INFO) <<  "Created heartbeat generator";

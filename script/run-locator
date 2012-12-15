@@ -1,3 +1,5 @@
 #!/bin/bash
 
-GLOG_log_dir=./log worker-locator 
+LOCATOR=./src/apps/locator/worker-locator
+
+GLOG_v=2 GLOG_logtostderr=1 GLOG_minloglevel=0 $LOCATOR --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --heartbeat-frequency=2000

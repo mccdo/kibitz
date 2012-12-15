@@ -43,13 +43,6 @@ context::context( const po::variables_map& application_configuration )
     DLOG( INFO ) << "zmq initialized";
     message_bus_socket_ = util::create_socket( zmq_context_, ZMQ_PUB );
     util::check_zmq( zmq_bind( message_bus_socket_, INPROC_COMMAND_BINDING ) );
-    stringstream stm1, stm2;
-    stm1 << "tcp://*:" << application_configuration["publish-port"].as<int>();
-    stm2 << "tcp://*:" << application_configuration["notification-port"].as<int>();
-
-    collaboration_publisher_ptr_ = shared_ptr<pub>( new pub( zmq_context_, stm1.str().c_str() ) );
-
-    notification_publisher_ptr_ = shared_ptr<pub>( new pub( zmq_context_, stm2.str().c_str() ) );
 }
 
 context::~context()
@@ -69,13 +62,13 @@ void context::send_out_message( const string& payload )
     }
 
 
-    collaboration_publisher_ptr_->send( msg.to_json() );
+    // TODO   collaboration_publisher_ptr_->send( msg.to_json() );
 
 }
 
 void context::send_notification_message( const string& payload )
 {
-    notification_publisher_ptr_->send( payload );
+  // TODO notification_publisher_ptr_->send( payload );
 }
 
 void context::register_initialization_notification_handler( initialization_callback initialization_handler )
@@ -138,22 +131,24 @@ worker_types_t context::get_worker_types() const
 
 
 
-void context::start()
-{
-  //    heartbeat_sender hb_sender( this );
+  void context::start()
+  {
+    thread_group threads;
+    //    heartbeat_sender hb_sender( this );
     heartbeat_receiver hb_receiver( this );
     //   worker_map wmap( this );
-    //   kibitz::in_edge_manager in_edge_manager( *this );
+    kibitz::in_edge_manager in_edge_manager( *this );
 
     //  threads_.create_thread( wmap );
     //    threads_.create_thread( hb_sender );
-    threads_.create_thread( hb_receiver );
-    // threads_.create_thread( in_edge_manager );
+    threads.create_thread( in_edge_manager );
+    threads.create_thread( hb_receiver );
 
 
-    threads_.join_all();
 
-}
+    threads.join_all();
+
+  }
 
 
 
@@ -164,8 +159,8 @@ void context::stop()
 void context::terminate()
 {
     DLOG( INFO ) << "context.terminate shutting down application" ;
-    collaboration_publisher_ptr_->close();
-    notification_publisher_ptr_->close();
+    //collaboration_publisher_ptr_->close();
+    //notification_publisher_ptr_->close();
 
     util::close_socket( message_bus_socket_ );
 

@@ -24,7 +24,7 @@ namespace kibitz {
     stringstream stm;
     ptree tree;
     notification_message::populate_header( tree );
-    tree.put( "target_worker", target_worker_ );
+    tree.put( "target_worker", target_worker_ );    
     tree.put( "zmq_binding", zmq_binding_ );
     boost::property_tree::json_parser::write_json( stm, tree );
     return stm.str();

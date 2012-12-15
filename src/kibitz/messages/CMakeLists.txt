@@ -50,6 +50,7 @@ add_library( kibitz_messages SHARED
 
 target_link_libraries( kibitz_messages 
   ${Boost_LIBRARIES}
+  ${GLOG_LIBRARIES}
 )
 
 set(VES_TARGET_NAME kibitz_messages)

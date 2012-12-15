@@ -29,7 +29,7 @@
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
-
+#include <glog/logging.h>
 namespace kibitz
 {
 
@@ -99,6 +99,7 @@ message_ptr_t message_factory( const string& json )
     stringstream sstm;
     sstm << json;
     ptree tree;
+    VLOG(1) << "RAW MESSAGE [" << json << "]";
     boost::property_tree::json_parser::read_json( sstm, tree );
     const string message_type = tree.get<string>( "message_type" );
 

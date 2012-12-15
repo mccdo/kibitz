@@ -24,6 +24,8 @@
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/bus.hpp>
+#include <kibitz/in_edge_manager.hpp>
+#include <kibitz/messages/binding_notification.hpp>
 #include <signal.h>
 using kibitz::util::create_socket;
 using kibitz::util::check_zmq;
@@ -45,19 +47,21 @@ void heartbeat_receiver::operator()()
 {
     DLOG( INFO ) << "Entered heartbeat receiver thread.";
 
-    boost::thread message_bus_listener( boost::bind( &message_base::internal_command_handler, this ) );
-
-    void* socket = NULL;
-
     try
     {
-        pub broadcast_publisher( context_->zmq_context(), HEARTBEAT_RECEIVER_BROADCASTS );
 	util::sockman_ptr_t listen_sock = util::create_socket_ptr( context_->zmq_context(), ZMQ_SUB );
-        const char* binding = context_->get_config()["discovery-binding"].as<string>().c_str() ;
+	// TODO: handle host of the form primary;secondary, separate primary;secondary, hang on to
+	// secondary host and try to use it.  Probably listen simulateously to both primary and secondary,
+	// when secondary gets flagged as primary use that
+	string binding = (format( "tcp://%1%:%2%" ) % context_->get_config()[ "locator-host" ].as<string>() 
+			  % context_->get_config()[ "locator-receive-port" ].as<int>() ).str();
+
         LOG( INFO ) << "Will subscribe to messages from locator on " << binding;
-        check_zmq( zmq_connect( socket, binding ) );
-        check_zmq( zmq_setsockopt( socket, ZMQ_SUBSCRIBE, "", 0 ) );
-        shared_ptr<worker_map> worker_map_ptr = worker_map::get_worker_map( context_->zmq_context() );
+        check_zmq( zmq_connect( *listen_sock, binding.c_str() ) );
+        check_zmq( zmq_setsockopt( *listen_sock, ZMQ_SUBSCRIBE, "", 0 ) );
+	
+	util::wait( util::STARTUP_PAUSE ); 
+	in_edge_manager in_edges( *context_ );
 
         while( true )
         {
@@ -65,7 +69,7 @@ void heartbeat_receiver::operator()()
             string json ;
             // TODO if we dont receive a heartbeat after a certain amount of time
             // try to connect to alternative locator
-            kibitz::util::recv( socket, json );
+            kibitz::util::recv( *listen_sock, json );
             DLOG( INFO ) << context_->worker_type() << ":" << context_->worker_id() << " received message " << json;
             notification_message_ptr_t message_ptr = dynamic_pointer_cast<notification_message>( message_factory( json ) );
             if( message_ptr != NULL )
@@ -73,23 +77,24 @@ void heartbeat_receiver::operator()()
                 string notification_type = message_ptr->notification_type();
                 if( notification_type == "heartbeat" )
                 {
-                    worker_map_ptr->send_worker_notification_from_heartbeat( json );
-                }
+		  //          worker_map_ptr->send_worker_notification_from_heartbeat( json );
+                } else if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
+		  VLOG(1) << "Got binding message";
+		  		  in_edges.send_notification( json );
+		}
                 else if( notification_type == "worker_broadcast" )
                 {
                     worker_broadcast_message_ptr_t wb = dynamic_pointer_cast<worker_broadcast_message>( message_ptr ) ;
                     if( wb->notification() == "shutdown" )
                     {
+		      LOG(INFO) << "Received shutdown message";
                         exit( 0 );
                     }
-                    else
-                    {
-                        broadcast_publisher.send( message_ptr->to_json() );
-                    }
+
                 }
                 else if( notification_type == notification::JOB_INITIALIZATION )
                 {
-                    broadcast_publisher.send( message_ptr->to_json() );
+		  //broadcast_publisher.send( message_ptr->to_json() );
                 }
                 else
                 {
@@ -112,6 +117,6 @@ void heartbeat_receiver::operator()()
         LOG( ERROR ) << "Exception caused thread to terminate " << ex.what() ;
     }
 
-    util::close_socket( socket );
+
 }
 }//end namespace

@@ -41,11 +41,10 @@ class context
     //    callback heartbeat_handler_;
     collaboration_callback inedge_message_handler_;
     initialization_callback initialization_handler_;
-    thread_group threads_;
+
     boost::mutex mutex_;
     string current_job_id_;
-    shared_ptr< pub > collaboration_publisher_ptr_;
-    shared_ptr< pub > notification_publisher_ptr_;
+
 
 public:
     context( const po::variables_map& application_configuration );

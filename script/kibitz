@@ -38,7 +38,7 @@ end
 
 # tells all workers to stop
 def send_stop_message( socket )
-
+  puts "sending stop"
   message = {
     "message_type" => "notification",
     "version" => "1.0",
@@ -48,7 +48,7 @@ def send_stop_message( socket )
 
   
   socket.send_string message.to_json
-
+  puts "sent stop"
 end
 
 SUB_COMMANDS = %w(initiate stop)

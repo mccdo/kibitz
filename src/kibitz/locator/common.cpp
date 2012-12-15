@@ -18,11 +18,11 @@ namespace kibitz {
     }
 
     int get_port( const string& binding ) {
-      int pos = binding.find( ':' );
+      int pos = binding.rfind( ':' );
       if( pos == string::npos ) {
 	throw std::runtime_error( "Invalid binding format" );
       }
-      string portstring = binding.substr( pos );
+      string portstring = binding.substr( ++pos );
       return boost::lexical_cast<int>( portstring );
     }
   }

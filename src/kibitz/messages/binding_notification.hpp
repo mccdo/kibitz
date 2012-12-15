@@ -11,6 +11,9 @@ namespace kibitz {
  class KIBITZ_MESSAGE_EXPORT binding_notification : public notification_message {
     string target_worker_;
     string zmq_binding_;
+
+
+
   public:
     /// c'tor
     ///
@@ -22,6 +25,9 @@ namespace kibitz {
     binding_notification( const ptree& json );
     virtual ~binding_notification();
     virtual string to_json() const;
+
+    const string& target_worker() const { return target_worker_; }
+    const string& binding() const { return zmq_binding_; }
 
     const static char* NOTIFICATION_TYPE;
   };

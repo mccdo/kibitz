@@ -60,6 +60,7 @@ void initialize( int argc, char* argv[] )
     //On windows this is not implemented
     google::InstallFailureSignalHandler();
 #endif
+
     DLOG( INFO ) << "initialize start";
     fs::path path( argv[0] );
     stringstream ss ;
@@ -70,10 +71,10 @@ void initialize( int argc, char* argv[] )
     ( "worker-id,I", po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
     ( "worker-type,T", po::value< string >(), "(Required) Name of the type of worker." )
       ( "locator-host,L", po::value< string >(), "IP Address or DNS name of locator" )     /* todo: implement HA pair host1;host2 */
-      ( "locator-receive-port,R", po::value< int >(), "Port to receive notifications from locator" )
-      ( "locator-send-port,S", po::value< int >(), "Port to send messages to locator" )
+      ( "locator-receive-port,R", po::value< int >()->default_value(5556), "Port to receive notifications from locator" )
+      ( "locator-send-port,S", po::value< int >()->default_value(5557), "Port to send messages to locator" )
     ( "notification-port,P", po::value<int>()->default_value( 9999 ), "Port to publish notification messages" )
-    ( "context-threads,t", po::value< int >()->default_value( 1 ), "Thread count passed to zmq_init" ) 
+    ( "context-threads,t", po::value< int >()->default_value( 2 ), "Thread count passed to zmq_init" ) 
       ;
 
     po::variables_map command_line;
