@@ -38,7 +38,7 @@ class context
     void* zmq_context_;
     void* message_bus_socket_;
     bool signalled_;
-    //    callback heartbeat_handler_;
+
     collaboration_callback inedge_message_handler_;
     initialization_callback initialization_handler_;
 

@@ -26,6 +26,7 @@
 #include <kibitz/bus.hpp>
 #include <kibitz/in_edge_manager.hpp>
 #include <kibitz/messages/binding_notification.hpp>
+#include <kibitz/initialization_handler.hpp>
 #include <signal.h>
 using kibitz::util::create_socket;
 using kibitz::util::check_zmq;
@@ -77,10 +78,10 @@ void heartbeat_receiver::operator()()
                 string notification_type = message_ptr->notification_type();
                 if( notification_type == "heartbeat" )
                 {
-		  //          worker_map_ptr->send_worker_notification_from_heartbeat( json );
+		  VLOG(1) << "Got heartbeat" ;
                 } else if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
 		  VLOG(1) << "Got binding message";
-		  		  in_edges.send_notification( json );
+  		  in_edges.send_notification( json );
 		}
                 else if( notification_type == "worker_broadcast" )
                 {
@@ -92,9 +93,20 @@ void heartbeat_receiver::operator()()
                     }
 
                 }
-                else if( notification_type == notification::JOB_INITIALIZATION )
+                else if( notification_type == job_initialization_message::NOTIFICATION_TYPE ) 
                 {
-		  //broadcast_publisher.send( message_ptr->to_json() );
+		  job_initialization_message_ptr_t jm = static_pointer_cast< job_initialization_message >( message_ptr ) ;
+		  if( jm->worker_type() == context_->worker_type() ) {
+		    if( jm->worker_id() == context_->worker_id() ) {
+		      if( context_->get_initialization_notification_callback() ) {
+			boost::thread thrd( initialization_handler( context_, jm->payload() ) );
+		      } else {
+			LOG(ERROR) << "There is not a callback function defined to handle"
+			  "the received job initialization message."; 
+		      }
+		    }
+		  }
+
                 }
                 else
                 {

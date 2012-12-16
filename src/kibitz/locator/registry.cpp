@@ -103,7 +103,7 @@ void registry::operator()()
                 kibitz::util::send( publisher_socket_, broadcast_ptr->to_json() );
             }
 
-            if( notification_type == kibitz::notification::JOB_INITIALIZATION )
+            if( notification_type == kibitz::job_initialization_message::NOTIFICATION_TYPE )
             {
                 LOG( INFO ) << "Publishing notification type -> " << notification_type ;
                 kibitz::util::send( publisher_socket_, message_ptr->to_json() );

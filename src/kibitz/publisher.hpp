@@ -7,6 +7,15 @@
 
 
 namespace kibitz {
+
+  namespace publish {
+    enum mode {
+      none,
+      bind,
+      connect
+    };
+  }
+
   /// \brief Thread safe publisher. 
   ///
   /// Publishing takes place on a
@@ -19,7 +28,8 @@ namespace kibitz {
     const std::string binding_;
     const int zmq_sock_type_;
     const std::string inproc_binding_;
-  public: 
+    const publish::mode mode_;
+  public:
     /// c'tor 
     /// \param zmq_context zmq context obtained by zmq_init
     /// \param pub_binding binding string for publisher socket
@@ -29,6 +39,16 @@ namespace kibitz {
     publisher( void* zmq_context, 
 	       const std::string& pub_binding, 
 	       int zmq_sock_type, 
+	       const std::string& inproc_binding,
+	       publish::mode mode );
+
+    /// c'tor to use to when creating an object to send a message to be published
+    /// 
+    /// \param zmq_context zmq context obtained by zmq_init
+    /// \param inproc_binding unique binding that will allow other threads
+    ///                 to communicate with the publisher in a thread safe fashion. 
+    ///                 must match inproc binding that was used to create publisher thread.
+    publisher( void* zmq_context, 
 	       const std::string& inproc_binding );
     ~publisher();
 
@@ -51,7 +71,7 @@ namespace kibitz {
     void* context() { return zmq_context_; }
 
     /// Binding to send internal messages between threads
-    const static char* INPROC_BINDING;
+    //    const static char* INPROC_BINDING;
   };
 }
 

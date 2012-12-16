@@ -157,7 +157,8 @@ int main( int argc, char* argv[] )
       kibitz::publisher pub( context, 
 				   publisher_binding, 
 				   ZMQ_PUB, 
-				   kibitz::publisher::INPROC_BINDING );
+			     "inproc://publisher",
+			     kibitz::publish::bind );
       heartbeat_generator heartbeats( pub, heartbeat_frequency, port );
 
       kl::binding_map_t bindings;

@@ -24,13 +24,8 @@
 
 namespace kibitz
 {
-  namespace notification
-  {
-    static const char* JOB_INITIALIZATION = "job_initialization";
-  }
-  /**
-   *  Message used to start jobs.
-   */
+
+  ///  Message used to start jobs.
   class job_initialization_message : public notification_message
   {
     string worker_type_;
@@ -54,6 +49,8 @@ namespace kibitz
     }
   
     virtual string to_json() const ;
+
+    static const char* NOTIFICATION_TYPE;
   };
 
   typedef shared_ptr<job_initialization_message> job_initialization_message_ptr_t ;

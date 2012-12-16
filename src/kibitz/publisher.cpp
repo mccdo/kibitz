@@ -11,18 +11,28 @@ namespace ku = kibitz::util;
 
 namespace kibitz {
 
-  const char* publisher::INPROC_BINDING = "inproc://publisher";
+  //  const char* publisher::INPROC_BINDING = "inproc://publisher";
  
   publisher::publisher( void* zmq_context, 
 			const std::string& pub_binding, 
 			int zmq_sock_type, 
-			const std::string& inproc_binding )
+			const std::string& inproc_binding,
+			publish::mode mode  )
     :zmq_context_( zmq_context ),
      binding_( pub_binding ),
      zmq_sock_type_( zmq_sock_type ),
-     inproc_binding_( inproc_binding ) {
+     inproc_binding_( inproc_binding ),
+     mode_( mode ) {
     LOG(INFO) << "Binding pubisher to " << pub_binding;
     LOG(INFO) << "Inproc publisher binding " << inproc_binding;
+  }
+
+  publisher::publisher( void* zmq_context,
+			const std::string& inproc_binding )
+    :zmq_context_(zmq_context ),
+     zmq_sock_type_( 0 ),
+     inproc_binding_( inproc_binding ),
+     mode_( publish::none ) {
   }
 
   publisher::~publisher( ) {
@@ -58,7 +68,13 @@ namespace kibitz {
       util::check_zmq( zmq_bind( inproc_ptr, inproc_binding_.c_str() ));
       // create socket to send messages to external subscribers 
       ku::sockman publisher_ptr( zmq_context_, zmq_sock_type_ );
-      util::check_zmq( zmq_bind( publisher_ptr, binding_.c_str() ) );
+
+      if( mode_ == publish::bind ) {
+	util::check_zmq( zmq_bind( publisher_ptr, binding_.c_str() ) );
+      } else {
+	util::check_zmq( zmq_connect( publisher_ptr, binding_.c_str() ) );
+      }
+
       DLOG(INFO) << "Initialized publishe thread" ;
 
       while( true ) {

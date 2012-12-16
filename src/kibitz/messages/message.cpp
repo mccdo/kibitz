@@ -68,7 +68,7 @@ message_ptr_t notification_message_factory( const ptree& tree )
         result = message_ptr_t( new worker_query( tree ) );
     }
 
-    if( notification_type == notification::JOB_INITIALIZATION )
+    if( notification_type == job_initialization_message::NOTIFICATION_TYPE )
     {
         result = message_ptr_t( new job_initialization_message( tree ) );
     }

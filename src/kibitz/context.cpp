@@ -24,6 +24,7 @@
 #include <kibitz/worker_map.hpp>
 #include <yaml-cpp/yaml.h>
 #include <kibitz/in_edge_manager.hpp>
+#include <kibitz/publisher.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 
 namespace kibitz
@@ -134,7 +135,7 @@ worker_types_t context::get_worker_types() const
   void context::start()
   {
     thread_group threads;
-    //    heartbeat_sender hb_sender( this );
+    
     heartbeat_receiver hb_receiver( this );
     //   worker_map wmap( this );
     kibitz::in_edge_manager in_edge_manager( *this );

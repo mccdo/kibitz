@@ -131,7 +131,7 @@ int test_main( int argc, char* argv[] )
         
     std::string publish_binding = "inproc://pub_binding";
     std::string inproc_binding = "inproc://inproc_binding";
-    k::publisher publisher( zmq_context, publish_binding, ZMQ_PUB, inproc_binding );
+    k::publisher publisher( zmq_context, publish_binding, ZMQ_PUB, inproc_binding, k::publish::bind );
     
     boost::thread test_thread_1( publisher );
     sleep(1);

@@ -25,8 +25,10 @@ namespace kn = kibitz::notification ;
 namespace kibitz
 {
 
+  const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
+
 job_initialization_message::job_initialization_message( const ptree& json )
-    : notification_message( kn::JOB_INITIALIZATION ),
+    : notification_message( NOTIFICATION_TYPE ),
       worker_type_( json.get<string>( kn::WORKER_TYPE ) ),
       worker_id_( json.get<int>( kn::WORKER_ID ) ),
       payload_( json.get<string>( kn::PAYLOAD ) )
