@@ -25,6 +25,12 @@ namespace kibitz
 static const char* SHUTDOWN_MSG = "shutdown";
 
 static const char* INPROC_COMMAND_BINDING = "inproc://msgbus";
+
+  /// Inproc binding used by socket that sends message to publisher which will
+  /// be forwarded to locator
+  static const char* INPROC_LOCATOR_PUBLISH_BINDING="inproc://locatorpubbinding";
+
+
 }
 
 #endif

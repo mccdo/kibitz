@@ -36,6 +36,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include <zmq.h>
 
@@ -93,6 +94,13 @@ int test_main( int argc, char* argv[] )
 
   wgp = kg::create_worker_graph_from_file( "../../config/test1.graph" );
   BOOST_CHECK( wgp != NULL );
+  std::cout << "checking if A has correct out edges" << std::endl;
+  node = wgp->get_worker("A");  
+  kg::node_names_t nns = node->get_out_edges();
+  BOOST_CHECK( nns.size() == 2 );
+  BOOST_CHECK( std::find( nns.begin(), nns.end(), "B" ) != nns.end() );
+  BOOST_CHECK( std::find( nns.begin(), nns.end(), "C" ) != nns.end() );
+  
   node = wgp->get_worker("D");
   BOOST_CHECK( node != NULL );
   BOOST_CHECK( node->get_in_edges().size() == 2 );

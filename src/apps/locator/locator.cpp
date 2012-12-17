@@ -89,13 +89,13 @@ int main( int argc, char* argv[] )
     ( "help,h", "Show help message" )
     ( "port,p", po::value<int>()->default_value( 5556 ), "Port used by locator to distribute heartbeats." )
       ("listen-port,l", po::value<int>()->default_value( 5557 ), "Port listens for messages from workers and control scripts." )
-    ( "context-threads,t", po::value<int>()->default_value( 1 ), "zmq context thread count" )
+    ( "context-threads,t", po::value<int>()->default_value( 4 ), "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
       ("graph-definition-file,f", po::value<string>(), "File containing collaboration graph definition" )
     ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
       ( "heartbeat-frequency", po::value<int>()->default_value( 100 ), "Heartbeat frequency in milliseconds" )
       ( "host,H", po::value<string>(), "Host name or IP address that workers will connect to for collaboration messages." )
-      ( "base-port,P", po::value<int>()->default_value( 10000 ), "Start of port range that workers will bind to for collaboration messages" )
+      ( "base-port,P", po::value<int>()->default_value( 6000 ), "Start of port range that workers will bind to for collaboration messages" )
     ;
 
     po::variables_map command_line;

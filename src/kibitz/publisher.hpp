@@ -36,6 +36,8 @@ namespace kibitz {
     /// \param zmq_socket_type type of publisher ZMQ_PUB|ZMQ_PUSH|ZMQ_REQ
     /// \param inproc_binding unique binding that will allow other threads
     ///                 to communicate with the publisher in a thread safe fashion
+    /// \param mode defines if socket will be bound with zmq_connect or zmq_bind
+    ///
     publisher( void* zmq_context, 
 	       const std::string& pub_binding, 
 	       int zmq_sock_type, 

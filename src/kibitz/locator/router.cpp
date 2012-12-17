@@ -29,13 +29,16 @@ namespace kibitz {
 
     void router::operator()() {
       LOG(INFO) << "Starting router thread";
+
+      send_sockets_t out_socks;
+
       try {
 	messages_by_worker_and_job_t inedge_cache;
 
 	ku::sockman_ptr_t message_listener = ku::create_socket_ptr(  context_, ZMQ_PULL  );
 	ku::check_zmq( zmq_bind( *message_listener, listener_binding_.c_str() ) );
 	
-	send_sockets_t out_socks;
+
 	util::sockman notification_socket( publisher_.get_publish_socket() );
 
 	bind_out_sockets( out_socks );
@@ -66,11 +69,17 @@ namespace kibitz {
 
     void router::bind_out_sockets( send_sockets_t& send_sockets ) {
       BOOST_FOREACH( const binding_pair_t& binding_pair, push_bindings_ ) {
-	ku::sockman_ptr_t message_sender = ku::create_socket_ptr(  context_, ZMQ_PUSH  );
+	void* sock = ku::create_socket(  context_, ZMQ_PUSH  );
+	VLOG(1) << "creating socket for [" << binding_pair.first << "] " << sock ;
 	int port = get_port( binding_pair.second );
 	string push_binding = (format( "tcp://*:%1%" ) % port ).str();
-	ku::check_zmq( zmq_bind( *message_sender, push_binding.c_str() ) );
-	send_sockets[binding_pair.first] = message_sender;
+	LOG( INFO ) << "BINDING " << sock << " to " << push_binding ;
+	ku::sockman_ptr_t sp( new ku::sockman( sock ) ) ;
+	int rc = zmq_bind( *sp, push_binding.c_str() ) ;
+	if( rc ) {
+	  LOG(ERROR) << "zmq bind failed - " << zmq_strerror( zmq_errno() ) ;
+	}
+	send_sockets[binding_pair.first] = sp;
       }
     }
 
@@ -80,20 +89,29 @@ namespace kibitz {
       node_ptr_t sending_worker_node = graph_ptr_->get_worker( sending_worker_type );
       if( sending_worker_node != NULL ) {
 	BOOST_FOREACH( const string& target_worker_type, sending_worker_node->get_out_edges() ) {
-	send_sockets_t::const_iterator it = send_sockets.find( target_worker_type );
-	if( it != send_sockets.end() ) { 
-	  DLOG(INFO) << "Routed collaboration message for " << target_worker_type ;
-	  collaboration_message_bundle_ptr_t messages = populate_inedge_messages( target_worker_type,
-										graph_ptr_, 
-										msg, 
-										inedge_cache ); 
-	  if( inedges_have_messages( messages ) ) {
-	    ku::send( *(it->second), messages->to_json() );
-	  }
+	  VLOG(1) << "Preparing to route to " << target_worker_type;
+	  send_sockets_t::const_iterator it = send_sockets.find( target_worker_type );
+	  if( it != send_sockets.end() ) { 
+	    DLOG(INFO) << "Routed collaboration message for " << target_worker_type ;
+	    collaboration_message_bundle_ptr_t messages = populate_inedge_messages( target_worker_type,
+										    graph_ptr_, 
+										    msg, 
+										    inedge_cache ); 
+	    if( inedges_have_messages( messages ) ) {
 
-	} else {
-	  LOG(WARNING) << "Got a collaboration message that we dropped because its target is not in graph definition. Type = " << target_worker_type ;
-	}
+	      VLOG(1) << "Routing message for [" << target_worker_type << "] ";
+
+	      string msg = messages->to_json();
+	      int rc = zmq_send( *(it->second), msg.data(), msg.length(), ZMQ_DONTWAIT  );
+	      if( rc < 0 ) {
+		LOG(WARNING) << "Dropped message bound for [" << target_worker_type << "]. Reason - " 
+			     << zmq_strerror( zmq_errno() ) ;
+	      }
+	    }
+
+	  } else {
+	    LOG(WARNING) << "Got a collaboration message that we dropped because its target is not in graph definition. Type = " << target_worker_type ;
+	  }
 
 
 	}
@@ -108,11 +126,11 @@ namespace kibitz {
     } 
 
     collaboration_message_bundle_ptr_t router::populate_inedge_messages(
-						const target_worker_name_t& target_worker,
-                                                worker_graph_ptr graph, 
-						basic_collaboration_message_ptr_t new_message, 
-						messages_by_worker_and_job_t& cache 
-                                                                       ) const {
+									const target_worker_name_t& target_worker,
+									worker_graph_ptr graph, 
+									basic_collaboration_message_ptr_t new_message, 
+									messages_by_worker_and_job_t& cache 
+									) const {
       collaboration_message_bundle_ptr_t messages;
       
       if( cache.count( target_worker ) == 0 ) {
@@ -137,7 +155,7 @@ namespace kibitz {
 	}
 
 	messages = collaboration_message_bundle_ptr_t( 
-					 new collaboration_message_bundle( collaboration_messages )
+						      new collaboration_message_bundle( collaboration_messages )
 						       );
 	// ditch the record associated with this job
 	cache[target_worker].erase( new_message->job_id() );	

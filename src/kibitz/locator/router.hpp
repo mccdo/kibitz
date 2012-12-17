@@ -33,7 +33,7 @@ namespace kibitz {
     binding_map_t push_bindings_;
     worker_graph_ptr graph_ptr_;
     publisher publisher_;    
-    typedef std::map< string, util::sockman_ptr_t > send_sockets_t;
+    typedef std::map< string, kibitz::util::sockman_ptr_t > send_sockets_t;
     
     void bind_out_sockets( send_sockets_t& send_sockets );
 

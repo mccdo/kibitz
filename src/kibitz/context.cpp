@@ -62,8 +62,8 @@ void context::send_out_message( const string& payload )
         msg.set_job_id( job_id ) ;
     }
 
-
-    // TODO   collaboration_publisher_ptr_->send( msg.to_json() );
+    publisher pub( zmq_context(), INPROC_LOCATOR_PUBLISH_BINDING );
+    pub.send( msg.to_json() );
 
 }
 
@@ -136,12 +136,23 @@ worker_types_t context::get_worker_types() const
   {
     thread_group threads;
     
+    string locator_binding = (format("tcp://%1%:%2%") % 
+				   application_configuration_["locator-host"].as<string>() % 
+				   application_configuration_["locator-send-port"].as<int>() ).str();
+
+    publisher locator_pub( zmq_context(),
+			   locator_binding,
+			   ZMQ_PUSH,
+			   INPROC_LOCATOR_PUBLISH_BINDING,
+			   publish::connect );
+
     heartbeat_receiver hb_receiver( this );
     //   worker_map wmap( this );
     kibitz::in_edge_manager in_edge_manager( *this );
 
     //  threads_.create_thread( wmap );
     //    threads_.create_thread( hb_sender );
+    threads.create_thread( locator_pub );
     threads.create_thread( in_edge_manager );
     threads.create_thread( hb_receiver );
 

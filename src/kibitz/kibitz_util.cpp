@@ -32,6 +32,8 @@
 #include <process.h>
 #endif
 
+#include <glog/logging.h>
+
 using boost::format;
 
 namespace fs = boost::filesystem;
@@ -142,7 +144,10 @@ namespace kibitz
       zmq_msg_t msg;
       zmq_msg_init_size( &msg, message.length() );
       memcpy( zmq_msg_data( &msg ), message.data(), message.length() );
-      zmq_sendmsg( socket, &msg, 0 );
+      int rc = zmq_sendmsg( socket, &msg, 0 );
+      if( rc == -1 ) {
+	LOG(ERROR) << "SEND FAILED: " << zmq_strerror( zmq_errno() ); 
+      }
       zmq_msg_close( &msg );
     }
 
