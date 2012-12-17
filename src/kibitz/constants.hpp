@@ -30,7 +30,8 @@ static const char* INPROC_COMMAND_BINDING = "inproc://msgbus";
   /// be forwarded to locator
   static const char* INPROC_LOCATOR_PUBLISH_BINDING="inproc://locatorpubbinding";
 
-
+  /// Inproc binding used by socket that sends notification messages
+  static const char* INPROC_NOTIFICATION_PUBLISH_BINDING="inproc://notificationpubbinding";
 }
 
 #endif

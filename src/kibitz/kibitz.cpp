@@ -73,7 +73,7 @@ void initialize( int argc, char* argv[] )
       ( "locator-host,L", po::value< string >(), "IP Address or DNS name of locator" )     /* todo: implement HA pair host1;host2 */
       ( "locator-receive-port,R", po::value< int >()->default_value(5556), "Port to receive notifications from locator" )
       ( "locator-send-port,S", po::value< int >()->default_value(5557), "Port to send messages to locator" )
-    ( "notification-port,P", po::value<int>()->default_value( 9999 ), "Port to publish notification messages" )
+    ( "notification-port,P", po::value<int>(), "Optional port to publish notification messages" )
     ( "context-threads,t", po::value< int >()->default_value( 2 ), "Thread count passed to zmq_init" ) 
       ;
 

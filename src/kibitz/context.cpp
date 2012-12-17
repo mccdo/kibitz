@@ -69,7 +69,13 @@ void context::send_out_message( const string& payload )
 
 void context::send_notification_message( const string& payload )
 {
-  // TODO notification_publisher_ptr_->send( payload );
+  if( application_configuration_.count( "notification-port" ) ) {
+    publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
+    pub.send( payload ) ;
+  } else {
+    LOG(ERROR) << "[" << worker_type_name_ << ":" << worker_id_ << "]  notification publish failed because notification-port" 
+      "was not supplied on command line"; 
+  }
 }
 
 void context::register_initialization_notification_handler( initialization_callback initialization_handler )
@@ -146,17 +152,23 @@ worker_types_t context::get_worker_types() const
 			   INPROC_LOCATOR_PUBLISH_BINDING,
 			   publish::connect );
 
-    heartbeat_receiver hb_receiver( this );
-    //   worker_map wmap( this );
-    kibitz::in_edge_manager in_edge_manager( *this );
+    if( application_configuration_.count( "notification-port" ) ) {
+      string notification_binding = (format("tcp://*:%1%") % application_configuration_["notification-port"].as<int>() ).str();
+      publisher notify_pub( zmq_context(),
+			    notification_binding,
+			    ZMQ_PUB,
+			    INPROC_NOTIFICATION_PUBLISH_BINDING,
+			    publish::bind );
+      threads.create_thread( notify_pub );
+    }
 
-    //  threads_.create_thread( wmap );
-    //    threads_.create_thread( hb_sender );
+
+
+    heartbeat_receiver hb_receiver( this );
+    kibitz::in_edge_manager in_edge_manager( *this );
     threads.create_thread( locator_pub );
     threads.create_thread( in_edge_manager );
     threads.create_thread( hb_receiver );
-
-
 
     threads.join_all();
 

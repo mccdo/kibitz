@@ -60,6 +60,7 @@ check_result
 KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost &
 KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost &
 KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost &
 
 sleep 4
 
@@ -69,16 +70,6 @@ KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --w
 KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
 
 
-# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_b -L localhost &
-# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_c -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9002 -P9102 -ftest/traversal/test-worker-c.yaml &
-# KIBITZ_ROLE=CHILD GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -Ttest_worker_d -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9003 -P9103 -ftest/traversal/test-worker-d.yaml &
-
-# echo "wait for heartbeats to perculate throughout system"
-# sleep 5
-# echo "Workers started establishing collaboration connections and running jobs"
-#  KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=test_worker_a --worker-id=1 
-# sleep 5 
-# KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
 
 # test_name="Traversal A -> B"
 # script/validate test/test_worker_b.1.in test/test_worker_a.1.out
