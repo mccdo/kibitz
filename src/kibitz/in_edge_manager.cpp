@@ -28,6 +28,7 @@
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
+#include <kibitz/collaboration_handler.hpp>
 
 namespace kibitz
 {
@@ -147,11 +148,12 @@ void in_edge_manager::operator()()
 	      
 	      // handle collaboration message
 	      if( pollitems[1].revents & ZMQ_POLLIN ) {
+
 		string json;
 		util::recv( pollitems[1].socket, json );
+		VLOG(1) << "Received collaboration message " << json;
 		collaboration_message_bundle_ptr_t msg = static_pointer_cast<collaboration_message_bundle>( message_factory( json ) );
-		
-		
+		boost::thread thrd( collaboration_handler( &context_, msg ) );		
 	      }
 
             } else {

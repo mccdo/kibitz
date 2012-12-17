@@ -29,6 +29,7 @@
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
+#include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <glog/logging.h>
 namespace kibitz
 {
@@ -88,6 +89,10 @@ message_ptr_t collaboration_message_factory( const ptree& tree )
     if( collaboration_type == "generic" )
     {
         result =  message_ptr_t( new basic_collaboration_message( tree ) );
+    }
+
+    if( collaboration_type == collaboration_message_bundle::MESSAGE_TYPE ) {
+      result = message_ptr_t( new collaboration_message_bundle( tree ) ); 
     }
 
     return result;

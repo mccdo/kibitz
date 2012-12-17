@@ -28,6 +28,7 @@ set(VES_PUBLIC_HEADERS
     in_edge.hpp
     publisher.hpp
     initialization_handler.hpp
+    collaboration_handler.hpp
 )
 set(VES_PRIVATE_HEADERS ${VES_PUBLIC_HEADERS})
 
@@ -46,6 +47,7 @@ add_library( kibitz SHARED
   in_edge_manager.cpp
   publisher.cpp
   initialization_handler.cpp
+  collaboration_handler.cpp
   ${VES_PUBLIC_HEADERS}
 )
 
