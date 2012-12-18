@@ -4,7 +4,7 @@
 #include <kibitz/messages/message.hpp>
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
-
+#include <kibitz/messages/worker_notification.hpp>
 
 namespace ku = kibitz::util;
 
@@ -98,6 +98,14 @@ namespace kibitz {
 	    }	    
 	    // we don't pass through inproc messages to other processes
 	    continue;
+	  }
+
+	  // if this is a worker generated notification we strip the json wrapper
+	  // and only send the payload since the intent of this type of message is
+	  // to be transmitted to agents external to kibitz
+	  if( notification_msg->notification_type() == worker_notification::NOTIFICATION_TYPE ) {
+	    worker_notification_ptr_t wn = static_pointer_cast<worker_notification>( notification_msg );
+	    json = wn->get_payload() ;
 	  }
 	}
 	

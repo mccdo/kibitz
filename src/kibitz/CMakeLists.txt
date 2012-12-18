@@ -15,7 +15,6 @@ set(VES_PUBLIC_HEADERS
     GNUCompilerGuards.hpp
     export_config.hpp
     kibitz.hpp
-    heartbeat_sender.hpp
     context.hpp
     message_base.hpp
     common.hpp
@@ -36,7 +35,6 @@ add_definitions(-DKIBITZ_LIBRARY)
 
 add_library( kibitz SHARED
   kibitz.cpp
-  heartbeat_sender.cpp
   context.cpp
   message_base.cpp
   common.cpp

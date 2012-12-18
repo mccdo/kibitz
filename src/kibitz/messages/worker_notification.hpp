@@ -17,29 +17,39 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#ifndef __HEARTBEAT_SENDER_HPP__
-#define __HEARTBEAT_SENDER_HPP__
+#ifndef worker_notification_hpp
+#define worker_notification_hpp
 
-#include <kibitz/message_base.hpp>
+
+#include <kibitz/messages/notification_message.hpp>
 
 
 namespace kibitz
 {
 
-class heartbeat_sender : public message_base
-{
 
-public:
-    heartbeat_sender( context* context ) ;
+  /// \brief Message used when a worker sends a notification message
+  ///
+  /// These messages are intended to contain a payload that is sent to
+  /// agents that are external to kibitz. The json message is stripped and
+  /// only the payload is sent to external agents. 
+  class KIBITZ_MESSAGE_EXPORT worker_notification : public notification_message
+  {
+    string payload_;
+  public:
+    worker_notification( const ptree& json ) ;
+    worker_notification( const string& payload  );
+    virtual string to_json() const ;
+    const string& get_payload() const
+    {
+      return payload_;
+    }
 
-    ~heartbeat_sender();
-    void operator()();
-};
+    static const char* NOTIFICATION_TYPE;
+  };
 
-
-
+  typedef shared_ptr<worker_notification> worker_notification_ptr_t;
 }
 
-
-
 #endif
+

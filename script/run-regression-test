@@ -42,7 +42,7 @@ function restart_locator
 }
 
 
-#rm -fv test/*
+rm -fv test/*
 
 restart_locator
 
@@ -58,39 +58,77 @@ check_result
 
 
 KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost &
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost  &
 KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost &
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 &
 
 sleep 4
 
 KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1 
 
 
-KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
-
-
-
 # test_name="Traversal A -> B"
-# script/validate test/test_worker_b.1.in test/test_worker_a.1.out
-# check_result
+script/validate test/B.1.in test/A.1.out
+check_result
 
 # test_name="Traversal A -> C"
-# script/validate test/test_worker_c.1.in test/test_worker_a.1.out
-# check_result
+script/validate test/C.1.in test/A.1.out
+check_result
 
 # test_name="Traversal B -> D"
-# script/validate test/test_worker_d.1.in test/test_worker_b.1.out
-# check_result
+script/validate test/D.1.in test/B.1.out
+check_result
 
 # test_name="Traversal C -> D"
-# script/validate test/test_worker_d.1.in test/test_worker_c.1.out
-# check_result
+script/validate test/D.1.in test/C.1.out
+check_result
 
 # test_name="D should have 2 messages"
-# script/check_count test/test_worker_d.1.in 2
-# check_result
-sleep 5
+script/check_count test/D.1.in 2
+check_result
+
+# sleep 5
+
+rm -fv test/*
+
+
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I2 -TB -Llocalhost &
+
+sleep 4
+# first message will go to b.1 
+KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1
+
+sleep 3
+
+rm -fv test/* 
+
+# second message should go to b.2
+KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1 
+
+sleep 3
+
+script/validate test/B.2.in test/A.1.out
+check_result
+
+# test_name="Traversal A -> C"
+script/validate test/C.1.in test/A.1.out
+check_result
+
+# test_name="Traversal B -> D"
+script/validate test/D.1.in test/B.2.out
+check_result
+
+# test_name="Traversal C -> D"
+script/validate test/D.1.in test/C.1.out
+check_result
+
+# test_name="D should have 2 messages"
+script/check_count test/D.1.in 2
+check_result
+
+
+KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+
 echo "shutting down locator"
 if [ -e ${HOME}/kibitz-locator.pid ]
 then

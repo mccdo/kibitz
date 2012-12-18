@@ -29,11 +29,6 @@ namespace kibitz
 context* context_ =  NULL;
 
 
-
-
-
-
-
 void validate_command_line( const po::variables_map& command_line )
 {
 

@@ -18,10 +18,10 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <kibitz/context.hpp>
-#include <kibitz/heartbeat_sender.hpp>
 #include <kibitz/heartbeat_receiver.hpp>
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/worker_map.hpp>
+#include <kibitz/messages/worker_notification.hpp>
 #include <yaml-cpp/yaml.h>
 #include <kibitz/in_edge_manager.hpp>
 #include <kibitz/publisher.hpp>
@@ -70,10 +70,12 @@ void context::send_out_message( const string& payload )
 void context::send_notification_message( const string& payload )
 {
   if( application_configuration_.count( "notification-port" ) ) {
+    worker_notification notification( payload ) ;
+    VLOG(1) << "Published notification " << payload;
     publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
-    pub.send( payload ) ;
+    pub.send( notification.to_json() ) ;
   } else {
-    LOG(ERROR) << "[" << worker_type_name_ << ":" << worker_id_ << "]  notification publish failed because notification-port" 
+    LOG(WARNING) <<  "Notification publish failed because notification-port " 
       "was not supplied on command line"; 
   }
 }
@@ -153,7 +155,11 @@ worker_types_t context::get_worker_types() const
 			   publish::connect );
 
     if( application_configuration_.count( "notification-port" ) ) {
-      string notification_binding = (format("tcp://*:%1%") % application_configuration_["notification-port"].as<int>() ).str();
+      string notification_binding = (format("tcp://*:%1%") % 
+				     application_configuration_["notification-port"].as<int>() ).str();
+      LOG(INFO) << "Worker [" << worker_type_name_ << "." << worker_id_ << "] may publish notifications"
+	" on " << notification_binding ;
+
       publisher notify_pub( zmq_context(),
 			    notification_binding,
 			    ZMQ_PUB,

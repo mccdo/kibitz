@@ -22,6 +22,7 @@ set(VES_PUBLIC_HEADERS
     worker_query.hpp
     worker_query_response.hpp
     worker_broadcast_message.hpp
+    worker_notification.hpp
     job_initialization_message.hpp
     basic_collaboration_message.hpp
     collaboration_message.hpp
@@ -45,6 +46,7 @@ add_library( kibitz_messages SHARED
   basic_collaboration_message.cpp
   binding_notification.cpp
   collaboration_message_bundle.cpp
+  worker_notification.cpp
   ${VES_PUBLIC_HEADERS}
 )
 

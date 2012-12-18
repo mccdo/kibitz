@@ -109,6 +109,8 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
 
     record_out_message( payload );
     kibitz::send_out_message( payload );
+    // this will only get sent if notification-port is defined on the command line
+    kibitz::send_notification_message( payload );
 }
 
 

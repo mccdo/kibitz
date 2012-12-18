@@ -30,6 +30,7 @@
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
+#include <kibitz/messages/worker_notification.hpp>
 #include <glog/logging.h>
 namespace kibitz
 {
@@ -76,6 +77,10 @@ message_ptr_t notification_message_factory( const ptree& tree )
 
     if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
       result = message_ptr_t( new binding_notification( tree ) );
+    }
+
+    if( notification_type == worker_notification::NOTIFICATION_TYPE ) {
+      result = message_ptr_t( new worker_notification( tree ) );
     }
 
     return result;
