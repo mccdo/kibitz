@@ -21,10 +21,8 @@ set(VES_PUBLIC_HEADERS
     bindings.hpp
     heartbeat_receiver.hpp
     kibitz_util.hpp
-    worker_map.hpp
     bus.hpp
     in_edge_manager.hpp
-    in_edge.hpp
     publisher.hpp
     initialization_handler.hpp
     collaboration_handler.hpp
@@ -40,7 +38,6 @@ add_library( kibitz SHARED
   common.cpp
   heartbeat_receiver.cpp
   kibitz_util.cpp
-  worker_map.cpp
   bus.cpp
   in_edge_manager.cpp
   publisher.cpp

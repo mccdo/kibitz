@@ -18,10 +18,8 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <kibitz/in_edge_manager.hpp>
-#include <kibitz/bus.hpp>
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/context.hpp>
-#include <kibitz/worker_map.hpp>
 
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>

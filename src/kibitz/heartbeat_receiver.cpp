@@ -19,11 +19,9 @@
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <kibitz/heartbeat_receiver.hpp>
 #include <kibitz/kibitz_util.hpp>
-#include <kibitz/worker_map.hpp>
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
-#include <kibitz/bus.hpp>
 #include <kibitz/in_edge_manager.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/initialization_handler.hpp>

@@ -23,7 +23,6 @@
 #include <zmq.h>
 
 #include "locator.hpp"
-#include <kibitz/locator/registry.hpp>
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
