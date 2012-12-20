@@ -18,9 +18,6 @@ set(VES_PUBLIC_HEADERS
     message.hpp
     inproc_notification_message.hpp
     worker_notification_message.hpp
-    worker_info.hpp
-    worker_query.hpp
-    worker_query_response.hpp
     worker_broadcast_message.hpp
     worker_notification.hpp
     job_initialization_message.hpp
@@ -39,8 +36,6 @@ add_library( kibitz_messages SHARED
   message.cpp
   inproc_notification_message.cpp
   worker_notification_message.cpp
-  worker_query.cpp
-  worker_query_response.cpp
   worker_broadcast_message.cpp
   job_initialization_message.cpp
   basic_collaboration_message.cpp

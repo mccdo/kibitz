@@ -20,8 +20,6 @@
 #include <kibitz/common.hpp>
 
 #include <kibitz/messages/heartbeat.hpp>
-#include <kibitz/messages/worker_query_response.hpp>
-#include <kibitz/messages/worker_query.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 
@@ -38,7 +36,7 @@
 #include <vector>
 #include <iostream>
 
-#include <yaml-cpp/yaml.h>
+
 
 namespace k = kibitz;
 using boost::dynamic_pointer_cast;

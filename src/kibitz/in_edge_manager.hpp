@@ -21,7 +21,6 @@
 #define in_edge_manager_hpp
 
 #include <kibitz/common.hpp>
-#include <kibitz/messages/worker_info.hpp>
 #include <kibitz/messages/notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
 

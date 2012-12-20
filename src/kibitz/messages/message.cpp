@@ -23,8 +23,6 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/messages/worker_notification_message.hpp>
-#include <kibitz/messages/worker_query_response.hpp>
-#include <kibitz/messages/worker_query.hpp>
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/job_initialization_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
@@ -58,16 +56,6 @@ message_ptr_t notification_message_factory( const ptree& tree )
     if( notification_type == "worker_notification" )
     {
         result = message_ptr_t( new worker_notification_message( tree ) );
-    }
-
-    if( notification_type == "worker_query_response" )
-    {
-        result = message_ptr_t( new worker_query_response( tree ) );
-    }
-
-    if( notification_type == "worker_query" )
-    {
-        result = message_ptr_t( new worker_query( tree ) );
     }
 
     if( notification_type == job_initialization_message::NOTIFICATION_TYPE )
