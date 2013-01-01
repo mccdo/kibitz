@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-
+require 'bundler'
+Bundler.setup
 require 'ffi-rzmq'
 require 'json'
 require 'trollop'
