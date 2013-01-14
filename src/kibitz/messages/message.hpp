@@ -28,19 +28,19 @@
 # pragma warning(disable: 4275)
 #else
 #include <kibitz/GNUCompilerGuards.hpp>
-GCC_DIAG_OFF( unused - parameter )
+GCC_DIAG_OFF( unused-parameter )
 #endif
 
 #include <boost/program_options.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #ifdef BOOST_WINDOWS
 # pragma warning(default: 4275)
 #else
-GCC_DIAG_ON( unused - parameter )
+GCC_DIAG_ON( unused-parameter )
 #endif
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
 
