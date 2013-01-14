@@ -61,3 +61,23 @@ else(WIN32)
 endif(WIN32)
 
 include(VESInstallAutoDiscoveryTools)
+
+
+#
+# Doxygen
+find_package( Doxygen )
+if( DOXYGEN_FOUND )
+    set( HAVE_DOT "NO" )
+    if( DOXYGEN_DOT_PATH )
+        set( HAVE_DOT "YES" )
+    endif()
+    
+    configure_file( ${PROJECT_SOURCE_DIR}/Doxyfile
+        ${PROJECT_BINARY_DIR}/doc/Doxyfile
+    )
+    add_custom_target( Documentation ${DOXYGEN_EXECUTABLE}
+        ${PROJECT_BINARY_DIR}/doc/Doxyfile
+    )
+    
+    #add_subdirectory( doc/images )
+endif()
