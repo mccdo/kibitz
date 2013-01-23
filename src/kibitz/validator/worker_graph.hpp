@@ -94,7 +94,7 @@ namespace kibitz {
       worker_graph( );
       node_ptr_t get_or_add_node( const string& node_name );
       KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_file( const string& file_name );
-      friend shared_ptr<worker_graph> create_worker_graph_from_string( const string& graph_definition );
+      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_string( const string& graph_definition );
     public:
       virtual ~worker_graph() ;
       
@@ -142,7 +142,7 @@ namespace kibitz {
     /// \param graph_definition string containing graph information.
     /// 
     /// \return pointer to worker graph
-    worker_graph_ptr create_worker_graph_from_string( const string& graph_definition );
+    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_string( const string& graph_definition );
     
     /// Strips comment delimiter and any characters on line following, returns
     /// portion of line preceding comment delimiter
@@ -150,7 +150,7 @@ namespace kibitz {
     /// \param commented_line line of text from a graph configuration file which might contain comments.
     ///                 
     /// \return line with comments stripped out. 
-    string strip_comments( const string& commented_line ) ;
+    KIBITZ_VALIDATOR_EXPORT string strip_comments( const string& commented_line ) ;
   }
 }
  
