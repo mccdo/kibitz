@@ -3,6 +3,11 @@
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/locator/heartbeat_generator.hpp>
+
+#include <boost/config.hpp>
+#ifdef BOOST_WINDOWS
+#define GLOG_NO_ABBREVIATED_SEVERITIES 1
+#endif
 #include <glog/logging.h>
 
 using namespace boost::posix_time;

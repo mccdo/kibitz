@@ -10,6 +10,7 @@
 #include <kibitz/kibitz_util.hpp>
 #include <glog/logging.h>
 
+#include <kibitz/export_config.hpp>
 
 using kibitz::graph::worker_graph_ptr;
 using std::string;
@@ -30,7 +31,7 @@ namespace kibitz {
     /// \param base_port starting port for binding assignments.
     /// \param bindings [in,out] will be returned with list of a binding for each worker. A binding
     /// with the port is returned, each worker type will have a different port. 
-    void create_bindings( const worker_binding_t& binding_root, 
+    KIBITZ_LOCATOR_EXPORT void create_bindings( const worker_binding_t& binding_root, 
 			  worker_graph_ptr graph, 
 			  int base_port,
 			  binding_map_t& bindings );

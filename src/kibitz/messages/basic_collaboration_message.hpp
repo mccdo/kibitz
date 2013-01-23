@@ -20,12 +20,9 @@
 #ifndef basic_collaboration_message_hpp
 #define basic_collaboration_message_hpp
 
-
-
 #include <kibitz/messages/collaboration_message.hpp>
+
 #include <kibitz/export_config.hpp>
-
-
 
 namespace kibitz
 {

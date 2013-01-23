@@ -3,6 +3,8 @@
 
 #include <kibitz/common.hpp>
 
+#include <kibitz/export_config.hpp>
+
 namespace kibitz {
   namespace graph {
     class node;
@@ -18,7 +20,7 @@ namespace kibitz {
     ///
     /// Contains information about a worker, its parent workers that send it messages ( in edges) 
     /// and its children workers that recieve messages sent by this worker. 
-    class node {
+    class KIBITZ_VALIDATOR_EXPORT node {
       node_map_t in_edges_;
       node_map_t out_edges_;
 
@@ -86,12 +88,12 @@ namespace kibitz {
     /// Each node represents a worker and can be used to fetch information about 
     /// workers that send message to a particular worker (in edges) 
     /// or workers that a particular worker sends messages to (out edges).
-    class worker_graph {
+    class KIBITZ_VALIDATOR_EXPORT worker_graph {
       node_map_t node_map_;
       
       worker_graph( );
       node_ptr_t get_or_add_node( const string& node_name );
-      friend shared_ptr<worker_graph> create_worker_graph_from_file( const string& file_name );
+      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_file( const string& file_name );
       friend shared_ptr<worker_graph> create_worker_graph_from_string( const string& graph_definition );
     public:
       virtual ~worker_graph() ;
@@ -133,7 +135,7 @@ namespace kibitz {
     /// \param file_name name of the file containing graph information
     /// 
     /// \return pointer to worker graph
-    worker_graph_ptr create_worker_graph_from_file( const string& file_name );
+    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_file( const string& file_name );
 
     /// Creates a worker graph from text file. 
     ///

@@ -57,6 +57,18 @@
 #    define KIBITZ_LOCATOR_EXPORT   __declspec(dllimport)
 #    define KIBITZ_LOCATOR_LOCAL
 #  endif
+
+#  if defined( KIBITZ_VALIDATOR_LIBRARY_STATIC )
+#    define KIBITZ_VALIDATOR_EXPORT
+#    define KIBITZ_VALIDATOR_LOCAL
+#  elif defined( KIBITZ_VALIDATOR_LIBRARY )
+#    define KIBITZ_VALIDATOR_EXPORT   __declspec(dllexport)
+#    define KIBITZ_VALIDATOR_LOCAL
+#  else
+#    define KIBITZ_VALIDATOR_EXPORT   __declspec(dllimport)
+#    define KIBITZ_VALIDATOR_LOCAL
+#  endif
+
 #else
 #if __GNUC__ >= 4
 # if defined( KIBITZ_LIBRARY_STATIC )
@@ -82,6 +94,14 @@
 #    define KIBITZ_LOCATOR_EXPORT   __attribute__ ((visibility ("default")))
 #    define KIBITZ_LOCATOR_LOCAL   __attribute__ ((visibility ("hidden")))
 # endif
+
+# if defined( KIBITZ_VALIDATOR_LIBRARY_STATIC )
+#    define KIBITZ_VALIDATOR_EXPORT
+#    define KIBITZ_VALIDATOR_LOCAL
+# else
+#    define KIBITZ_VALIDATOR_EXPORT   __attribute__ ((visibility ("default")))
+#    define KIBITZ_VALIDATOR_LOCAL   __attribute__ ((visibility ("hidden")))
+# endif
 #else
 #  define KIBITZ_MESSAGE_EXPORT
 #  define KIBITZ_MESSAGE_LOCAL
@@ -91,6 +111,9 @@
 
 #  define KIBITZ_LOCATOR_EXPORT
 #  define KIBITZ_LOCATOR_LOCAL
+
+#  define KIBITZ_VALIDATOR_EXPORT
+#  define KIBITZ_VALIDATOR_LOCAL
 #endif
 #endif
 

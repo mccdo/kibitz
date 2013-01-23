@@ -22,11 +22,13 @@
 
 #include <kibitz/messages/notification_message.hpp>
 
+#include <kibitz/export_config.hpp>
+
 namespace kibitz
 {
 
   ///  Message used to start jobs.
-  class job_initialization_message : public notification_message
+  class KIBITZ_MESSAGE_EXPORT job_initialization_message : public notification_message
   {
     string worker_type_;
     int worker_id_;

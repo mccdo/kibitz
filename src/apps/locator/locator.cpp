@@ -72,6 +72,7 @@ namespace kg = kibitz::graph;
 namespace kl = kibitz::locator;
 
 string pid_file;
+#ifndef BOOST_WINDOWS
 void signal_handler( int, siginfo_t*, void* ) {
   fs::path path( pid_file );
   if( fs::exists(  path ) ) {
@@ -79,6 +80,7 @@ void signal_handler( int, siginfo_t*, void* ) {
   }
   raise( SIGINT );
 }
+#endif
 
 int main( int argc, char* argv[] )
 {
@@ -101,6 +103,7 @@ int main( int argc, char* argv[] )
     po::store( po::parse_command_line( argc, argv, options ), command_line );
     po::notify( command_line );
 
+#ifndef BOOST_WINDOWS
     if( command_line.count( "daemon" ) )
     {
         pid_file = command_line["pid-file"].as<string>();
@@ -113,7 +116,7 @@ int main( int argc, char* argv[] )
 	act.sa_flags = SA_SIGINFO | SA_RESETHAND;
 	sigaction( SIGINT, &act, NULL );
     }
-
+#endif
 
 
     InitGoogleLogging( argv[0] );

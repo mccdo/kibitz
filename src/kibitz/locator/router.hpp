@@ -6,6 +6,8 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/publisher.hpp>
 
+#include <kibitz/export_config.hpp>
+
 using kibitz::graph::worker_graph_ptr;
 using kibitz::basic_collaboration_message_ptr_t;
 
@@ -27,7 +29,7 @@ namespace kibitz {
 
   /// \brief Listens for collaboration messages and distributes them to child workers.
   ///
-  class router {
+  class KIBITZ_LOCATOR_EXPORT router {
     void* context_;
     string listener_binding_;
     binding_map_t push_bindings_;

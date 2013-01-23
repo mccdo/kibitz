@@ -5,6 +5,8 @@
 #include <kibitz/publisher.hpp>
 #include <kibitz/locator/common.hpp>
 
+#include <kibitz/export_config.hpp>
+
 namespace kg = kibitz::graph;
 using kibitz::locator::binding_map_t;
 
@@ -14,7 +16,7 @@ namespace kibitz {
     ///
     /// Periodically publishers bindings that each worker type 
     /// needs to connect and recieve collaboration messages.
-    class binding_broadcaster {
+    class KIBITZ_LOCATOR_EXPORT binding_broadcaster {
       publisher publisher_;
       binding_map_t bindings_;
       int send_frequency_;

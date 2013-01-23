@@ -29,7 +29,13 @@
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/worker_notification.hpp>
+
+#include <boost/config.hpp>
+#ifdef BOOST_WINDOWS
+#define GLOG_NO_ABBREVIATED_SEVERITIES 1
+#endif
 #include <glog/logging.h>
+
 namespace kibitz
 {
 

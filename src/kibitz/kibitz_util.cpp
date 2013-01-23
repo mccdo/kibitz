@@ -32,6 +32,9 @@
 #include <process.h>
 #endif
 
+#ifdef BOOST_WINDOWS
+#define GLOG_NO_ABBREVIATED_SEVERITIES 1
+#endif
 #include <glog/logging.h>
 
 using boost::format;

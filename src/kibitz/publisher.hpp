@@ -2,9 +2,10 @@
 #define kibitz_publisher_hpp
 
 #include <string> 
+
 #include <kibitz/kibitz_util.hpp>
 
-
+#include <kibitz/export_config.hpp>
 
 namespace kibitz {
 
@@ -23,7 +24,7 @@ namespace kibitz {
   /// publisher via inproc socket which are then picked up and
   /// published.  This lets us publish from multiple threads
   /// with out dealing with synchronization issues. 
-  class publisher {
+  class KIBITZ_EXPORT publisher {
     void* zmq_context_;
     const std::string binding_;
     const int zmq_sock_type_;

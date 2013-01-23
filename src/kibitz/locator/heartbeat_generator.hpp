@@ -3,10 +3,12 @@
 
 #include <kibitz/publisher.hpp>
 
+#include <kibitz/export_config.hpp>
+
 namespace kibitz {
   namespace locator {
     /// Class publishes heartbeat messages periodically.
-    class heartbeat_generator {
+    class KIBITZ_LOCATOR_EXPORT heartbeat_generator {
       publisher publisher_;
       const int frequency_ms_;
       const int publish_port_;
