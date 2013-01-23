@@ -39,7 +39,7 @@ namespace kibitz {
     /// Gets port from string binding
     /// \param binding string of the form tcp://foo.com:123345
     /// \return port 
-    int get_port( const string& binding ) ;
+    KIBITZ_LOCATOR_EXPORT int get_port( const string& binding ) ;
  }
 }
 
