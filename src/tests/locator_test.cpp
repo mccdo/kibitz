@@ -142,7 +142,7 @@ int test_main( int argc, char* argv[] )
     k::publisher publisher( zmq_context, publish_binding, ZMQ_PUB, inproc_binding, k::publish::bind );
     
     boost::thread test_thread_1( publisher );
-    sleep(1);
+    boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
     
     void* sub = ku::create_socket( zmq_context, ZMQ_SUB );
 
