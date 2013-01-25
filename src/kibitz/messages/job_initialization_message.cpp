@@ -25,18 +25,19 @@ namespace kn = kibitz::notification ;
 namespace kibitz
 {
 
-  const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
+const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
 
+////////////////////////////////////////////////////////////////////////////////
 job_initialization_message::job_initialization_message( const ptree& json )
-    : notification_message( NOTIFICATION_TYPE ),
-      worker_type_( json.get<string>( kn::WORKER_TYPE ) ),
-      worker_id_( json.get<int>( kn::WORKER_ID ) ),
-      payload_( json.get<string>( kn::PAYLOAD ) )
+    :
+    notification_message( NOTIFICATION_TYPE ),
+    worker_type_( json.get< string >( kn::WORKER_TYPE ) ),
+    worker_id_( json.get< int >( kn::WORKER_ID ) ),
+    payload_( json.get< string >( kn::PAYLOAD ) )
 {
+    ;
 }
-
-
-
+////////////////////////////////////////////////////////////////////////////////
 string job_initialization_message::to_json() const
 {
     stringstream stm;
@@ -48,5 +49,6 @@ string job_initialization_message::to_json() const
     boost::property_tree::json_parser::write_json( stm, tree );
     return stm.str();
 }
+////////////////////////////////////////////////////////////////////////////////
 
-}
+} //end kibitz

@@ -22,10 +22,10 @@
 
 #include <boost/asio/ip/host_name.hpp>
 #include <boost/config.hpp>
-#if defined(BOOST_WINDOWS)
+#if defined( BOOST_WINDOWS )
 #include <process.h>
 #endif
-//#if defined(BOOST_WINDOWS)
+//#if defined( BOOST_WINDOWS )
 //    return static_cast<unsigned short>(::GetCurrentProcessId());
 //#else
 //    return static_cast<unsigned short>(::getpid());
@@ -33,47 +33,48 @@
 #include <kibitz/messages/heartbeat.hpp>
 
 #include <kibitz/messages/worker_notification_message.hpp>
+
 namespace kibitz
 {
 
-
-
+////////////////////////////////////////////////////////////////////////////////
 heartbeat::heartbeat( int port )
-  : notification_message( notification::HEARTBEAT_NOTIFICATION ),
-      host_name_( boost::asio::ip::host_name() ),
-#if defined(BOOST_WINDOWS)
-      pid_( _getpid() ),
+    :
+    notification_message( notification::HEARTBEAT_NOTIFICATION ),
+    host_name_( boost::asio::ip::host_name() ),
+#if defined( BOOST_WINDOWS )
+    pid_( _getpid() ),
 #else
-      pid_( getpid() ),
+    pid_( getpid() ),
 #endif
-      port_( port ),
-      ticks_( 0 )
+    port_( port ),
+    ticks_( 0 )
 {
-
-
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 heartbeat::heartbeat( const ptree& json )
-  : notification_message( notification::HEARTBEAT_NOTIFICATION ),
-      host_name_( json.get<string>( "host" ) ),
-      pid_( json.get<int>( "process_id" ) ),
-      port_( json.get<int>( "port" ) ),
-      ticks_( json.get<int>( "ticks" ) )
+    :
+    notification_message( notification::HEARTBEAT_NOTIFICATION ),
+    host_name_( json.get< string >( "host" ) ),
+    pid_( json.get< int >( "process_id" ) ),
+    port_( json.get< int >( "port" ) ),
+    ticks_( json.get< int >( "ticks" ) )
 {
-
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 heartbeat::~heartbeat()
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void heartbeat::increment_tick_count()
 {
     static int counter = 0;
     ticks_ = ++counter;
 }
-
-
+////////////////////////////////////////////////////////////////////////////////
 string heartbeat::to_json() const
 {
     stringstream stm;
@@ -86,11 +87,8 @@ string heartbeat::to_json() const
     boost::property_tree::json_parser::write_json( stm, tree );
     return stm.str();
 }
+////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-}
+} //end kibitz
 
 #endif

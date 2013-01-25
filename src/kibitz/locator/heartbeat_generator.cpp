@@ -42,7 +42,7 @@ void heartbeat_generator::operator()()
     LOG( INFO ) << "Started heartbeat thread";
     boost::condition_variable condition;
     boost::mutex mutex;
-    boost::unique_lock<boost::mutex> lock( mutex );
+    boost::unique_lock< boost::mutex > lock( mutex );
     time_duration pause_duration = millisec( frequency_ms_ );
     // startup pause to give publisher time to start up
     // on other thread, avoid errno 111

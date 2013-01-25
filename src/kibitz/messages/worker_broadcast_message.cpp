@@ -21,14 +21,16 @@
 
 namespace kibitz
 {
+
+////////////////////////////////////////////////////////////////////////////////
 worker_broadcast_message::worker_broadcast_message( const ptree& json )
     :
     notification_message( "worker_broadcast" ),
-    notification_( json.get<string>( "notification" ) )
+    notification_( json.get< string >( "notification" ) )
 {
     ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 worker_broadcast_message::worker_broadcast_message( const string& notification )
     :
     notification_message( "worker_broadcast" ),
@@ -36,7 +38,7 @@ worker_broadcast_message::worker_broadcast_message( const string& notification )
 {
     ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 string worker_broadcast_message::to_json() const
 {
     stringstream stm;
@@ -44,6 +46,8 @@ string worker_broadcast_message::to_json() const
     notification_message::populate_header( tree );
     tree.put( "notification", notification_ );
     boost::property_tree::json_parser::write_json( stm, tree );
-    return stm.str() ;
+    return stm.str();
 }
-}
+////////////////////////////////////////////////////////////////////////////////
+
+} //end kibitz

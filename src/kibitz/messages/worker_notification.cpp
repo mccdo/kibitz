@@ -23,19 +23,23 @@
 namespace kibitz
 {
 
-  const char* worker_notification::NOTIFICATION_TYPE="worker-notification1";
+const char* worker_notification::NOTIFICATION_TYPE = "worker-notification1";
 
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification::worker_notification( const string& payload )
-    : notification_message( NOTIFICATION_TYPE ),
-      payload_( payload )
+    :
+    notification_message( NOTIFICATION_TYPE ),
+    payload_( payload )
 {
+    ;
 }
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification::worker_notification( const ptree& json )
-    : notification_message( NOTIFICATION_TYPE ),
-      payload_( json.get<string>( "payload" ) )
+    :
+    notification_message( NOTIFICATION_TYPE ),
+    payload_( json.get< string >( "payload" ) )
 {
+    ;
 }
 ////////////////////////////////////////////////////////////////////////////////
 string worker_notification::to_json() const
@@ -48,4 +52,5 @@ string worker_notification::to_json() const
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////
-}
+
+} //end kibitz

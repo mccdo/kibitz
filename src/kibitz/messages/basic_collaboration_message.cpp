@@ -23,7 +23,7 @@
 namespace kibitz
 {
 
-
+////////////////////////////////////////////////////////////////////////////////
 string basic_collaboration_message::to_json() const
 {
     ptree tree;
@@ -32,33 +32,42 @@ string basic_collaboration_message::to_json() const
     tree.put( "payload", payload_ );
     tree.put( "worker_type", worker_type_ );
     boost::property_tree::json_parser::write_json( stm, tree );
-    return  stm.str() ;
+    return stm.str();
 }
-
-basic_collaboration_message::basic_collaboration_message( const string& worker_type, const string& payload )
-    : collaboration_message( "generic" ),
-      worker_type_( worker_type ),
-      payload_( payload )
+////////////////////////////////////////////////////////////////////////////////
+basic_collaboration_message::basic_collaboration_message(
+    const string& worker_type,
+    const string& payload )
+    :
+    collaboration_message( "generic" ),
+    worker_type_( worker_type ),
+    payload_( payload )
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 basic_collaboration_message::basic_collaboration_message( const ptree& json )
-    : collaboration_message( json ),
-      worker_type_( json.get<string>( "worker_type" ) ),
-      payload_( json.get<string>( "payload" ) )
+    :
+    collaboration_message( json ),
+    worker_type_( json.get< string >( "worker_type" ) ),
+    payload_( json.get< string >( "payload" ) )
 {
+    ;
 }
-
-  void basic_collaboration_message::to_ptree( ptree& response ) const {
-    collaboration_message::populate_header( response ) ;
-    response.put( "payload", payload_ ) ;
-    response.put("worker_type", worker_type_ );
-  }
-  
-  basic_collaboration_message_ptr_t basic_collaboration_message::from_ptree( const ptree& tree ) {
-    return basic_collaboration_message_ptr_t( new basic_collaboration_message( tree ) );
-  }
-
-
-
+////////////////////////////////////////////////////////////////////////////////
+void basic_collaboration_message::to_ptree( ptree& response ) const
+{
+    collaboration_message::populate_header( response );
+    response.put( "payload", payload_ );
+    response.put( "worker_type", worker_type_ );
 }
+////////////////////////////////////////////////////////////////////////////////
+basic_collaboration_message_ptr_t basic_collaboration_message::from_ptree(
+    const ptree& tree )
+{
+    return basic_collaboration_message_ptr_t(
+        new basic_collaboration_message( tree ) );
+}
+////////////////////////////////////////////////////////////////////////////////
+
+} //end kibitz

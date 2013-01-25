@@ -39,6 +39,7 @@
 namespace kibitz
 {
 
+////////////////////////////////////////////////////////////////////////////////
 message_ptr_t notification_message_factory( const ptree& tree )
 {
     message_ptr_t result;
@@ -69,41 +70,45 @@ message_ptr_t notification_message_factory( const ptree& tree )
         result = message_ptr_t( new job_initialization_message( tree ) );
     }
 
-    if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
-      result = message_ptr_t( new binding_notification( tree ) );
+    if( notification_type == binding_notification::NOTIFICATION_TYPE )
+    {
+        result = message_ptr_t( new binding_notification( tree ) );
     }
 
-    if( notification_type == worker_notification::NOTIFICATION_TYPE ) {
-      result = message_ptr_t( new worker_notification( tree ) );
+    if( notification_type == worker_notification::NOTIFICATION_TYPE )
+    {
+        result = message_ptr_t( new worker_notification( tree ) );
     }
 
     return result;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 message_ptr_t collaboration_message_factory( const ptree& tree )
 {
     message_ptr_t result;
 
-    const string collaboration_type = tree.get<string>( "collaboration_type" );
+    const string collaboration_type =
+        tree.get< string >( "collaboration_type" );
     if( collaboration_type == "generic" )
     {
-        result =  message_ptr_t( new basic_collaboration_message( tree ) );
+        result = message_ptr_t( new basic_collaboration_message( tree ) );
     }
 
-    if( collaboration_type == collaboration_message_bundle::MESSAGE_TYPE ) {
-      result = message_ptr_t( new collaboration_message_bundle( tree ) ); 
+    if( collaboration_type == collaboration_message_bundle::MESSAGE_TYPE )
+    {
+        result = message_ptr_t( new collaboration_message_bundle( tree ) );
     }
 
     return result;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 message_ptr_t message_factory( const string& json )
 {
     message_ptr_t result;
     stringstream sstm;
     sstm << json;
     ptree tree;
-    VLOG(1) << "RAW MESSAGE [" << json << "]";
+    VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
     boost::property_tree::json_parser::read_json( sstm, tree );
     const string message_type = tree.get<string>( "message_type" );
 
@@ -119,6 +124,6 @@ message_ptr_t message_factory( const string& json )
 
     return result;
 }
+////////////////////////////////////////////////////////////////////////////////
 
-}
-
+} //end kibitz
