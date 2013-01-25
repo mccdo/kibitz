@@ -28,29 +28,32 @@
 namespace kibitz
 {
 
-
+////////////////////////////////////////////////////////////////////////////////
 context::context( const po::variables_map& application_configuration )
-    : application_configuration_( application_configuration ),
-      zmq_context_( NULL ),
-      signalled_( false ),
-      inedge_message_handler_( NULL ),
-      initialization_handler_( NULL )
+    :
+    application_configuration_( application_configuration ),
+    zmq_context_( NULL ),
+    signalled_( false ),
+    inedge_message_handler_( NULL ),
+    initialization_handler_( NULL )
 {
-
     DLOG( INFO ) << "ctor for context entered" ;
-    zmq_context_ = zmq_init( application_configuration["context-threads"].as<int>() );
+    zmq_context_ = zmq_init(
+        application_configuration[ "context-threads" ].as< int >() );
     DLOG( INFO ) << "zmq initialized";
     message_bus_socket_ = util::create_socket( zmq_context_, ZMQ_PUB );
     util::check_zmq( zmq_bind( message_bus_socket_, INPROC_COMMAND_BINDING ) );
 }
-
+////////////////////////////////////////////////////////////////////////////////
 context::~context()
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::send_out_message( const string& payload )
 {
-    string worker_type = application_configuration_["worker-type"].as<string>();
+    string worker_type =
+        application_configuration_[ "worker-type" ].as< string >();
     string job_id;
     get_job_id( job_id );
 
@@ -62,94 +65,100 @@ void context::send_out_message( const string& payload )
 
     publisher pub( zmq_context(), INPROC_LOCATOR_PUBLISH_BINDING );
     pub.send( msg.to_json() );
-
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::send_notification_message( const string& payload )
 {
-  if( application_configuration_.count( "notification-port" ) ) {
-    worker_notification notification( payload ) ;
-    VLOG(1) << "Published notification " << payload;
-    publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
-    pub.send( notification.to_json() ) ;
-  } else {
-    LOG(WARNING) <<  "Notification publish failed because notification-port " 
-      "was not supplied on command line"; 
-  }
+    if( application_configuration_.count( "notification-port" ) )
+    {
+        worker_notification notification( payload ) ;
+        VLOG( 1 ) << "Published notification " << payload;
+        publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
+        pub.send( notification.to_json() ) ;
+    }
+    else
+    {
+        LOG( WARNING )
+            << "Notification publish failed because notification-port "
+            << "was not supplied on command line";
+    }
 }
-
-void context::register_initialization_notification_handler( initialization_callback initialization_handler )
+////////////////////////////////////////////////////////////////////////////////
+void context::register_initialization_notification_handler(
+    initialization_callback initialization_handler )
 {
     initialization_handler_ = initialization_handler;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 initialization_callback context::get_initialization_notification_callback()
 {
     return initialization_handler_;
 }
-
-void context::register_inedge_message_handler( collaboration_callback inedge_message_handler )
+////////////////////////////////////////////////////////////////////////////////
+void context::register_inedge_message_handler(
+    collaboration_callback inedge_message_handler )
 {
     inedge_message_handler_ = inedge_message_handler;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 collaboration_callback context::get_inedge_message_handler()
 {
     return inedge_message_handler_;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 const po::variables_map& context::get_config() const
 {
     return application_configuration_;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::send_internal_message( const char* message )
 {
     string s( message );
     DLOG( INFO ) << "sending internal message -> " << message;
     kibitz::util::send( message_bus_socket_, s );
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::set_worker_type( const string& worker_type_name )
 {
     worker_type_name_ = worker_type_name;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::set_worker_id( const string& worker_id )
 {
     worker_id_ = worker_id ;
 }
-
-
-  void context::start()
-  {
+////////////////////////////////////////////////////////////////////////////////
+void context::start()
+{
     thread_group threads;
-    
-    string locator_binding = (format("tcp://%1%:%2%") % 
-				   application_configuration_["locator-host"].as<string>() % 
-				   application_configuration_["locator-send-port"].as<int>() ).str();
 
-    publisher locator_pub( zmq_context(),
-			   locator_binding,
-			   ZMQ_PUSH,
-			   INPROC_LOCATOR_PUBLISH_BINDING,
-			   publish::connect );
+    string locator_binding = ( format( "tcp://%1%:%2%" ) %
+        application_configuration_[ "locator-host" ].as< string >() %
+        application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
-    if( application_configuration_.count( "notification-port" ) ) {
-      string notification_binding = (format("tcp://*:%1%") % 
-				     application_configuration_["notification-port"].as<int>() ).str();
-      LOG(INFO) << "Worker [" << worker_type_name_ << "." << worker_id_ << "] may publish notifications"
-	" on " << notification_binding ;
+    publisher locator_pub(
+        zmq_context(),
+        locator_binding,
+        ZMQ_PUSH,
+        INPROC_LOCATOR_PUBLISH_BINDING,
+        publish::connect );
 
-      publisher notify_pub( zmq_context(),
-			    notification_binding,
-			    ZMQ_PUB,
-			    INPROC_NOTIFICATION_PUBLISH_BINDING,
-			    publish::bind );
-      threads.create_thread( notify_pub );
+    if( application_configuration_.count( "notification-port" ) )
+    {
+        string notification_binding = ( format( "tcp://*:%1%" ) %
+            application_configuration_[ "notification-port" ].as< int >() ).str();
+        LOG( INFO )
+           << "Worker [" << worker_type_name_ << "." << worker_id_
+           << "] may publish notifications on " << notification_binding ;
+
+        publisher notify_pub(
+            zmq_context(),
+            notification_binding,
+            ZMQ_PUB,
+            INPROC_NOTIFICATION_PUBLISH_BINDING,
+            publish::bind );
+        threads.create_thread( notify_pub );
     }
-
-
 
     heartbeat_receiver hb_receiver( this );
     kibitz::in_edge_manager in_edge_manager( *this );
@@ -158,15 +167,13 @@ void context::set_worker_id( const string& worker_id )
     threads.create_thread( hb_receiver );
 
     threads.join_all();
-
-  }
-
-
-
+}
+////////////////////////////////////////////////////////////////////////////////
 void context::stop()
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::terminate()
 {
     DLOG( INFO ) << "context.terminate shutting down application" ;
@@ -180,24 +187,23 @@ void context::terminate()
         zmq_term( zmq_context_ );
     }
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void* context::zmq_context()
 {
     return zmq_context_;
 }
-
-
+////////////////////////////////////////////////////////////////////////////////
 void context::set_job_id( const string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ ) ;
     current_job_id_ = job_id;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void context::get_job_id( string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ );
     job_id = current_job_id_;
 }
+////////////////////////////////////////////////////////////////////////////////
 
-}
-
+} //end kibitz

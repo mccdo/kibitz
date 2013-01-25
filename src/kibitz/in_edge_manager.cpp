@@ -31,14 +31,14 @@
 namespace kibitz
 {
 
-  const char* in_edge_manager::NOTIFICATION_BINDING = "inproc://in_edge_manager";
+const char* in_edge_manager::NOTIFICATION_BINDING = "inproc://in_edge_manager";
 
 ////////////////////////////////////////////////////////////////////////////////
 in_edge_manager::in_edge_manager( context& ctx )
     :
     context_( ctx ),
-    worker_type_( ctx.get_config()["worker-type"].as<string>() ),
-    worker_id_( ctx.get_config()["worker-id"].as<int>() )
+    worker_type_( ctx.get_config()[ "worker-type" ].as< string >() ),
+    worker_id_( ctx.get_config()[ "worker-id" ].as< int >() )
 {
     ;
 }
@@ -47,117 +47,146 @@ in_edge_manager::~in_edge_manager()
 {
     ;
 }
-
-  in_edge_manager::in_edge_manager( const in_edge_manager& iem ) 
-    :context_( iem.context_ ),
-     worker_type_( iem.worker_type_ ),
-     worker_id_( iem.worker_id_ ) {
-    // we do not initialize notification socket
-
-  }
-
-  void in_edge_manager::send_notification( const string& json ) {
-    if( notification_socket_ == NULL ) {
-      notification_socket_ = util::create_socket_ptr( context_.zmq_context(), ZMQ_REQ );
-      util::check_zmq( zmq_connect( *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
+////////////////////////////////////////////////////////////////////////////////
+in_edge_manager::in_edge_manager( const in_edge_manager& iem )
+    :
+    context_( iem.context_ ),
+    worker_type_( iem.worker_type_ ),
+    worker_id_( iem.worker_id_ )
+{
+    //We do not initialize notification socket
+    ;
+}
+////////////////////////////////////////////////////////////////////////////////
+void in_edge_manager::send_notification( const string& json )
+{
+    if( notification_socket_ == NULL )
+    {
+        notification_socket_ =
+            util::create_socket_ptr( context_.zmq_context(), ZMQ_REQ );
+        util::check_zmq( zmq_connect(
+            *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
     }
 
     util::send( *notification_socket_, json );
     string response;
     util::recv( *notification_socket_, response );
-    VLOG(1) << "RESPONSE " << response;
-  }
-
-
-
-
+    VLOG( 1 ) << "RESPONSE " << response;
+}
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
 {
     DLOG( INFO ) << "Got job initialization message ";
-    job_initialization_message_ptr_t job_init_message = dynamic_pointer_cast<job_initialization_message>( message );
-    CHECK( job_init_message != NULL ) << "invalid notification message cast to job init message";
-    // only targeted worker will execute init callback, if such callback has been implemented
+    job_initialization_message_ptr_t job_init_message =
+        dynamic_pointer_cast< job_initialization_message >( message );
+    CHECK( job_init_message != NULL )
+        << "invalid notification message cast to job init message";
+    //Only targeted worker will execute init callback,
+    //if such callback has been implemented
     if( job_init_message->worker_type() == worker_type_ )
     {
         if( job_init_message->worker_id() == worker_id_ )
         {
-            initialization_callback cb = context_.get_initialization_notification_callback();
-            CHECK( cb != NULL ) << "Sent a job initialization message to a worker without an initialization callback";
-            cb(job_init_message->payload());
+            initialization_callback cb =
+                context_.get_initialization_notification_callback();
+            CHECK( cb != NULL )
+                << "Sent a job initialization message to a "
+                << "worker without an initialization callback";
+            cb( job_init_message->payload() );
         }
     }
 }
-
-
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::operator()()
+void in_edge_manager::operator ()()
 {
     DLOG( INFO ) << "in edge manager thread started" ;
 
     try
     {
-	util::sockman_ptr_t notification_sock = util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
-	util::check_zmq( zmq_bind( *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
+        util::sockman_ptr_t notification_sock =
+            util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
+        util::check_zmq( zmq_bind(
+            *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
 
-        zmq_pollitem_t* pollitems = ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) * 2 );
+        zmq_pollitem_t* pollitems =
+            ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) * 2 );
         int count_items = 1;
-        pollitems[0].socket = *notification_sock;
-        pollitems[0].fd = 0;
-        pollitems[0].events = ZMQ_POLLIN;
-	pollitems[0].revents = 0;
-	memset( &pollitems[1], 0, sizeof( zmq_pollitem_t ) );
+        pollitems[ 0 ].socket = *notification_sock;
+        pollitems[ 0 ].fd = 0;
+        pollitems[ 0 ].events = ZMQ_POLLIN;
+        pollitems[ 0 ].revents = 0;
+        memset( &pollitems[ 1 ], 0, sizeof( zmq_pollitem_t ) );
 
-	string current_binding;
+        string current_binding;
 
         while( true )
         {
             int rc = zmq_poll( pollitems, count_items, -1 );
             if( rc > 0 )
             {
-	      if( pollitems[0].revents & ZMQ_POLLIN ) { 
-		string json;
-		util::recv( pollitems[0].socket, json );
+                if( pollitems[ 0 ].revents & ZMQ_POLLIN )
+                {
+                    string json;
+                    util::recv( pollitems[ 0 ].socket, json );
 
-		notification_message_ptr_t msg = static_pointer_cast<notification_message>(message_factory( json ) );
+                    notification_message_ptr_t msg =
+                        static_pointer_cast< notification_message >(
+                            message_factory( json ) );
 
-		inproc_notification_message response( message::ok );
-		util::send( pollitems[0].socket, response.to_json() );
+                    inproc_notification_message response( message::ok );
+                    util::send( pollitems[ 0 ].socket, response.to_json() );
 
-		if( msg->notification_type() == binding_notification::NOTIFICATION_TYPE ) {
-		  binding_notification_ptr_t bind_msg = static_pointer_cast<binding_notification>( msg ) ;
-		  if( bind_msg->target_worker() == worker_type_ ) {
-		    if( bind_msg->binding() != current_binding ) {
-		      LOG(INFO) << "Binding worker to [" << bind_msg->binding() << "]";
-		      if( count_items > 1 ) {
-			util::close_socket(  pollitems[1].socket );
-		      }
+                    if( msg->notification_type() ==
+                        binding_notification::NOTIFICATION_TYPE )
+                    {
+                        binding_notification_ptr_t bind_msg =
+                            static_pointer_cast<binding_notification>( msg ) ;
+                        if( bind_msg->target_worker() == worker_type_ )
+                        {
+                            if( bind_msg->binding() != current_binding )
+                            {
+                                LOG( INFO )
+                                    << "Binding worker to ["
+                                    << bind_msg->binding() << "]";
+                                if( count_items > 1 )
+                                {
+                                    util::close_socket( pollitems[ 1 ].socket );
+                                }
 
-		      count_items = 2;
-		      current_binding = bind_msg->binding();
-		      pollitems[1].socket = util::create_socket( context_.zmq_context(), ZMQ_PULL );
-		      util::check_zmq( zmq_connect( pollitems[1].socket, current_binding.c_str() ) );
-		      pollitems[1].events = ZMQ_POLLIN;
-		      DLOG(INFO) << "Bind operation succeeded to [" << bind_msg->binding() << "]";
-		    }
-		  }		  
-		}		
-	      }
-	      
-	      // handle collaboration message
-	      if( pollitems[1].revents & ZMQ_POLLIN ) {
+                                count_items = 2;
+                                current_binding = bind_msg->binding();
+                                pollitems[ 1 ].socket = util::create_socket(
+                                    context_.zmq_context(), ZMQ_PULL );
+                                util::check_zmq( zmq_connect(
+                                    pollitems[ 1 ].socket,
+                                    current_binding.c_str() ) );
+                                pollitems[ 1 ].events = ZMQ_POLLIN;
+                                DLOG( INFO )
+                                    << "Bind operation succeeded to ["
+                                    << bind_msg->binding() << "]";
+                            }
+                        }
+                    }
+                }
 
-		string json;
-		util::recv( pollitems[1].socket, json );
-		VLOG(1) << "Received collaboration message " << json;
-		collaboration_message_bundle_ptr_t msg = static_pointer_cast<collaboration_message_bundle>( message_factory( json ) );
-		boost::thread thrd( collaboration_handler( &context_, msg ) );		
-	      }
-
-            } else {
-	      // TODO: handle bad return
-	    }
-        } // while
+                //Handle collaboration message
+                if( pollitems[ 1 ].revents & ZMQ_POLLIN )
+                {
+                    string json;
+                    util::recv( pollitems[ 1 ].socket, json );
+                    VLOG( 1 ) << "Received collaboration message " << json;
+                    collaboration_message_bundle_ptr_t msg =
+                        static_pointer_cast< collaboration_message_bundle >(
+                            message_factory( json ) );
+                    boost::thread thrd(
+                        collaboration_handler( &context_, msg ) );
+                }
+            }
+            else
+            {
+                //TODO: handle bad return
+            }
+        } //end while
     }
     catch( const util::queue_interrupt& )
     {
@@ -169,4 +198,5 @@ void in_edge_manager::operator()()
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-}
+
+} //end kibitz

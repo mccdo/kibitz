@@ -26,12 +26,12 @@
 
 namespace kibitz
 {
+
 context* context_ =  NULL;
 
-
+////////////////////////////////////////////////////////////////////////////////
 void validate_command_line( const po::variables_map& command_line )
 {
-
     if( !command_line.count( "worker-id" ) )
     {
         throw runtime_error( string( "Missing required worker-id argument" ) );
@@ -41,36 +41,41 @@ void validate_command_line( const po::variables_map& command_line )
     {
         throw runtime_error( string( "Missing required worker-type argument" ) );
     }
-
-
-
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void initialize( int argc, char* argv[] )
 {
     assert( !context_ );
 
-    google::InitGoogleLogging( argv[0] );
+    google::InitGoogleLogging( argv[ 0 ] );
 #ifndef BOOST_WINDOWS
     //On windows this is not implemented
     google::InstallFailureSignalHandler();
 #endif
 
     DLOG( INFO ) << "initialize start";
-    fs::path path( argv[0] );
+    fs::path path( argv[ 0 ] );
     stringstream ss ;
     ss << path.filename() << " options" ;
     po::options_description options( ss.str() );
     options.add_options()
-    ( "help,h", "Show help message" )
-    ( "worker-id,I", po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
-    ( "worker-type,T", po::value< string >(), "(Required) Name of the type of worker." )
-      ( "locator-host,L", po::value< string >(), "IP Address or DNS name of locator" )     /* todo: implement HA pair host1;host2 */
-      ( "locator-receive-port,R", po::value< int >()->default_value(5556), "Port to receive notifications from locator" )
-      ( "locator-send-port,S", po::value< int >()->default_value(5557), "Port to send messages to locator" )
-    ( "notification-port,P", po::value<int>(), "Optional port to publish notification messages" )
-    ( "context-threads,t", po::value< int >()->default_value( 2 ), "Thread count passed to zmq_init" ) 
-      ;
+    ( "help,h",
+      "Show help message" )
+    ( "worker-id,I", po::value< int >(),
+      "(Required) Integer that identifies worker. Must be unique with worker type" )
+    ( "worker-type,T", po::value< string >(),
+      "(Required) Name of the type of worker." )
+    //TODO: implement HA pair host1;host2
+    ( "locator-host,L", po::value< string >(),
+      "IP Address or DNS name of locator" )
+    ( "locator-receive-port,R", po::value< int >()->default_value( 5556 ),
+      "Port to receive notifications from locator" )
+    ( "locator-send-port,S", po::value< int >()->default_value( 5557 ),
+      "Port to send messages to locator" )
+    ( "notification-port,P", po::value< int >(),
+      "Optional port to publish notification messages" )
+    ( "context-threads,t", po::value< int >()->default_value( 2 ),
+      "Thread count passed to zmq_init" );
 
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );
@@ -95,13 +100,13 @@ void initialize( int argc, char* argv[] )
         throw;
     }
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void start()
 {
     assert( context_ );
     context_->start();
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void terminate()
 {
     if( context_ )
@@ -109,36 +114,33 @@ void terminate()
         context_->terminate();
     }
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void set_in_message_handler( collaboration_callback fn )
 {
     context_->register_inedge_message_handler( fn );
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void set_initialization_notification_handler( initialization_callback fn )
 {
     context_->register_initialization_notification_handler( fn ) ;
 }
-
-
-
+////////////////////////////////////////////////////////////////////////////////
 void send_out_message( const string& payload )
 {
     context_->send_out_message( payload );
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void send_notification_message( const string& payload )
 {
     context_->send_notification_message( payload );
 }
-
-
+////////////////////////////////////////////////////////////////////////////////
 void get_context_information( context_information_t& context_information )
 {
     context_information.worker_type = context_->worker_type();
     context_information.worker_id = context_->worker_id();
     context_->get_job_id( context_information.job_id );
 }
+////////////////////////////////////////////////////////////////////////////////
 
-}
-
+} //end kibitz

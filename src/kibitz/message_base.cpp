@@ -29,24 +29,26 @@ using kibitz::util::check_zmq;
 namespace kibitz
 {
 
-
+////////////////////////////////////////////////////////////////////////////////
 message_base::message_base( context* context )
-    : shutdown_( new bool( false ) ),
-      context_( context )
+    :
+    shutdown_( new bool( false ) ),
+    context_( context )
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 message_base::~message_base()
 {
     //delete shutdown_;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 bool message_base::shutdown() const
 {
     return *shutdown_;
 }
-
-void message_base::internal_command_handler( )
+////////////////////////////////////////////////////////////////////////////////
+void message_base::internal_command_handler()
 {
     DLOG( INFO ) << "Created internal thread message handler";
     void* socket = NULL;
@@ -55,7 +57,6 @@ void message_base::internal_command_handler( )
         socket = create_socket( context_->zmq_context(), ZMQ_SUB );
         check_zmq( zmq_connect( socket, INPROC_COMMAND_BINDING ) );
         check_zmq( zmq_setsockopt( socket, ZMQ_SUBSCRIBE, "", 0 ) );
-
 
         while( true )
         {
@@ -81,8 +82,7 @@ void message_base::internal_command_handler( )
     }
 
     close_socket( socket );
-
 }
+////////////////////////////////////////////////////////////////////////////////
 
-}
-
+} //end kibitz

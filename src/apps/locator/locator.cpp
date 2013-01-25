@@ -73,31 +73,40 @@ namespace kl = kibitz::locator;
 
 string pid_file;
 #ifndef BOOST_WINDOWS
-void signal_handler( int, siginfo_t*, void* ) {
-  fs::path path( pid_file );
-  if( fs::exists(  path ) ) {
-    fs::remove_all( path );
-  }
-  raise( SIGINT );
+void signal_handler( int, siginfo_t*, void* )
+{
+    fs::path path( pid_file );
+    if( fs::exists(  path ) )
+    {
+        fs::remove_all( path );
+    }
+    raise( SIGINT );
 }
 #endif
-
+////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
-
     po::options_description options( "locator" );
     options.add_options()
-    ( "help,h", "Show help message" )
-    ( "port,p", po::value<int>()->default_value( 5556 ), "Port used by locator to distribute heartbeats." )
-      ("listen-port,l", po::value<int>()->default_value( 5557 ), "Port listens for messages from workers and control scripts." )
-    ( "context-threads,t", po::value<int>()->default_value( 4 ), "zmq context thread count" )
+    ( "help,h",
+      "Show help message" )
+    ( "port,p", po::value< int >()->default_value( 5556 ),
+      "Port used by locator to distribute heartbeats." )
+    ( "listen-port,l", po::value< int >()->default_value( 5557 ),
+      "Port listens for messages from workers and control scripts." )
+    ( "context-threads,t", po::value< int >()->default_value( 4 ),
+      "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
-      ("graph-definition-file,f", po::value<string>(), "File containing collaboration graph definition" )
-    ( "pid-file", po::value<string>()->default_value( "/var/run/kibitz-locator.pid" ), "Location of pid file for daemon mode" )
-      ( "heartbeat-frequency", po::value<int>()->default_value( 100 ), "Heartbeat frequency in milliseconds" )
-      ( "host,H", po::value<string>(), "Host name or IP address that workers will connect to for collaboration messages." )
-      ( "base-port,P", po::value<int>()->default_value( 6000 ), "Start of port range that workers will bind to for collaboration messages" )
-    ;
+    ( "graph-definition-file,f", po::value< string >(),
+      "File containing collaboration graph definition" )
+    ( "pid-file", po::value< string >()->default_value( "/var/run/kibitz-locator.pid" ),
+      "Location of pid file for daemon mode" )
+    ( "heartbeat-frequency", po::value< int >()->default_value( 100 ),
+      "Heartbeat frequency in milliseconds" )
+    ( "host,H", po::value< string >(),
+      "Host name or IP address that workers will connect to for collaboration messages." )
+    ( "base-port,P", po::value< int >()->default_value( 6000 ),
+      "Start of port range that workers will bind to for collaboration messages" );
 
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );
@@ -106,29 +115,28 @@ int main( int argc, char* argv[] )
 #ifndef BOOST_WINDOWS
     if( command_line.count( "daemon" ) )
     {
-        pid_file = command_line["pid-file"].as<string>();
+        pid_file = command_line[ "pid-file" ].as< string >();
         kibitz::util::daemonize( pid_file );
-	// we want to capture SIGINT so we 
-	// can clean up pid file and re-raise signal
-	struct sigaction act;
-	memset( &act, 0, sizeof( act ) );
-	act.sa_sigaction = &signal_handler;
-	act.sa_flags = SA_SIGINFO | SA_RESETHAND;
-	sigaction( SIGINT, &act, NULL );
+        // we want to capture SIGINT so we
+        // can clean up pid file and re-raise signal
+        struct sigaction act;
+        memset( &act, 0, sizeof( act ) );
+        act.sa_sigaction = &signal_handler;
+        act.sa_flags = SA_SIGINFO | SA_RESETHAND;
+        sigaction( SIGINT, &act, NULL );
     }
 #endif
 
-
-    InitGoogleLogging( argv[0] );
+    InitGoogleLogging( argv[ 0 ] );
 #ifndef BOOST_WINDOWS
     //This method is not implemented on windows
     InstallFailureSignalHandler();
 #endif
     DLOG( INFO ) << "Start locator" ;
 
-
-    const int port = command_line["port"].as<int>() ;
-    const int heartbeat_frequency = command_line["heartbeat-frequency"].as<int>() ;
+    const int port = command_line[ "port" ].as< int >();
+    const int heartbeat_frequency =
+        command_line[ "heartbeat-frequency" ].as< int >();
     int exit_code = 0;
     int rc = 0;
 
@@ -138,7 +146,7 @@ int main( int argc, char* argv[] )
         exit( 1 );
     }
 
-    void* context = zmq_init( command_line["context-threads"].as<int>() );
+    void* context = zmq_init( command_line[ "context-threads" ].as< int >() );
 
     if( !context )
     {
@@ -148,39 +156,46 @@ int main( int argc, char* argv[] )
 
     try
     {
-      LOG(INFO) << "Beginning initialization" ;
-      string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
-      string worker_root_binding = (format( "tcp://%1%" ) % command_line["host"].as<string>() ).str();
-      string listener_binding = (format("tcp://*:%1%" ) % command_line["listen-port"].as<int>() ).str();
-      std::string graph_file_name = command_line["graph-definition-file"].as<string>() ;
-      LOG(INFO) << "Preparing collaboration graph from " << graph_file_name;
-      kg::worker_graph_ptr worker_graph_ptr = kg::create_worker_graph_from_file( graph_file_name  );
-      LOG(INFO) << "Graph creation succeeded" ;
-      kibitz::publisher pub( context, 
-				   publisher_binding, 
-				   ZMQ_PUB, 
-			     "inproc://publisher",
-			     kibitz::publish::bind );
-      heartbeat_generator heartbeats( pub, heartbeat_frequency, port );
+        LOG( INFO ) << "Beginning initialization";
+        string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
+        string worker_root_binding = ( format( "tcp://%1%" ) %
+            command_line[ "host" ].as< string >() ).str();
+        string listener_binding = ( format( "tcp://*:%1%" ) %
+            command_line[ "listen-port" ].as< int >() ).str();
+        std::string graph_file_name =
+            command_line[ "graph-definition-file" ].as< string >() ;
+        LOG( INFO ) << "Preparing collaboration graph from " << graph_file_name;
+        kg::worker_graph_ptr worker_graph_ptr =
+            kg::create_worker_graph_from_file( graph_file_name  );
+        LOG( INFO ) << "Graph creation succeeded" ;
+        kibitz::publisher pub(
+            context,
+            publisher_binding,
+            ZMQ_PUB,
+            "inproc://publisher",
+            kibitz::publish::bind );
+        heartbeat_generator heartbeats( pub, heartbeat_frequency, port );
 
-      kl::binding_map_t bindings;
-      kl::create_bindings( worker_root_binding, worker_graph_ptr, command_line["base-port"].as<int>(), bindings ); 
-      
-      kl::router router( context, pub, listener_binding, bindings, worker_graph_ptr ) ;
-      binding_broadcaster binder( pub, bindings );
+        kl::binding_map_t bindings;
+        kl::create_bindings( worker_root_binding, worker_graph_ptr,
+            command_line[ "base-port" ].as< int >(), bindings );
 
-      LOG(INFO) << "Creating worker threads";
-      boost::thread_group threads;
-      threads.create_thread( pub );
-      LOG(INFO) << "Created notification message publisher";
-      threads.create_thread( heartbeats );
-      LOG(INFO) <<  "Created heartbeat generator";
-      threads.create_thread( router );
-      LOG(INFO) << "Created message router";
-      threads.create_thread( binder ); 
-      LOG(INFO) << "Ready... Initialization complete";
-      threads.join_all();
-      DLOG(INFO) << "Exiting";
+        kl::router router(
+            context, pub, listener_binding, bindings, worker_graph_ptr ) ;
+        binding_broadcaster binder( pub, bindings );
+
+        LOG( INFO ) << "Creating worker threads";
+        boost::thread_group threads;
+        threads.create_thread( pub );
+        LOG( INFO ) << "Created notification message publisher";
+        threads.create_thread( heartbeats );
+        LOG( INFO ) << "Created heartbeat generator";
+        threads.create_thread( router );
+        LOG( INFO ) << "Created message router";
+        threads.create_thread( binder );
+        LOG( INFO ) << "Ready... Initialization complete";
+        threads.join_all();
+        DLOG( INFO ) << "Exiting";
     }
     catch( const std::exception& ex )
     {
@@ -194,14 +209,8 @@ int main( int argc, char* argv[] )
         fs::remove_all( path );
     }
 
-
     zmq_term( context );
 
-
-
-
     return exit_code;
-
 }
-
-
+////////////////////////////////////////////////////////////////////////////////

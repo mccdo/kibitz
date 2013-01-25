@@ -32,101 +32,127 @@ using kibitz::util::check_zmq;
 namespace kibitz
 {
 
-
+////////////////////////////////////////////////////////////////////////////////
 heartbeat_receiver::heartbeat_receiver( context* context )
-    : message_base( context )
+    :
+    message_base( context )
 {
+    ;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 heartbeat_receiver::~heartbeat_receiver()
 {
+    ;
 }
-
-void heartbeat_receiver::operator()()
+////////////////////////////////////////////////////////////////////////////////
+void heartbeat_receiver::operator ()()
 {
     DLOG( INFO ) << "Entered heartbeat receiver thread.";
 
     try
     {
-	util::sockman_ptr_t listen_sock = util::create_socket_ptr( context_->zmq_context(), ZMQ_SUB );
-	// TODO: handle host of the form primary;secondary, separate primary;secondary, hang on to
-	// secondary host and try to use it.  Probably listen simulateously to both primary and secondary,
-	// when secondary gets flagged as primary use that
-	string binding = (format( "tcp://%1%:%2%" ) % context_->get_config()[ "locator-host" ].as<string>() 
-			  % context_->get_config()[ "locator-receive-port" ].as<int>() ).str();
+        util::sockman_ptr_t listen_sock =
+            util::create_socket_ptr( context_->zmq_context(), ZMQ_SUB );
+        //TODO: handle host of the form primary;secondary, separate
+        //primary;secondary, hang on to secondary host and try to use it.
+        //Probably listen simulateously to both primary and secondary,
+        //when secondary gets flagged as primary use that
+        string binding = ( format( "tcp://%1%:%2%" ) %
+            context_->get_config()[ "locator-host" ].as< string >() %
+            context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
 
         LOG( INFO ) << "Will subscribe to messages from locator on " << binding;
         check_zmq( zmq_connect( *listen_sock, binding.c_str() ) );
         check_zmq( zmq_setsockopt( *listen_sock, ZMQ_SUBSCRIBE, "", 0 ) );
-	
-	util::wait( util::STARTUP_PAUSE ); 
-	in_edge_manager in_edges( *context_ );
+
+        util::wait( util::STARTUP_PAUSE );
+        in_edge_manager in_edges( *context_ );
 
         while( true )
         {
             DLOG( INFO ) << "Waiting for heartbeat";
             string json ;
-            // TODO if we dont receive a heartbeat after a certain amount of time
-            // try to connect to alternative locator
+            //TODO if we dont receive a heartbeat after a certain amount of time
+            //try to connect to alternative locator
             kibitz::util::recv( *listen_sock, json );
-            DLOG( INFO ) << context_->worker_type() << ":" << context_->worker_id() << " received message " << json;
-            notification_message_ptr_t message_ptr = dynamic_pointer_cast<notification_message>( message_factory( json ) );
+            DLOG( INFO )
+                << context_->worker_type() << ":"
+                << context_->worker_id() << " received message " << json;
+            notification_message_ptr_t message_ptr =
+                dynamic_pointer_cast< notification_message >(
+                    message_factory( json ) );
             if( message_ptr != NULL )
             {
                 string notification_type = message_ptr->notification_type();
                 if( notification_type == "heartbeat" )
                 {
-		  VLOG(1) << "Got heartbeat" ;
-                } else if( notification_type == binding_notification::NOTIFICATION_TYPE ) {
-		  VLOG(1) << "Got binding message";
-  		  in_edges.send_notification( json );
-		}
+                    VLOG( 1 ) << "Got heartbeat" ;
+                }
+                else if( notification_type ==
+                         binding_notification::NOTIFICATION_TYPE )
+                {
+                    VLOG( 1 ) << "Got binding message";
+                    in_edges.send_notification( json );
+                }
                 else if( notification_type == "worker_broadcast" )
                 {
-                    worker_broadcast_message_ptr_t wb = dynamic_pointer_cast<worker_broadcast_message>( message_ptr ) ;
+                    worker_broadcast_message_ptr_t wb =
+                        dynamic_pointer_cast< worker_broadcast_message >(
+                            message_ptr ) ;
                     if( wb->notification() == "shutdown" )
                     {
-		      LOG(INFO) << "Received shutdown message";
+                        LOG( INFO ) << "Received shutdown message";
                         exit( 0 );
                     }
-
                 }
-                else if( notification_type == job_initialization_message::NOTIFICATION_TYPE ) 
+                else if( notification_type ==
+                         job_initialization_message::NOTIFICATION_TYPE )
                 {
-		  job_initialization_message_ptr_t jm = static_pointer_cast< job_initialization_message >( message_ptr ) ;
-		  if( jm->worker_type() == context_->worker_type() ) {
-		    if( jm->worker_id() == context_->worker_id() ) {
-		      if( context_->get_initialization_notification_callback() ) {
-			boost::thread thrd( initialization_handler( context_, jm->payload() ) );
-		      } else {
-			LOG(ERROR) << "There is not a callback function defined to handle"
-			  "the received job initialization message."; 
-		      }
-		    }
-		  }
-
+                    job_initialization_message_ptr_t jm =
+                        static_pointer_cast< job_initialization_message >(
+                            message_ptr ) ;
+                    if( jm->worker_type() == context_->worker_type() )
+                    {
+                        if( jm->worker_id() == context_->worker_id() )
+                        {
+                            if( context_->get_initialization_notification_callback() )
+                            {
+                                boost::thread thrd( initialization_handler(
+                                    context_, jm->payload() ) );
+                            }
+                            else
+                            {
+                                LOG( ERROR )
+                                    << "There is not a callback function "
+                                    << "defined to handle the received job "
+                                    << "initialization message.";
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    LOG( ERROR ) << "We got a message we don't know how to handle - " << json;
+                    LOG( ERROR )
+                        << "We got a message we don't know how to handle - "
+                        << json;
                 }
             }
             else
             {
                 LOG( ERROR ) << "Unknown message type. Raw message = " << json;
             }
-
         }
     }
     catch( const util::queue_interrupt& )
     {
-        LOG( INFO ) << "Received interrupt shutting down heartbeat receiver thread";
+        LOG( INFO )
+            << "Received interrupt shutting down heartbeat receiver thread";
     }
     catch( const std::exception& ex )
     {
         LOG( ERROR ) << "Exception caused thread to terminate " << ex.what() ;
     }
-
-
 }
-}//end namespace
+////////////////////////////////////////////////////////////////////////////////
+
+}//end kibitz
