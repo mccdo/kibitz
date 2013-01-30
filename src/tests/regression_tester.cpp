@@ -50,13 +50,13 @@ using kibitz::context_information_t;
 using boost::lexical_cast;
 using namespace boost::filesystem;
 
-void message_handler( const kibitz::collaboration_messages_t& messages ) ;
-void notification_handler( const kibitz::payload_t&  );
+void message_handler( const kibitz::collaboration_messages_t& messages );
+void notification_handler( const kibitz::payload_t& );
 void record_in_message( const string& in );
 void record_out_message( const string& out );
 void record_message( const string& filename, const string& message );
 
-
+////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
     std::cout << "starting" << std::endl;
@@ -72,7 +72,8 @@ int main( int argc, char* argv[] )
 
         if( role == "ROOT" )
         {
-            kibitz::set_initialization_notification_handler( notification_handler );
+            kibitz::set_initialization_notification_handler(
+                notification_handler );
         }
         else if( role == "CHILD" )
         {
@@ -89,14 +90,10 @@ int main( int argc, char* argv[] )
     }
 
     return result;
-
-
 }
-
-
+////////////////////////////////////////////////////////////////////////////////
 void message_handler( const kibitz::collaboration_messages_t& messages )
 {
-
     stringstream stm;
     BOOST_FOREACH( const string & message, messages )
     {
@@ -105,25 +102,23 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
 
     record_in_message( stm.str() );
 
-    string payload = lexical_cast<string>( boost::uuids::random_generator()() );
+    string payload =
+        lexical_cast< string >( boost::uuids::random_generator()() );
 
     record_out_message( payload );
     kibitz::send_out_message( payload );
     // this will only get sent if notification-port is defined on the command line
     kibitz::send_notification_message( payload );
 }
-
-
-void notification_handler(const kibitz::payload_t& p )
+////////////////////////////////////////////////////////////////////////////////
+void notification_handler( const kibitz::payload_t& p )
 {
-    string payload = lexical_cast<string>( boost::uuids::random_generator()() );
+    string payload =
+        lexical_cast< string >( boost::uuids::random_generator()() );
     record_out_message( payload );
     kibitz::send_out_message( payload );
 }
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////
 void record_message( const string& filename, const string& message )
 {
     DLOG( INFO ) << "Writing test file " << filename << " with " << message;
@@ -132,20 +127,17 @@ void record_message( const string& filename, const string& message )
     stm.open( test_file_path.c_str() );
     stm << message;
     stm.close();
-
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void record_out_message( const string& out )
 {
     context_information_t context_info;
     kibitz::get_context_information( context_info );
     stringstream stm;
     stm << context_info.worker_type << "." << context_info.worker_id << ".out";
-
     record_message( stm.str(), out );
-
 }
-
+////////////////////////////////////////////////////////////////////////////////
 void record_in_message( const string& in )
 {
     context_information_t context_info;
@@ -154,3 +146,4 @@ void record_in_message( const string& in )
     stm << context_info.worker_type << "." << context_info.worker_id << ".in";
     record_message( stm.str(), in );
 }
+////////////////////////////////////////////////////////////////////////////////
