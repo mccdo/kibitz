@@ -26,6 +26,8 @@ find_package(ZMQ REQUIRED)
 set( YAMLCPP_ROOT "Please specify" CACHE PATH "Root directory where yaml-cpp is installed" )
 find_package(yamlcpp REQUIRED)
 
+find_package(Threads)
+
 INCLUDE_DIRECTORIES( 
     ${Boost_INCLUDE_DIRS}
     ${GLOG_INCLUDE_DIRS}

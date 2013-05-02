@@ -36,6 +36,7 @@ target_link_libraries( locator
   ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${ZMQ_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 set(VES_TARGET_NAME locator)

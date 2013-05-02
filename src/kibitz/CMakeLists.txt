@@ -52,6 +52,7 @@ target_link_libraries( kibitz
   ${GLOG_LIBRARIES}
   ${ZMQ_LIBRARIES}
   ${YAMLCPP_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 set(VES_TARGET_NAME kibitz)
