@@ -27,7 +27,7 @@
 
 #include <kibitz/export_config.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-
+#include <boost/utility.hpp>
 
 using std::string;
 namespace bpt = boost::posix_time;
