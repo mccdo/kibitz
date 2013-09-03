@@ -129,6 +129,23 @@ check_result
 
 KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
 
+KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost --status-sink-binding=tcp://localhost:6010 &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost  --status-sink-binding=tcp://localhost:6010 &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost --status-sink-binding=tcp://localhost:6010 &
+KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --status-sink-binding=tcp://localhost:6010 &
+
+sleep 4
+
+KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1 
+
+
+# test_name="Traversal A -> B with status messages"
+script/validate test/B.1.in test/A.1.out
+check_result
+
+
+KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+
 echo "shutting down locator"
 if [ -e ${HOME}/kibitz-locator.pid ]
 then

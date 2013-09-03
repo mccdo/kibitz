@@ -68,17 +68,20 @@ using std::stringstream;
 namespace kibitz
 {
 
-namespace notification
-{
-static const char* WORKER_TYPE = "worker_type";
-static const char* WORKER_ID = "worker_id";
-static const char* PAYLOAD = "payload";
-  static const char* INPROC_NOTIFICATION = "inproc";
-  static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
-  static const char* WORKER_BROADCAST = "worker_broadcast";
-  static const char* SHUTDOWN_NOTIFICATION = "shutdown";
+  namespace notification
+  {
+    static const char* WORKER_TYPE            = "worker_type";
+    static const char* WORKER_ID              = "worker_id";
+    static const char* PAYLOAD                = "payload";
+    static const char* EVENT_TIME             = "event_time";
+    static const char* EVENT_TYPE             = "event_type";
+    static const char* EVENT_DESCRIPTION      = "event_description";
+    static const char* INPROC_NOTIFICATION    = "inproc";
+    static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
+    static const char* WORKER_BROADCAST       = "worker_broadcast";
+    static const char* SHUTDOWN_NOTIFICATION  = "shutdown";
   
-}
+  }
 
 
   static const char* NOTIFICATION_MESSAGE_TYPE = "notification";

@@ -38,7 +38,7 @@ class context
     void* zmq_context_;
     void* message_bus_socket_;
     bool signalled_;
-
+  bool publish_status_;
     collaboration_callback inedge_message_handler_;
     initialization_callback initialization_handler_;
 
@@ -49,6 +49,7 @@ class context
 public:
     context( const po::variables_map& application_configuration );
     ~context();
+  void send_status_message( const string& msg );
     void set_worker_type( const string& worker_type_name ) ;
     void set_worker_id( const string& worker_id );
 

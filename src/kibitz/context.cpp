@@ -24,6 +24,7 @@
 #include <kibitz/in_edge_manager.hpp>
 #include <kibitz/publisher.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
+#include <kibitz/messages/worker_status_message.hpp>
 
 namespace kibitz
 {
@@ -34,6 +35,7 @@ context::context( const po::variables_map& application_configuration )
     application_configuration_( application_configuration ),
     zmq_context_( NULL ),
     signalled_( false ),
+    publish_status_( false ),
     inedge_message_handler_( NULL ),
     initialization_handler_( NULL )
 {
@@ -160,12 +162,30 @@ void context::start()
         threads.create_thread( notify_pub );
     }
 
+    if( application_configuration_.count( "status-sink-binding" ) ) {
+      string sink_binding = application_configuration_["status-sink-binding"].as< string >() ;
+      LOG( INFO ) << "Worker [" << worker_type_name_ << "." << worker_id_
+		  << "] will publish status updates to " << sink_binding ;
+      // many workers will publish status messages to a remote sink
+      publisher status_pub( 
+			   zmq_context(),
+			   sink_binding,
+			   ZMQ_PUSH,
+			   INPROC_STATUS_PUBLISH_BINDING,
+			   publish::connect );
+
+      threads.create_thread( status_pub ) ;
+      publish_status_ = true;
+
+			   
+    }
+
     heartbeat_receiver hb_receiver( this );
     kibitz::in_edge_manager in_edge_manager( *this );
     threads.create_thread( locator_pub );
     threads.create_thread( in_edge_manager );
     threads.create_thread( hb_receiver );
-
+    send_status_message( WORKER_STARTED );
     threads.join_all();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +212,23 @@ void* context::zmq_context()
 {
     return zmq_context_;
 }
+
+  void context::send_status_message( const string& msg )  {
+    if( publish_status_ ) {
+      string worker_type = application_configuration_["worker-type"].as< string >();
+      DLOG( INFO ) << "WORKER TYPE=" << worker_type;
+      string worker_id = boost::lexical_cast<string>(application_configuration_["worker-id"].as< int >());
+      DLOG( INFO ) << "WORKER ID=" << worker_id;
+
+      publisher p( zmq_context(), INPROC_STATUS_PUBLISH_BINDING );
+      string json = worker_status_message::get_worker_status( worker_type, 
+							      worker_id, 
+							      STATUS_MESSAGE,
+							      msg );
+
+      p.send( json );
+    }
+  }
 ////////////////////////////////////////////////////////////////////////////////
 void context::set_job_id( const string& job_id )
 {

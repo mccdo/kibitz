@@ -75,7 +75,9 @@ void initialize( int argc, char* argv[] )
     ( "notification-port,P", po::value< int >(),
       "Optional port to publish notification messages" )
     ( "context-threads,t", po::value< int >()->default_value( 2 ),
-      "Thread count passed to zmq_init" );
+      "Thread count passed to zmq_init" )
+      ("status-sink-binding,b", po::value< string >(),
+       "(Optional) ZeroMQ binding for sink to recieve status messages from workers" );
 
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );

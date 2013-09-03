@@ -29,6 +29,7 @@
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/worker_notification.hpp>
+#include <kibitz/messages/worker_status_message.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
@@ -78,6 +79,10 @@ message_ptr_t notification_message_factory( const ptree& tree )
     if( notification_type == worker_notification::NOTIFICATION_TYPE )
     {
         result = message_ptr_t( new worker_notification( tree ) );
+    }
+
+    if( notification_type == worker_status_message::NOTIFICATION_TYPE ) {
+      result = message_ptr_t( new worker_status_message( tree ) );
     }
 
     return result;
