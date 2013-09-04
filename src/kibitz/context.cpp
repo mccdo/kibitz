@@ -185,6 +185,7 @@ void context::start()
     threads.create_thread( locator_pub );
     threads.create_thread( in_edge_manager );
     threads.create_thread( hb_receiver );
+    usleep( 1000 );
     send_status_message( WORKER_STARTED );
     threads.join_all();
 }
@@ -215,18 +216,27 @@ void* context::zmq_context()
 
   void context::send_status_message( const string& msg )  {
     if( publish_status_ ) {
-      string worker_type = application_configuration_["worker-type"].as< string >();
-      DLOG( INFO ) << "WORKER TYPE=" << worker_type;
-      string worker_id = boost::lexical_cast<string>(application_configuration_["worker-id"].as< int >());
-      DLOG( INFO ) << "WORKER ID=" << worker_id;
+      int tries= 0;
+      while( tries++ < 3 ) {
+	try {
+	  string worker_type = application_configuration_["worker-type"].as< string >();
+	  DLOG( INFO ) << "WORKER TYPE=" << worker_type;
+	  string worker_id = boost::lexical_cast<string>(application_configuration_["worker-id"].as< int >());
+	  DLOG( INFO ) << "WORKER ID=" << worker_id;
 
-      publisher p( zmq_context(), INPROC_STATUS_PUBLISH_BINDING );
-      string json = worker_status_message::get_worker_status( worker_type, 
-							      worker_id, 
-							      STATUS_MESSAGE,
-							      msg );
+	  publisher p( zmq_context(), INPROC_STATUS_PUBLISH_BINDING );
+	  string json = worker_status_message::get_worker_status( worker_type, 
+								  worker_id, 
+								  STATUS_MESSAGE,
+								  msg );
 
-      p.send( json );
+	  p.send( json );
+	  return;
+	} catch( ... ) {
+	  DLOG( ERROR ) << "Attempt to send status message failed. Retrying";
+	  usleep(1000);
+	}
+      }
     }
   }
 ////////////////////////////////////////////////////////////////////////////////

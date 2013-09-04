@@ -1,0 +1,67 @@
+#!/bin/bash
+
+LOCATOR=./src/apps/locator/worker-locator
+REGRESSION_TESTER=./src/tests/regression-tester
+
+test_name=
+
+function test_passed
+{
+    echo -e "\033[40m\033[1;32m ${test_name} ...Test Passed!  \033[0m"
+}
+
+function test_failed
+{
+    echo -e "\033[40m\033[1;31m ${test_name} ...Test Failed!   \033[0m"
+}
+
+
+
+function check_result
+{
+    RESULT=$?
+    echo
+    if [[ $RESULT == "0" ]]
+    then
+	test_passed
+    else
+	test_failed
+    fi
+}
+
+function restart_locator
+{
+    echo "(re)starting locator"
+    
+    if [ -e ${HOME}/kibitz-locator.pid ]
+    then
+	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+    fi
+
+    GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost 
+}
+
+
+restart_locator
+
+
+COUNTER=0
+while  [ $COUNTER -lt 100 ]; do
+       let COUNTER=COUNTER+1
+
+echo "Iteration $COUNTER"
+       sleep 4
+  KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost --status-sink-binding=tcp://localhost:6010 &
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost  --status-sink-binding=tcp://localhost:6010 &
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost --status-sink-binding=tcp://localhost:6010 &
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --status-sink-binding=tcp://localhost:6010 &
+
+  sleep 4
+
+  KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1 
+
+  sleep 1
+
+
+  KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+done
