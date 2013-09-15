@@ -1,22 +1,16 @@
-GIT
-  remote: git://github.com/chuckremes/ffi-rzmq.git
-  revision: 0612c711be42a46358a431250371a190cf3e1369
-  ref: 0612c711be42a46358a431250371a190cf3e1369
-  specs:
-    ffi-rzmq (0.9.7)
-      ffi
-
 GEM
   remote: http://rubygems.org/
   specs:
-    ffi (1.2.0)
-    json (1.7.6)
+    ffi (1.9.0)
+    ffi-rzmq (1.0.1)
+      ffi
+    json (1.8.0)
     trollop (2.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  ffi-rzmq!
+  ffi-rzmq
   json
   trollop
