@@ -34,21 +34,20 @@ worker_notification::worker_notification( const string& payload )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-worker_notification::worker_notification( const ptree& json )
+  worker_notification::worker_notification( JSON::Object::Ptr json ) 
     :
-    notification_message( NOTIFICATION_TYPE ),
-    payload_( json.get< string >( "payload" ) )
+    notification_message( NOTIFICATION_TYPE )
 {
-    ;
+  get_value( json, "payload", payload_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
 string worker_notification::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( "payload", payload_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object::Ptr json;
+    notification_message::populate_header( json );
+    json->set( "payload", payload_ );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

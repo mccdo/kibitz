@@ -41,7 +41,7 @@ class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
     friend class worker_notification_message;
 public :
     heartbeat( int port ) ;
-    heartbeat( const ptree& json );
+    heartbeat( JSON::Object::Ptr json  );
     virtual ~heartbeat() ;
     virtual string to_json() const ;
 

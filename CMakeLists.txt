@@ -26,6 +26,9 @@ find_package(ZMQ REQUIRED)
 set( YAMLCPP_ROOT "Please specify" CACHE PATH "Root directory where yaml-cpp is installed" )
 find_package(yamlcpp REQUIRED)
 
+set( POCO_ROOT "Please specify" CACHE PATH "Root directory where Poco is installed" )
+find_package( Poco REQUIRED COMPONENTS PocoJSON PocoFoundation )
+
 find_package(Threads)
 
 INCLUDE_DIRECTORIES( 
@@ -33,6 +36,7 @@ INCLUDE_DIRECTORIES(
     ${GLOG_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIRS}
+    ${Poco_INCLUDE_DIRS}
 )
 
 if(WIN32)

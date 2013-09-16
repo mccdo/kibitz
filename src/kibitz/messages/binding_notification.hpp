@@ -22,7 +22,7 @@ namespace kibitz {
     ///
     binding_notification( const string& target_worker, const string& zmq_binding );
     
-    binding_notification( const ptree& json );
+    binding_notification( JSON::Object::Ptr json );
     virtual ~binding_notification();
     virtual string to_json() const;
 

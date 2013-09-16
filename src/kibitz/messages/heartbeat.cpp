@@ -53,15 +53,15 @@ heartbeat::heartbeat( int port )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-heartbeat::heartbeat( const ptree& json )
+  heartbeat::heartbeat( JSON::Object::Ptr json )
     :
-    notification_message( notification::HEARTBEAT_NOTIFICATION ),
-    host_name_( json.get< string >( "host" ) ),
-    pid_( json.get< int >( "process_id" ) ),
-    port_( json.get< int >( "port" ) ),
-    ticks_( json.get< int >( "ticks" ) )
+    notification_message( notification::HEARTBEAT_NOTIFICATION )
+
 {
-    ;
+  get_value( json, "host", host_name_ );
+  get_value( json, "process_id", pid_ );
+  get_value( json, "port", port_ );
+  get_value( json, "ticks", ticks_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
 heartbeat::~heartbeat()
@@ -78,13 +78,13 @@ void heartbeat::increment_tick_count()
 string heartbeat::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( "host", host_name_ );
-    tree.put( "process_id", pid_ );
-    tree.put( "port" , port_ );
-    tree.put( "ticks", ticks_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object json; 
+    notification_message::populate_header( &json );
+    json.set( "host", host_name_ );
+    json.set( "process_id", pid_ );
+    json.set( "port" , port_ );
+    json.set( "ticks", ticks_ );
+    json.stringify( stm ) ;
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

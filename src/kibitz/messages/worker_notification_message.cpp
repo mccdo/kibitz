@@ -24,15 +24,16 @@ namespace kibitz
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-worker_notification_message::worker_notification_message( const ptree& json )
+  worker_notification_message::worker_notification_message( JSON::Object::Ptr json ) 
     :
-    notification_message( "worker_notification" ),
-    worker_type_( json.get< string >( "worker_type" ) ),
-    worker_id_( json.get< int32_t >( "worker_id" ) ),
-    host_name_( json.get< string >( "host_name" ) ),
-    port_( json.get< int16_t >( "port" ) )
+    notification_message( "worker_notification" )
+
 {
-    ;
+  get_value( json, "worker_type", worker_type_ ); 
+  get_value( json, "worker_id",   worker_id_ ); 
+  get_value( json, "host_name",   host_name_ ) ;
+  get_value( json, "port",   port_ ); 
+    
 }
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
@@ -80,13 +81,13 @@ int16_t worker_notification_message::port() const
 string worker_notification_message::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( "worker_type", worker_type_ );
-    tree.put( "worker_id", worker_id_ );
-    tree.put( "host_name", host_name_ );
-    tree.put( "port", port_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object::Ptr json;
+    notification_message::populate_header( json ); 
+    json->set( "worker_type", worker_type_ );
+    json->set( "worker_id", worker_id_ );
+    json->set( "host_name", host_name_ );
+    json->set( "port", port_ );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

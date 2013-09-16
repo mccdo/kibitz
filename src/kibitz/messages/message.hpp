@@ -46,6 +46,13 @@ GCC_DIAG_ON( unused-parameter )
 
 #include <kibitz/export_config.hpp>
 
+
+#include <Poco/JSON/JSON.h>
+#include <Poco/JSON/Parser.h>
+#include <Poco/JSON/Handler.h>
+#include <Poco/Dynamic/Var.h>
+#include <Poco/JSON/Array.h>
+
 #ifdef BOOST_WINDOWS
 
 typedef __int16 int16_t;
@@ -59,7 +66,7 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-
+using namespace Poco;
 using boost::property_tree::ptree;
 using boost::shared_ptr;
 using std::string;
@@ -84,21 +91,33 @@ static const char* PAYLOAD = "payload";
   static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
   static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
 
+
+template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T& value ) {
+  Dynamic::Var field = p->get( key ) ;
+  if( field.isEmpty() ) {
+    throw std::runtime_error( (boost::format("Key %1% was not found. %2% %3%") % key % __FILE__ % __LINE__ ).str() );
+  }
+  value = field.extract<T>();
+}
+
+
 class KIBITZ_MESSAGE_EXPORT message
 {
-    const string message_type_;
-    const string version_;
+    string message_type_;
+    string version_;
 protected :
     message( const string& message_type, const string& version )
         : message_type_( message_type ),
           version_( version )  {}
-    message( const ptree& json )
-        : message_type_( json.get<string>( "message_type" ) ),
-          version_( json.get<string>( "version" ) ) {}
-    virtual void populate_header( ptree& tree ) const
+    message( JSON::Object::Ptr json ) {
+      get_value( json, "message_type", message_type_ );
+      get_value( json, "version" , version_ );
+    }
+
+    virtual void populate_header( JSON::Object::Ptr json ) const
     {
-        tree.put( "message_type", message_type_ );
-        tree.put( "version", version_ );
+      json->set( "message_type", message_type_ );
+      json->set( "version", version_ ) ;
     }
 public:
     static const int16_t PORT_UNASSIGNED = 0x7FFF;
@@ -122,6 +141,11 @@ public:
 typedef shared_ptr<message> message_ptr_t;
 
 KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const string& json ) ;
+
+KIBITZ_MESSAGE_EXPORT void read_json( const string& json, JSON::Object::Ptr& ptr );
+
+
+  
 }
 
 

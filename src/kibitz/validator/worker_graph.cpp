@@ -110,7 +110,7 @@ worker_graph_ptr create_worker_graph_from_file( const string& file_name )
     if( !stm.good() )
     {
         throw std::runtime_error(
-            ( format( "Unable to read graph file %1%" ) % file_name ).str() );
+            ( boost::format( "Unable to read graph file %1%" ) % file_name ).str() );
     }
 
     std::stringbuf buf;
@@ -157,7 +157,7 @@ worker_graph_ptr create_worker_graph_from_string(
         }
         if( nodes.size() < 2 )
         {
-            throw std::runtime_error( ( boost::format(
+            throw std::runtime_error( (boost::format(
                 "Invalid line in graph definition, "
                 "lines must have at minimum, two nodes. %1%" ) % line ).str() );
         }

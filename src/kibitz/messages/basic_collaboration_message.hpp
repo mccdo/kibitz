@@ -34,7 +34,7 @@ class KIBITZ_MESSAGE_EXPORT basic_collaboration_message : public collaboration_m
 public:
     basic_collaboration_message( const string& worker_type, const string& payload ) ;
 
-    basic_collaboration_message( const ptree& json ) ;
+    basic_collaboration_message( JSON::Object::Ptr json ) ;
 
     virtual ~basic_collaboration_message() {}
     const string& worker_type() const
@@ -45,10 +45,12 @@ public:
     {
         return payload_;
     }
+    virtual string to_json( JSON::Object::Ptr json ) ;
     virtual string to_json() const ;
 
-    void to_ptree( ptree& response ) const;
-    static shared_ptr<basic_collaboration_message> from_ptree( const ptree& tree );
+ 
+ 
+    static shared_ptr<basic_collaboration_message> create( JSON::Object::Ptr json ) ;
 
 };
 

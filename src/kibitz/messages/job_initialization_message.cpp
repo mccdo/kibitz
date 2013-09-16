@@ -28,25 +28,25 @@ namespace kibitz
 const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
 
 ////////////////////////////////////////////////////////////////////////////////
-job_initialization_message::job_initialization_message( const ptree& json )
+  job_initialization_message::job_initialization_message( JSON::Object::Ptr json ) 
     :
-    notification_message( NOTIFICATION_TYPE ),
-    worker_type_( json.get< string >( kn::WORKER_TYPE ) ),
-    worker_id_( json.get< int >( kn::WORKER_ID ) ),
-    payload_( json.get< string >( kn::PAYLOAD ) )
+    notification_message( NOTIFICATION_TYPE )
+
 {
-    ;
+  get_value( json, kn::WORKER_TYPE, worker_type_ ) ;
+  get_value( json, kn::WORKER_ID,  worker_id_ ); 
+  get_value( json, kn::PAYLOAD,   payload_ ) ; 
 }
 ////////////////////////////////////////////////////////////////////////////////
 string job_initialization_message::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( kn::WORKER_TYPE, worker_type_ );
-    tree.put( kn::WORKER_ID, worker_id_ );
-    tree.put( kn::PAYLOAD, payload_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object json;
+    notification_message::populate_header( &json );
+    json.set( kn::WORKER_TYPE, worker_type_ );
+    json.set( kn::WORKER_ID, worker_id_ );
+    json.set( kn::PAYLOAD, payload_ );
+    json.stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

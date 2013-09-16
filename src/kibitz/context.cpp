@@ -132,7 +132,7 @@ void context::start()
 {
     thread_group threads;
 
-    string locator_binding = ( format( "tcp://%1%:%2%" ) %
+    string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
         application_configuration_[ "locator-host" ].as< string >() %
         application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
@@ -145,7 +145,7 @@ void context::start()
 
     if( application_configuration_.count( "notification-port" ) )
     {
-        string notification_binding = ( format( "tcp://*:%1%" ) %
+        string notification_binding = ( boost::format( "tcp://*:%1%" ) %
             application_configuration_[ "notification-port" ].as< int >() ).str();
         LOG( INFO )
            << "Worker [" << worker_type_name_ << "." << worker_id_

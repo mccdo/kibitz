@@ -91,7 +91,7 @@ void router::bind_out_sockets( send_sockets_t& send_sockets )
         VLOG( 1 )
             << "creating socket for [" << binding_pair.first << "] " << sock;
         int port = get_port( binding_pair.second );
-        string push_binding = ( format( "tcp://*:%1%" ) % port ).str();
+        string push_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
         LOG( INFO ) << "BINDING " << sock << " to " << push_binding;
         ku::sockman_ptr_t sp( new ku::sockman( sock ) );
         int rc = zmq_bind( *sp, push_binding.c_str() );

@@ -20,7 +20,7 @@ void create_bindings(
     BOOST_FOREACH( const worker_type_name_t& worker_type, graph->get_workers() )
     {
         bindings[ worker_type ] =
-            ( format( "%1%:%2%" ) % binding_root % base_port++ ).str();
+            ( boost::format( "%1%:%2%" ) % binding_root % base_port++ ).str();
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

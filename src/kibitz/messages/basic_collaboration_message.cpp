@@ -23,17 +23,28 @@
 namespace kibitz
 {
 
+
 ////////////////////////////////////////////////////////////////////////////////
 string basic_collaboration_message::to_json() const
 {
-    ptree tree;
     stringstream stm;
-    collaboration_message::populate_header( tree );
-    tree.put( "payload", payload_ );
-    tree.put( "worker_type", worker_type_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object::Ptr  json;
+    collaboration_message::populate_header( json );
+    json->set( "payload", payload_ );
+    json->set( "worker_type", worker_type_ );
+    json->stringify( stm );
     return stm.str();
 }
+
+
+  string basic_collaboration_message::to_json( JSON::Object::Ptr json ) {
+    stringstream stm;
+    collaboration_message::populate_header( json );
+    json->set( "payload", payload_ );
+    json->set( "worker_type", worker_type_ );
+    json->stringify( stm );
+    return stm.str();    
+  }
 ////////////////////////////////////////////////////////////////////////////////
 basic_collaboration_message::basic_collaboration_message(
     const string& worker_type,
@@ -46,28 +57,23 @@ basic_collaboration_message::basic_collaboration_message(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-basic_collaboration_message::basic_collaboration_message( const ptree& json )
+  basic_collaboration_message::basic_collaboration_message( JSON::Object::Ptr json )
     :
-    collaboration_message( json ),
-    worker_type_( json.get< string >( "worker_type" ) ),
-    payload_( json.get< string >( "payload" ) )
+    collaboration_message( json )
 {
-    ;
+  get_value( json, "worker_type", worker_type_ );
+  get_value( json, "payload", payload_ );
+    
 }
-////////////////////////////////////////////////////////////////////////////////
-void basic_collaboration_message::to_ptree( ptree& response ) const
-{
-    collaboration_message::populate_header( response );
-    response.put( "payload", payload_ );
-    response.put( "worker_type", worker_type_ );
-}
-////////////////////////////////////////////////////////////////////////////////
-basic_collaboration_message_ptr_t basic_collaboration_message::from_ptree(
-    const ptree& tree )
-{
+
+
+
+  basic_collaboration_message_ptr_t basic_collaboration_message::create(JSON::Object::Ptr json ) {
     return basic_collaboration_message_ptr_t(
-        new basic_collaboration_message( tree ) );
+        new basic_collaboration_message( json ) );
 }
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } //end kibitz

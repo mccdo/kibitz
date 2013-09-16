@@ -157,10 +157,10 @@ int main( int argc, char* argv[] )
     try
     {
         LOG( INFO ) << "Beginning initialization";
-        string publisher_binding = ( format( "tcp://*:%1%" ) % port ).str();
-        string worker_root_binding = ( format( "tcp://%1%" ) %
+        string publisher_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
+        string worker_root_binding = ( boost::format( "tcp://%1%" ) %
             command_line[ "host" ].as< string >() ).str();
-        string listener_binding = ( format( "tcp://*:%1%" ) %
+        string listener_binding = ( boost::format( "tcp://*:%1%" ) %
             command_line[ "listen-port" ].as< int >() ).str();
         std::string graph_file_name =
             command_line[ "graph-definition-file" ].as< string >() ;

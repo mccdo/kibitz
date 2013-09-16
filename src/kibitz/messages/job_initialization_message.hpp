@@ -34,7 +34,7 @@ namespace kibitz
     int worker_id_;
     string payload_;
   public:
-    job_initialization_message( const ptree& json ) ;
+    job_initialization_message( JSON::Object::Ptr json ) ;
     virtual ~job_initialization_message( ) {}
     const string& worker_type() const
     {

@@ -32,21 +32,20 @@ inproc_notification_message::inproc_notification_message( int notification )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-inproc_notification_message::inproc_notification_message( const ptree& json )
+  inproc_notification_message::inproc_notification_message( JSON::Object::Ptr json )
     :
-    notification_message( "inproc" ),
-    notification_( json.get< int >( "notification" ) )
+    notification_message( "inproc" )
 {
-    ;
+  get_value( json, "notification", notification_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
 string inproc_notification_message::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( "notification", notification_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
+    JSON::Object json;
+    notification_message::populate_header( &json );
+    json.set( "notification", notification_ );
+    json.stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

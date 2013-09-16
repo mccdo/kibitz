@@ -14,7 +14,7 @@ namespace kibitz {
     collaboration_message_ptrs_t messages_;
   public:
     collaboration_message_bundle( const collaboration_message_ptrs_t& messages ) ;
-    collaboration_message_bundle( const ptree& tree );
+    collaboration_message_bundle( JSON::Object::Ptr json );
     virtual ~collaboration_message_bundle( );
 
     const collaboration_message_ptrs_t& messages() const { return messages_; }

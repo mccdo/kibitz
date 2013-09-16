@@ -37,7 +37,7 @@ namespace kibitz
   {
     string payload_;
   public:
-    worker_notification( const ptree& json ) ;
+    worker_notification( JSON::Object::Ptr json ) ; 
     worker_notification( const string& payload  );
     virtual string to_json() const ;
     const string& get_payload() const

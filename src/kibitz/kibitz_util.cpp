@@ -89,7 +89,7 @@ void daemonize( const string& pid_file )
     if( fs::exists( pid_path ) )
     {
         throw std::runtime_error(
-            ( format( "Lock file, %1% exists." ) % pid_file ).str() );
+            ( boost::format( "Lock file, %1% exists." ) % pid_file ).str() );
     }
 
 #ifndef BOOST_WINDOWS
@@ -98,7 +98,7 @@ void daemonize( const string& pid_file )
     {
 #endif
     throw std::runtime_error(
-        ( format( "Could not daemonize process. errno %1%" ) % errno ).str() );
+        ( boost::format( "Could not daemonize process. errno %1%" ) % errno ).str() );
 #ifndef BOOST_WINDOWS
     }
 #endif
@@ -186,7 +186,7 @@ bool recv_async( void* socket, string& message )
         if( EAGAIN != err )
         {
             throw std::runtime_error(
-                ( format( "Error reading queue. Err = %1%" ) % err ).str() );
+                ( boost::format( "Error reading queue. Err = %1%" ) % err ).str() );
         }
     }
     else

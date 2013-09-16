@@ -16,17 +16,16 @@ collaboration_message_bundle::collaboration_message_bundle(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-collaboration_message_bundle::collaboration_message_bundle( const ptree& tree )
-    :
-    collaboration_message( collaboration_message_bundle::MESSAGE_TYPE )
-{
-    BOOST_FOREACH( const ptree::value_type& message_tree,
-        tree.get_child( "messages" ) )
-    {
-        basic_collaboration_message_ptr_t message_ptr =
-            basic_collaboration_message::from_ptree( message_tree.second );
-        messages_.push_back( message_ptr );
-    }
+  collaboration_message_bundle::collaboration_message_bundle(  JSON::Object::Ptr json )
+    :collaboration_message( json ) {
+
+  JSON::Array::Ptr messages;
+  get_value( json, "messages", messages );
+  for( JSON::Array::ConstIterator i = messages->begin(); i != messages->end() ; ++i ) {
+    basic_collaboration_message_ptr_t ptr = basic_collaboration_message::create( i->extract<JSON::Object::Ptr>() );
+    messages_.push_back( ptr );
+  }
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 collaboration_message_bundle::~collaboration_message_bundle()
@@ -37,20 +36,19 @@ collaboration_message_bundle::~collaboration_message_bundle()
 string collaboration_message_bundle::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    collaboration_message::populate_header( tree );
-    ptree array;
+    JSON::Object::Ptr json;
+    collaboration_message::populate_header( json );
+    JSON::Array messages;
 
     BOOST_FOREACH( basic_collaboration_message_ptr_t message, messages_ )
     {
-        ptree message_tree;
-        message->to_ptree( message_tree );
-        array.push_back( std::make_pair( "", message_tree ) );
+      JSON::Object obj;
+      message->to_json( &obj );
+      messages.add( obj );
     }
 
-    tree.push_back( std::make_pair( "messages", array ) );
-    boost::property_tree::json_parser::write_json( stm, tree );
-
+    json->set( "messages", messages );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

@@ -50,18 +50,18 @@ protected:
     {
     }
 
-    collaboration_message( const ptree& json )
-        : message( json ),
-          collaboration_type_( json.get<string>( "collaboration_type" ) ),
-          job_id_( json.get<string>( "job_id" ) )
+    collaboration_message( JSON::Object::Ptr json  )
+        : message( json )
     {
+      get_value( json, "collaboration_type", collaboration_type_ );
+      get_value( json, "job_id", job_id_ );
     }
 
-    void populate_header( ptree& tree ) const
+    void populate_header( JSON::Object::Ptr json ) const
     {
-        message::populate_header( tree ) ;
-        tree.put( "collaboration_type", collaboration_type_ );
-        tree.put( "job_id", job_id_ );
+        message::populate_header( json ) ;
+        json->set(  "collaboration_type", collaboration_type_ );
+        json->set( "job_id", job_id_ );
     }
 
 public:

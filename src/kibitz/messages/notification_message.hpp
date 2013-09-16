@@ -35,10 +35,10 @@ protected:
     notification_message( const string& notification_type, const string& version = "1.0" )
         : message( "notification", version ),
           notification_type_( notification_type ) {}
-    void populate_header( ptree& tree ) const
+    void populate_header( JSON::Object::Ptr json  ) const
     {
-        message::populate_header( tree );
-        tree.put( "notification_type", notification_type_ );
+        message::populate_header( json );
+        json->set( "notification_type", notification_type_ );
     }
 public :
     virtual ~notification_message() {}

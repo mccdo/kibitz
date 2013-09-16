@@ -57,7 +57,7 @@ void heartbeat_receiver::operator ()()
         //primary;secondary, hang on to secondary host and try to use it.
         //Probably listen simulateously to both primary and secondary,
         //when secondary gets flagged as primary use that
-        string binding = ( format( "tcp://%1%:%2%" ) %
+        string binding = ( boost::format( "tcp://%1%:%2%" ) %
             context_->get_config()[ "locator-host" ].as< string >() %
             context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
 

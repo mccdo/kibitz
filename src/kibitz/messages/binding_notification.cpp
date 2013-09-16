@@ -17,13 +17,13 @@ binding_notification::binding_notification(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-binding_notification::binding_notification( const ptree& json )
+  binding_notification::binding_notification( JSON::Object::Ptr json )
     :
-    notification_message( binding_notification::NOTIFICATION_TYPE ),
-    target_worker_( json.get< string >( "target_worker" ) ),
-    zmq_binding_( json.get< string >( "zmq_binding" ) )
+    notification_message( binding_notification::NOTIFICATION_TYPE )
 {
-    ;
+  get_value( json, "target_worker", target_worker_ );
+  get_value( json, "zmq_binding", zmq_binding_ );
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 binding_notification::~binding_notification()
@@ -34,12 +34,11 @@ binding_notification::~binding_notification()
 string binding_notification::to_json() const
 {
     stringstream stm;
-    ptree tree;
-    notification_message::populate_header( tree );
-    tree.put( "target_worker", target_worker_ );
-    tree.put( "zmq_binding", zmq_binding_ );
-    boost::property_tree::json_parser::write_json( stm, tree );
-
+    JSON::Object::Ptr json;
+    notification_message::populate_header( json );
+    json->set( "target_worker", target_worker_ );
+    json->set( "zmq_binding", zmq_binding_ );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

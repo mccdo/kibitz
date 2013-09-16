@@ -30,6 +30,8 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/worker_notification.hpp>
 
+#include <Poco/JSON/ParseHandler.h>
+
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 #define GLOG_NO_ABBREVIATED_SEVERITIES 1
@@ -40,90 +42,104 @@ namespace kibitz
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-message_ptr_t notification_message_factory( const ptree& tree )
+  message_ptr_t notification_message_factory( JSON::Object::Ptr json  )
 {
     message_ptr_t result;
 
-    const string notification_type = tree.get<string>( "notification_type" );
+    string notification_type;
+    get_value( json,  "notification_type", notification_type  );
+    
     if( notification_type == "heartbeat" )
     {
-        result = message_ptr_t( new heartbeat( tree ) );
+        result = message_ptr_t( new heartbeat( json ) );
     }
 
     if( notification_type == "inproc" )
     {
-        result = message_ptr_t( new inproc_notification_message( tree ) );
+        result = message_ptr_t( new inproc_notification_message( json ) );
     }
 
     if( notification_type == "worker_broadcast" )
     {
-        result = message_ptr_t( new worker_broadcast_message( tree ) );
+        result = message_ptr_t( new worker_broadcast_message( json ) );
     }
 
     if( notification_type == "worker_notification" )
     {
-        result = message_ptr_t( new worker_notification_message( tree ) );
+        result = message_ptr_t( new worker_notification_message( json ) );
     }
 
     if( notification_type == job_initialization_message::NOTIFICATION_TYPE )
     {
-        result = message_ptr_t( new job_initialization_message( tree ) );
+        result = message_ptr_t( new job_initialization_message( json ) );
     }
 
     if( notification_type == binding_notification::NOTIFICATION_TYPE )
     {
-        result = message_ptr_t( new binding_notification( tree ) );
+        result = message_ptr_t( new binding_notification( json ) );
     }
 
     if( notification_type == worker_notification::NOTIFICATION_TYPE )
     {
-        result = message_ptr_t( new worker_notification( tree ) );
+        result = message_ptr_t( new worker_notification( json ) );
     }
 
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-message_ptr_t collaboration_message_factory( const ptree& tree )
+  message_ptr_t collaboration_message_factory( JSON::Object::Ptr json  )
 {
     message_ptr_t result;
 
-    const string collaboration_type =
-        tree.get< string >( "collaboration_type" );
+    string collaboration_type ;
+    get_value( json, "collaboration_type", collaboration_type ); 
+    
     if( collaboration_type == "generic" )
     {
-        result = message_ptr_t( new basic_collaboration_message( tree ) );
+        result = message_ptr_t( new basic_collaboration_message( json ) );
     }
 
     if( collaboration_type == collaboration_message_bundle::MESSAGE_TYPE )
     {
-        result = message_ptr_t( new collaboration_message_bundle( tree ) );
+      result = message_ptr_t( new collaboration_message_bundle( json ) );
     }
 
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-message_ptr_t message_factory( const string& json )
-{
-    message_ptr_t result;
-    stringstream sstm;
-    sstm << json;
-    ptree tree;
-    VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
-    boost::property_tree::json_parser::read_json( sstm, tree );
-    const string message_type = tree.get<string>( "message_type" );
+message_ptr_t message_factory( const string& json ) {
+  message_ptr_t result;
+  stringstream sstm;
+  sstm << json;
+  ptree tree;
+  VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
 
-    if( message_type == "notification" )
+  JSON::Object::Ptr parsed;
+  read_json( json, parsed );
+
+  string message_type; 
+  get_value( parsed, "message_type", message_type );
+
+  if( message_type == "notification" )
     {
-        result = notification_message_factory( tree );
+      result = notification_message_factory( parsed );
     }
 
-    if( message_type == "collaboration" )
+  if( message_type == "collaboration" )
     {
-        result = collaboration_message_factory( tree );
+      result = collaboration_message_factory( parsed );
     }
 
-    return result;
+
+  return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
+
+
+  void read_json( const string& json, JSON::Object::Ptr& ptr ) {
+    JSON::Parser parser;
+    Dynamic::Var result = parser.parse( json ) ;
+    ptr = result.extract<JSON::Object::Ptr>();
+  }
 
 } //end kibitz
