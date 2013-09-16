@@ -29,6 +29,7 @@ string basic_collaboration_message::to_json() const
 {
     stringstream stm;
     JSON::Object::Ptr  json;
+    read_json( "{}", json );
     collaboration_message::populate_header( json );
     json->set( "payload", payload_ );
     json->set( "worker_type", worker_type_ );

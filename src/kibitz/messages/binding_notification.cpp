@@ -35,6 +35,7 @@ string binding_notification::to_json() const
 {
     stringstream stm;
     JSON::Object::Ptr json;
+    read_json( "{}", json );
     notification_message::populate_header( json );
     json->set( "target_worker", target_worker_ );
     json->set( "zmq_binding", zmq_binding_ );

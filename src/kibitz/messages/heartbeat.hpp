@@ -44,7 +44,10 @@ public :
     heartbeat( JSON::Object::Ptr json  );
     virtual ~heartbeat() ;
     virtual string to_json() const ;
-
+    const string& host() const { return host_name_; }
+    int process_id() const { return pid_; }
+    int port() const { return port_; }
+    int ticks() const { return ticks_; }
     void increment_tick_count();
 };
 

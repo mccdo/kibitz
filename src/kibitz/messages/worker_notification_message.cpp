@@ -26,7 +26,7 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
   worker_notification_message::worker_notification_message( JSON::Object::Ptr json ) 
     :
-    notification_message( "worker_notification" )
+    notification_message( json )
 
 {
   get_value( json, "worker_type", worker_type_ ); 
@@ -82,6 +82,7 @@ string worker_notification_message::to_json() const
 {
     stringstream stm;
     JSON::Object::Ptr json;
+    read_json( "{}", json );
     notification_message::populate_header( json ); 
     json->set( "worker_type", worker_type_ );
     json->set( "worker_id", worker_id_ );

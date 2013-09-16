@@ -55,7 +55,7 @@ heartbeat::heartbeat( int port )
 ////////////////////////////////////////////////////////////////////////////////
   heartbeat::heartbeat( JSON::Object::Ptr json )
     :
-    notification_message( notification::HEARTBEAT_NOTIFICATION )
+    notification_message( json ) 
 
 {
   get_value( json, "host", host_name_ );
@@ -78,13 +78,14 @@ void heartbeat::increment_tick_count()
 string heartbeat::to_json() const
 {
     stringstream stm;
-    JSON::Object json; 
-    notification_message::populate_header( &json );
-    json.set( "host", host_name_ );
-    json.set( "process_id", pid_ );
-    json.set( "port" , port_ );
-    json.set( "ticks", ticks_ );
-    json.stringify( stm ) ;
+    JSON::Object::Ptr json; 
+    read_json( "{}", json );
+    notification_message::populate_header( json );
+    json->set( "host", host_name_ );
+    json->set( "process_id", pid_ );
+    json->set( "port" , port_ );
+    json->set( "ticks", ticks_ );
+    json->stringify( stm ) ;
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

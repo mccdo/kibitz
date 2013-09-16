@@ -27,26 +27,24 @@ namespace kibitz
 
 const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
 
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   job_initialization_message::job_initialization_message( JSON::Object::Ptr json ) 
-    :
-    notification_message( NOTIFICATION_TYPE )
-
-{
-  get_value( json, kn::WORKER_TYPE, worker_type_ ) ;
-  get_value( json, kn::WORKER_ID,  worker_id_ ); 
-  get_value( json, kn::PAYLOAD,   payload_ ) ; 
-}
+    :notification_message( json ) {
+    get_value( json, kn::WORKER_TYPE, worker_type_ ) ;
+    get_value( json, kn::WORKER_ID,  worker_id_ ); 
+    get_value( json, kn::PAYLOAD,   payload_ ) ; 
+  }
 ////////////////////////////////////////////////////////////////////////////////
 string job_initialization_message::to_json() const
 {
     stringstream stm;
-    JSON::Object json;
-    notification_message::populate_header( &json );
-    json.set( kn::WORKER_TYPE, worker_type_ );
-    json.set( kn::WORKER_ID, worker_id_ );
-    json.set( kn::PAYLOAD, payload_ );
-    json.stringify( stm );
+    JSON::Object::Ptr json;
+    read_json( "{}", json );
+    notification_message::populate_header( json );
+    json->set( kn::WORKER_TYPE, worker_type_ );
+    json->set( kn::WORKER_ID, worker_id_ );
+    json->set( kn::PAYLOAD, payload_ );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

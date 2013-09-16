@@ -36,7 +36,7 @@ worker_notification::worker_notification( const string& payload )
 ////////////////////////////////////////////////////////////////////////////////
   worker_notification::worker_notification( JSON::Object::Ptr json ) 
     :
-    notification_message( NOTIFICATION_TYPE )
+    notification_message( json )
 {
   get_value( json, "payload", payload_ );
 }
@@ -45,6 +45,7 @@ string worker_notification::to_json() const
 {
     stringstream stm;
     JSON::Object::Ptr json;
+    read_json( "{}", json );
     notification_message::populate_header( json );
     json->set( "payload", payload_ );
     json->stringify( stm );

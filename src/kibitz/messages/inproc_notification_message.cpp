@@ -34,7 +34,7 @@ inproc_notification_message::inproc_notification_message( int notification )
 ////////////////////////////////////////////////////////////////////////////////
   inproc_notification_message::inproc_notification_message( JSON::Object::Ptr json )
     :
-    notification_message( "inproc" )
+    notification_message( json )
 {
   get_value( json, "notification", notification_ );
 }
@@ -42,10 +42,11 @@ inproc_notification_message::inproc_notification_message( int notification )
 string inproc_notification_message::to_json() const
 {
     stringstream stm;
-    JSON::Object json;
-    notification_message::populate_header( &json );
-    json.set( "notification", notification_ );
-    json.stringify( stm );
+    JSON::Object::Ptr json;
+    read_json( "{}", json );
+    notification_message::populate_header( json );
+    json->set( "notification", notification_ );
+    json->stringify( stm );
     return stm.str();
 }
 ////////////////////////////////////////////////////////////////////////////////

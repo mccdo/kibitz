@@ -25,7 +25,7 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
   worker_broadcast_message::worker_broadcast_message( JSON::Object::Ptr json )
     :
-    notification_message( "worker_broadcast" )
+    notification_message( json )
 {
   get_value( json, "notification", notification_ );
 }
@@ -41,7 +41,8 @@ worker_broadcast_message::worker_broadcast_message( const string& notification )
 string worker_broadcast_message::to_json() const
 {
     stringstream stm;
-    JSON::Object::Ptr json; 
+    JSON::Object::Ptr json;
+    read_json( "{}", json ); 
     notification_message::populate_header( json ); 
     json->set( "notification", notification_ );
     json->stringify( stm ) ; 

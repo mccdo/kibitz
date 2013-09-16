@@ -37,13 +37,15 @@ string collaboration_message_bundle::to_json() const
 {
     stringstream stm;
     JSON::Object::Ptr json;
+    read_json( "{}", json );
     collaboration_message::populate_header( json );
     JSON::Array messages;
 
     BOOST_FOREACH( basic_collaboration_message_ptr_t message, messages_ )
     {
-      JSON::Object obj;
-      message->to_json( &obj );
+      JSON::Object::Ptr obj;
+      read_json( "{}", obj );
+      message->to_json( obj );
       messages.add( obj );
     }
 

@@ -22,6 +22,7 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
+#include <kibitz/messages/binding_notification.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
@@ -108,6 +109,8 @@ int test_main( int argc, char* argv[] )
   std::cout << "job id = " << cbp->job_id() << std::endl;
   BOOST_CHECK( cbp->job_id() == "7abed30d-8e3f-446a-86b3-c14d462ab814" );
   BOOST_CHECK( cbp->messages().front()->job_id() == "0437ccc4-6de2-466f-8cae-294213c54a12" );
+  BOOST_CHECK( cbp->messages().front()->worker_type() == "A" );
+  BOOST_CHECK( cbp->messages().front()->payload() == "520ee95c-6cfc-4306-984d-6c1138ac6af8" );
   
 
   try {
@@ -125,7 +128,61 @@ int test_main( int argc, char* argv[] )
   } catch( const JSON::JSONException& e ) {
     std::cout << "Caught expected exception -> " << e.what() << std::endl;
   }
+
+
+  json = cbp->to_json();
+  cbp = boost::static_pointer_cast<k::collaboration_message_bundle>( k::message_factory( json ) );
   
+  BOOST_CHECK( cbp->messages().size() == 1 );
+  std::cout << "job id round 2 = " << cbp->job_id() << std::endl;
+  BOOST_CHECK( cbp->job_id() == "7abed30d-8e3f-446a-86b3-c14d462ab814" );
+  BOOST_CHECK( cbp->messages().front()->job_id() == "0437ccc4-6de2-466f-8cae-294213c54a12" );
+  BOOST_CHECK( cbp->messages().front()->worker_type() == "A" );
+  BOOST_CHECK( cbp->messages().front()->payload() == "520ee95c-6cfc-4306-984d-6c1138ac6af8" );
+  
+  json = "{"
+    "\"message_type\": \"notification\","
+    "\"version\": \"1.0\","
+    "\"notification_type\": \"heartbeat\","
+    "\"host\": \"vagrant-ubuntu-quantal-64\","
+    "\"process_id\": 24381,"
+    "\"port\": 5556,"
+    "\"ticks\": 35"
+     "}";
+  k::heartbeat_ptr_t hbp = boost::static_pointer_cast<k::heartbeat>( k::message_factory( json ) );
+  BOOST_CHECK( hbp->version() == "1.0" );
+  BOOST_CHECK( hbp->notification_type() == "heartbeat" );
+  BOOST_CHECK( hbp->host() == "vagrant-ubuntu-quantal-64" );
+  BOOST_CHECK( hbp->process_id() == 24381 );
+  BOOST_CHECK( hbp->port() == 5556 );
+  BOOST_CHECK( hbp->ticks() == 35 );
+  json = hbp->to_json() ;
+  hbp = boost::static_pointer_cast<k::heartbeat>( k::message_factory( json ) );
+  BOOST_CHECK( hbp->version() == "1.0" );
+  BOOST_CHECK( hbp->notification_type() == "heartbeat" );
+  BOOST_CHECK( hbp->host() == "vagrant-ubuntu-quantal-64" );
+  BOOST_CHECK( hbp->process_id() == 24381 );
+  BOOST_CHECK( hbp->port() == 5556 );
+  BOOST_CHECK( hbp->ticks() == 35 );
+
+  json = "{"
+    "\"message_type\": \"notification\","
+    "\"version\": \"1.0\","
+    "\"notification_type\": \"binding\","
+    "\"target_worker\": \"A\","
+    "\"zmq_binding\": \"tcp://localhost:6000\""
+    "}";
+
+  k::binding_notification_ptr_t bnp = boost::static_pointer_cast<k::binding_notification>(k::message_factory( json ) );
+  BOOST_CHECK( bnp->binding() == "tcp://localhost:6000" );
+  BOOST_CHECK( bnp->target_worker() == "A" );
+  BOOST_CHECK( bnp->notification_type() == "binding" );
+  json = bnp->to_json() ;
+  bnp = boost::static_pointer_cast<k::binding_notification>(k::message_factory( json ) );
+  
+  BOOST_CHECK( bnp->binding() == "tcp://localhost:6000" );
+  BOOST_CHECK( bnp->target_worker() == "A" );
+  BOOST_CHECK( bnp->notification_type() == "binding" );
 
   return 0;
 }
