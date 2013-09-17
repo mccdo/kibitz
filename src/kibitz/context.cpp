@@ -25,6 +25,7 @@
 #include <kibitz/publisher.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 
+
 namespace kibitz
 {
 
@@ -35,7 +36,8 @@ context::context( const po::variables_map& application_configuration )
     zmq_context_( NULL ),
     signalled_( false ),
     inedge_message_handler_( NULL ),
-    initialization_handler_( NULL )
+    initialization_handler_( NULL ),
+    status_publisher_enabled_(false)
 {
     DLOG( INFO ) << "ctor for context entered" ;
     zmq_context_ = zmq_init(
@@ -65,6 +67,7 @@ void context::send_out_message( const string& payload )
 
     publisher pub( zmq_context(), INPROC_LOCATOR_PUBLISH_BINDING );
     pub.send( msg.to_json() );
+    send_worker_status( WORK_SENT );
 }
 ////////////////////////////////////////////////////////////////////////////////
 void context::send_notification_message( const string& payload )
@@ -160,14 +163,48 @@ void context::start()
         threads.create_thread( notify_pub );
     }
 
+    if( application_configuration_.count( "status-sink-binding" ) ) {
+      string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
+      LOG(INFO) << "Worker [" << worker_type_name_ << "." << worker_id_ 
+		<< "] will publish status " << status_sink_binding;
+      publisher status_pub( 
+			   zmq_context(),
+			   status_sink_binding,
+			   ZMQ_PUSH,
+			   INPROC_NOTIFICATION_PUBLISH_STATUS, 
+			   publish::connect 
+			 );
+      threads.create_thread( status_pub ) ;
+      status_publisher_enabled_ = true;
+    }
+
     heartbeat_receiver hb_receiver( this );
     kibitz::in_edge_manager in_edge_manager( *this );
     threads.create_thread( locator_pub );
     threads.create_thread( in_edge_manager );
     threads.create_thread( hb_receiver );
-
+    send_worker_status( START );
     threads.join_all();
 }
+
+  void context::send_worker_status(worker_status_t status )  {
+    if( status_publisher_enabled_ ) {
+      int tries = 0;
+      while( tries++ < 3 ) {
+	try {
+	  string worker_type = application_configuration_["worker-type"].as< string >();
+	  string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
+	  publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS  );
+	  worker_status_message message( worker_type, worker_id, status );
+	  p.send( message.to_json() );
+	  return;	  
+	} catch( ... ) {
+	  LOG(INFO) << "Attempt to send status message failed, retrying...";
+	  usleep( 1000 );
+	}
+      }
+    }
+  }
 ////////////////////////////////////////////////////////////////////////////////
 void context::stop()
 {

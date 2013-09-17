@@ -75,7 +75,10 @@ void initialize( int argc, char* argv[] )
     ( "notification-port,P", po::value< int >(),
       "Optional port to publish notification messages" )
     ( "context-threads,t", po::value< int >()->default_value( 2 ),
-      "Thread count passed to zmq_init" );
+      "Thread count passed to zmq_init" )
+      ("status-sink-binding,b", po::value< string >(), 
+       "Optional zmq binding for listener for status messages such as service start and stop" )
+;
 
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );

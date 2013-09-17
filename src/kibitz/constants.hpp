@@ -32,6 +32,8 @@ static const char* INPROC_COMMAND_BINDING = "inproc://msgbus";
 
   /// Inproc binding used by socket that sends notification messages
   static const char* INPROC_NOTIFICATION_PUBLISH_BINDING="inproc://notificationpubbinding";
+
+  static const char* INPROC_NOTIFICATION_PUBLISH_STATUS="inproc://notificationpublishstatus";
 }
 
 #endif

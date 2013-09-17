@@ -23,6 +23,7 @@
 
 #include <kibitz/common.hpp>
 #include <kibitz/bus.hpp>
+#include <kibitz/messages/worker_status_message.hpp>
 
 namespace kibitz
 {
@@ -41,7 +42,7 @@ class context
 
     collaboration_callback inedge_message_handler_;
     initialization_callback initialization_handler_;
-
+  bool status_publisher_enabled_;
     boost::mutex mutex_;
     string current_job_id_;
 
@@ -77,7 +78,7 @@ public:
     void send_notification_message( const string& payload );
     void set_job_id( const string& job_id ) ;
     void get_job_id( string& job_id );
-
+  void send_worker_status( worker_status_t status )  ;
 };
 
 typedef shared_ptr< context > context_ptr;

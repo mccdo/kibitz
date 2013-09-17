@@ -23,6 +23,7 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <kibitz/messages/binding_notification.hpp>
+#include <kibitz/messages/worker_status_message.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
@@ -183,6 +184,15 @@ int test_main( int argc, char* argv[] )
   BOOST_CHECK( bnp->binding() == "tcp://localhost:6000" );
   BOOST_CHECK( bnp->target_worker() == "A" );
   BOOST_CHECK( bnp->notification_type() == "binding" );
+
+  k::worker_status_message wsn( "A", "1", k::START );
+  json = wsn.to_json();
+  k::worker_status_message_ptr_t wsnp = boost::static_pointer_cast<k::worker_status_message>(k::message_factory(json));
+  BOOST_CHECK( wsn.timestamp() == wsnp->timestamp() );
+  BOOST_CHECK( wsn.worker_type() == wsnp->worker_type() );
+  BOOST_CHECK( wsn.worker_id() == wsnp->worker_id() );
+  BOOST_CHECK( wsn.status() == wsnp->status() );
+  BOOST_CHECK( wsn.timestamp() == wsnp->timestamp() );
 
   return 0;
 }

@@ -47,18 +47,23 @@ restart_locator
 
        sleep 4
 
-  KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost &
+  KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+  
+  sleep 1
+  echo "stopped any hanging instances"
+
+  KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost --status-sink-binding=tcp://localhost:8000 &
 echo 'worker a'
-  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost & 
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost --status-sink-binding=tcp://localhost:8000 & 
 echo 'worker b'
-  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost &
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost --status-sink-binding=tcp://localhost:8000 &
 echo 'worker c'
-  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 &
+  KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --status-sink-binding=tcp://localhost:8000 &
 echo 'worker d'
 
 sleep 4
 COUNTER=0
-while  [ $COUNTER -lt 10000 ]; do
+while  [ $COUNTER -lt 2000 ]; do
        let COUNTER=COUNTER+1
 
   echo "Iter ${COUNTER}"
