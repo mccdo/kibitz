@@ -176,7 +176,8 @@ void in_edge_manager::operator ()()
                     string json;
                     util::recv( pollitems[ 1 ].socket, json );
                     VLOG( 1 ) << "Received collaboration message " << json;
-                    collaboration_message_bundle_ptr_t msg =
+		    context_.send_worker_status( WORK_RECIEVED );
+		    collaboration_message_bundle_ptr_t msg =
                         static_pointer_cast< collaboration_message_bundle >(
                             message_factory( json ) );
                     boost::thread thrd(
