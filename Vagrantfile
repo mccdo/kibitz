@@ -117,7 +117,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.chef_server_url = "https://api.opscode.com/organizations/praxik"
     chef.validation_key_path = "../../praxik-chef/.chef/praxik-validator.pem"
     chef.validation_client_name = "praxik-validator"
-    chef.add_recipe "praxik::kibitz"
+    chef.add_recipe  "praxik::kibitz"
   end
   #
   # If you're using the Opscode platform, your validator client is
@@ -126,5 +126,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # If you have your own Chef Server, the default validation client name is
   # chef-validator, unless you changed the configuration.
   #
-  
+
 end
