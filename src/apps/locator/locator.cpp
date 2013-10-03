@@ -23,12 +23,11 @@
 #include <zmq.h>
 
 #include "locator.hpp"
+
 #include <kibitz/messages/heartbeat.hpp>
-#include <kibitz/messages/inproc_notification_message.hpp>
-#include <kibitz/kibitz_util.hpp>
+
 #include <kibitz/locator/heartbeat_generator.hpp>
 #include <kibitz/locator/binding_broadcaster.hpp>
-#include <kibitz/validator/validator.hpp>
 #include <kibitz/locator/router.hpp>
 
 #include <iostream>
@@ -51,6 +50,7 @@ GCC_DIAG_OFF( unused - parameter )
 #else
 GCC_DIAG_ON( unused - parameter )
 #endif
+
 #include <boost/thread.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>

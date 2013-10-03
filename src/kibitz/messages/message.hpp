@@ -20,38 +20,19 @@
 #ifndef __MESSAGE_HPP__
 #define __MESSAGE_HPP__
 
-#include <sstream>
-#include <string>
-
-#include <boost/config.hpp>
-#ifdef BOOST_WINDOWS
-# pragma warning(disable: 4275)
-#else
-#include <kibitz/GNUCompilerGuards.hpp>
-GCC_DIAG_OFF( unused-parameter )
-#endif
-
-#include <boost/program_options.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-
-#ifdef BOOST_WINDOWS
-# pragma warning(default: 4275)
-#else
-GCC_DIAG_ON( unused-parameter )
-#endif
-
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
 
 #include <kibitz/export_config.hpp>
-
 
 #include <Poco/JSON/JSON.h>
 #include <Poco/JSON/Parser.h>
 #include <Poco/JSON/Handler.h>
 #include <Poco/Dynamic/Var.h>
 #include <Poco/JSON/Array.h>
+
+#include <sstream>
+#include <string>
 
 #ifdef BOOST_WINDOWS
 
@@ -67,7 +48,6 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 using namespace Poco;
-using boost::property_tree::ptree;
 using boost::shared_ptr;
 using std::string;
 using std::stringstream;

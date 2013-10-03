@@ -115,7 +115,6 @@ message_ptr_t message_factory( const string& json ) {
   message_ptr_t result;
   stringstream sstm;
   sstm << json;
-  ptree tree;
   VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
 
   JSON::Object::Ptr parsed;

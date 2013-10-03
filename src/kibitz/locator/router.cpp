@@ -1,6 +1,7 @@
+#include <glog/logging.h>
 
 #include <kibitz/locator/router.hpp>
-#include <glog/logging.h>
+
 #include <boost/foreach.hpp>
 
 

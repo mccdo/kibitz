@@ -1,20 +1,31 @@
 #ifndef __WORKER_GRAPH_HPP__
 #define __WORKER_GRAPH_HPP__
 
-#include <kibitz/common.hpp>
+//#include <kibitz/common.hpp>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/foreach.hpp>
 
 #include <kibitz/export_config.hpp>
+
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+#include <set>
+
+using namespace boost;
 
 namespace kibitz {
   namespace graph {
     class node;
     class worker_graph;
     typedef shared_ptr< node > node_ptr_t;
-    typedef std::map< string, node_ptr_t > node_map_t;
-    typedef std::pair< string, node_ptr_t > node_entry_t;
-    typedef std::vector< string > node_names_t;
-    typedef std::pair< string, node_ptr_t> node_pair_t;
-    typedef std::set< string > ordered_node_names_t;
+    typedef std::map< std::string, node_ptr_t > node_map_t;
+    typedef std::pair<std::string, node_ptr_t > node_entry_t;
+    typedef std::vector<std::string > node_names_t;
+    typedef std::pair<std::string, node_ptr_t> node_pair_t;
+    typedef std::set<std::string > ordered_node_names_t;
 
     /// \brief Represents a worker type.
     ///
@@ -39,9 +50,9 @@ namespace kibitz {
 	return names;
       }
 
-      void add_in_edge( const string& node_name, node_ptr_t ptr ) ;
+      void add_in_edge( const std::string& node_name, node_ptr_t ptr );
 
-      void add_out_edge( const string& node_name, node_ptr_t ptr ) ;
+      void add_out_edge( const std::string& node_name, node_ptr_t ptr );
 
       friend class worker_graph;
     public:
@@ -92,9 +103,9 @@ namespace kibitz {
       node_map_t node_map_;
       
       worker_graph( );
-      node_ptr_t get_or_add_node( const string& node_name );
-      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_file( const string& file_name );
-      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_string( const string& graph_definition );
+      node_ptr_t get_or_add_node( const std::string& node_name );
+      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_file( const std::string& file_name );
+      KIBITZ_VALIDATOR_EXPORT friend shared_ptr<worker_graph> create_worker_graph_from_string( const std::string& graph_definition );
     public:
       virtual ~worker_graph() ;
       
@@ -103,23 +114,23 @@ namespace kibitz {
       /// \param worker_name the name of the worker.
       ///
       /// \return node pointer for the worker
-      node_ptr_t add_worker( const string& worker_name );
+      node_ptr_t add_worker( const std::string& worker_name );
 
       /// Creates an out edge
       /// \param worker_name the name of the parent worker that will send messages to child.
       /// \param child_name the name of the worker that will get messages from the parent.
       ///
-      void add_worker_child( const string& worker_name, const string& child_name );
+      void add_worker_child( const std::string& worker_name, const std::string& child_name );
       
       /// Creates an in edge.
       /// \param worker_name the name of the worker that will get messages from parent.
       /// \param parent_name the name of the parent that will  send messages to worker_name.
       ///
-      void add_worker_parent( const string& worker_name, const string& parent_name );
+      void add_worker_parent( const std::string& worker_name, const std::string& parent_name );
      
       /// Gets worker with a given name.
       /// \return node for worker. 
-      node_ptr_t get_worker( const string& worker_name );
+      node_ptr_t get_worker( const std::string& worker_name );
 
       /// Gets ordered list of names of worker types
       /// \return names of worker types in ascending order
@@ -135,14 +146,14 @@ namespace kibitz {
     /// \param file_name name of the file containing graph information
     /// 
     /// \return pointer to worker graph
-    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_file( const string& file_name );
+    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_file( const std::string& file_name );
 
     /// Creates a worker graph from text file. 
     ///
-    /// \param graph_definition string containing graph information.
+    /// \param graph_definition std::string containing graph information.
     /// 
     /// \return pointer to worker graph
-    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_string( const string& graph_definition );
+    KIBITZ_VALIDATOR_EXPORT worker_graph_ptr create_worker_graph_from_string( const std::string& graph_definition );
     
     /// Strips comment delimiter and any characters on line following, returns
     /// portion of line preceding comment delimiter
@@ -150,7 +161,7 @@ namespace kibitz {
     /// \param commented_line line of text from a graph configuration file which might contain comments.
     ///                 
     /// \return line with comments stripped out. 
-    KIBITZ_VALIDATOR_EXPORT string strip_comments( const string& commented_line ) ;
+    KIBITZ_VALIDATOR_EXPORT std::string strip_comments( const std::string& commented_line ) ;
   }
 }
  

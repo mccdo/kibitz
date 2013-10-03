@@ -6,9 +6,9 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
-#include <kibitz/validator/validator.hpp>
+//#include <kibitz/validator/validator.hpp>
+#include <kibitz/validator/worker_graph.hpp>
 #include <kibitz/kibitz_util.hpp>
-#include <glog/logging.h>
 
 #include <kibitz/export_config.hpp>
 

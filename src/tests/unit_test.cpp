@@ -17,31 +17,30 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#include <kibitz/common.hpp>
-
-#include <kibitz/messages/heartbeat.hpp>
-#include <kibitz/messages/collaboration_message_bundle.hpp>
-#include <kibitz/messages/basic_collaboration_message.hpp>
-#include <kibitz/messages/binding_notification.hpp>
-#include <kibitz/messages/worker_status_message.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_WINDOWS
 # pragma warning(disable: 4273)
 #endif
 #include <boost/test/minimal.hpp>
+#include <boost/program_options.hpp>
+
 #ifdef BOOST_WINDOWS
 # pragma warning(default: 4273)
 #endif
+
+#include <kibitz/messages/heartbeat.hpp>
+#include <kibitz/messages/collaboration_message_bundle.hpp>
+#include <kibitz/messages/binding_notification.hpp>
+#include <kibitz/messages/worker_status_message.hpp>
 
 #include <fstream>
 #include <vector>
 #include <iostream>
 
-
-
 namespace k = kibitz;
 using boost::dynamic_pointer_cast;
+namespace po = boost::program_options;
 
 int test_main( int argc, char* argv[] )
 {

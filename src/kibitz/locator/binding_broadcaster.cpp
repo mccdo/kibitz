@@ -1,6 +1,10 @@
+
+#include <glog/logging.h>
+
 #include <kibitz/locator/binding_broadcaster.hpp>
-#include <kibitz/locator/common.hpp>
+
 #include <kibitz/messages/binding_notification.hpp>
+
 #include <boost/foreach.hpp>
 
 namespace kibitz

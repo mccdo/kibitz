@@ -18,6 +18,10 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 
+#include <glog/logging.h>
+
+#include <zmq.h>
+
 #include <kibitz/publisher.hpp>
 
 #include <boost/config.hpp>
@@ -38,13 +42,11 @@
 #include <iostream>
 #include <algorithm>
 
-#include <zmq.h>
 
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
 #include <kibitz/validator/validator.hpp>
 #include <kibitz/locator/common.hpp>
-#include <glog/logging.h>
 
 using boost::dynamic_pointer_cast;
 
