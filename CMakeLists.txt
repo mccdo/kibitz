@@ -15,7 +15,7 @@ set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
 set( BOOST_ROOT "Please specify" CACHE PATH "Root directory where Boost is installed" )
-find_package(Boost 1.54.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
+find_package(Boost 1.53.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
 
 set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
 find_package(glog REQUIRED)
@@ -27,7 +27,7 @@ set( YAMLCPP_ROOT "Please specify" CACHE PATH "Root directory where yaml-cpp is 
 find_package(yamlcpp REQUIRED)
 
 set( POCO_ROOT "Please specify" CACHE PATH "Root directory where Poco is installed" )
-find_package( Poco REQUIRED COMPONENTS PocoJSON PocoFoundation )
+find_package( POCO REQUIRED COMPONENTS Foundation JSON )
 
 find_package(Threads)
 
@@ -36,7 +36,7 @@ INCLUDE_DIRECTORIES(
     ${GLOG_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIRS}
-    ${Poco_INCLUDE_DIRS}
+    ${POCO_INCLUDE_DIR}
 )
 
 if(WIN32)
