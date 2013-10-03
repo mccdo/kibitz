@@ -13,7 +13,7 @@ namespace kibitz {
   } ;
   /// \brief Workers may optionally broadcast this message to indicate occurrance of certain events
   ///
-  class worker_status_message : public notification_message {
+  class KIBITZ_MESSAGE_EXPORT worker_status_message : public notification_message {
     string worker_type_;
     string worker_id_;
     worker_status_t status_;

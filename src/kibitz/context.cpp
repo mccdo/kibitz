@@ -200,7 +200,7 @@ void context::start()
 	  return;	  
 	} catch( ... ) {
 	  LOG(INFO) << "Attempt to send status message failed, retrying...";
-	  usleep( 1000 );
+	  boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
 	}
       }
     }
