@@ -146,6 +146,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/program_options.hpp>
+
 namespace kibitz
 {
 typedef std::string payload_t;
@@ -154,9 +156,9 @@ typedef std::vector< payload_t > collaboration_messages_t;
   /// Signature for callback function to handle messages from other workers. 
 typedef void ( *collaboration_callback )( const collaboration_messages_t& messages );
 
-  /// Signature for callback function that can handle 
-  /// job initialization messages if registered with kibitz::set_initialization_notification_handler
-  ///
+/// Signature for callback function that can handle
+/// job initialization messages if registered with kibitz::set_initialization_notification_handler
+///
 typedef void ( *initialization_callback )( const payload_t&  );
 
 struct context_information_t
@@ -167,16 +169,23 @@ struct context_information_t
 
 };
 
+///Command line options to control kibitz
+KIBITZ_EXPORT boost::program_options::options_description get_command_line_description();
 
-  /// Must be called to initialize a worker that implements the kibitz
-  /// library
+/// Must be called to initialize a worker that implements the kibitz
+/// library. This method enables 3rd party applications to implement
+/// their own command line parsing.
+KIBITZ_EXPORT void initialize( boost::program_options::variables_map& command_line );
+
+/// Must be called to initialize a worker that implements the kibitz
+/// library
 KIBITZ_EXPORT void initialize( int argc, char* argv[] ) ;
 
-  /// Starts listener threads that handle messages, call this method
-  /// after callbacks are registered.
+/// Starts listener threads that handle messages, call this method
+/// after callbacks are registered.
 KIBITZ_EXPORT void start() ;
 
-  /// Cleans up resources used by library
+/// Cleans up resources used by library
 KIBITZ_EXPORT void terminate();
 
   /// Used to define function that will handle messages received
