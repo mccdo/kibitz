@@ -40,7 +40,7 @@
 # pragma warning(disable: 4275)
 #else
 #include <kibitz/GNUCompilerGuards.hpp>
-GCC_DIAG_OFF( unused - parameter )
+GCC_DIAG_OFF( unused-parameter )
 #endif
 
 #include <boost/program_options.hpp>
@@ -48,7 +48,7 @@ GCC_DIAG_OFF( unused - parameter )
 #ifdef BOOST_WINDOWS
 # pragma warning(default: 4275)
 #else
-GCC_DIAG_ON( unused - parameter )
+GCC_DIAG_ON( unused-parameter )
 #endif
 
 #include <boost/thread.hpp>
