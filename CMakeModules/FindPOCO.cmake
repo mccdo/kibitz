@@ -71,7 +71,7 @@ find_path( POCO_INCLUDE_DIR Poco/Poco.h
 # (not hexidecimal, as it is in the Poco version.h file) number.
 set( POCO_VERSION )
 if( POCO_INCLUDE_DIR )
-    set( _versionFile "${POCO_INCLUDE_DIR}/Poco/Version.h" )
+    set( _versionFile "${POCO_INCLUDE_DIR}/Version.h" )
     if( NOT EXISTS ${_versionFile} )
         message( SEND_ERROR "Can't find ${_versionFile}" )
     else()
