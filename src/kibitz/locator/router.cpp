@@ -3,6 +3,7 @@
 #include <kibitz/locator/router.hpp>
 
 #include <boost/foreach.hpp>
+#include <boost/thread.hpp>
 
 
 namespace ku = kibitz::util;
@@ -42,7 +43,7 @@ void router::operator ()()
 
     try
     {
-      sleep(1);
+        boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
         messages_by_worker_and_job_t inedge_cache;
 
         ku::sockman_ptr_t message_listener =
