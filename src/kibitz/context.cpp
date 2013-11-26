@@ -116,7 +116,7 @@ const po::variables_map& context::get_config() const
 ////////////////////////////////////////////////////////////////////////////////
 void context::send_internal_message( const char* message )
 {
-    string s( message );
+    std::string s( message );
     DLOG( INFO ) << "sending internal message -> " << message;
     kibitz::util::send( message_bus_socket_, s );
 }
@@ -135,7 +135,7 @@ void context::start()
 {
     thread_group threads;
 
-    string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
+    std::string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
         application_configuration_[ "locator-host" ].as< string >() %
         application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
@@ -186,25 +186,33 @@ void context::start()
     send_worker_status( START );
     threads.join_all();
 }
-
-  void context::send_worker_status(worker_status_t status )  {
-    if( status_publisher_enabled_ ) {
-      int tries = 0;
-      while( tries++ < 3 ) {
-	try {
-	  string worker_type = application_configuration_["worker-type"].as< string >();
-	  string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
-	  publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS  );
-	  worker_status_message message( worker_type, worker_id, status );
-	  p.send( message.to_json() );
-	  return;	  
-	} catch( ... ) {
-	  LOG(INFO) << "Attempt to send status message failed, retrying...";
-	  boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
-	}
-      }
+////////////////////////////////////////////////////////////////////////////////
+void context::send_worker_status(worker_status_t status )
+{
+    if( !status_publisher_enabled_ )
+    {
+        return;
     }
-  }
+
+    int tries = 0;
+    while( tries++ < 3 )
+    {
+        try
+        {
+            std::string worker_type = application_configuration_["worker-type"].as< std::string >();
+            std::string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
+            publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS  );
+            worker_status_message message( worker_type, worker_id, status );
+            p.send( message.to_json() );
+            return;	  
+        }
+        catch( ... )
+        {
+            LOG(INFO) << "Attempt to send status message failed, retrying...";
+            boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
+        }
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 void context::stop()
 {

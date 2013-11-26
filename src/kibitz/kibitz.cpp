@@ -20,7 +20,7 @@
 #include <kibitz/kibitz.hpp>
 #include <kibitz/common.hpp>
 #include <kibitz/context.hpp>
-//#include "heartbeat_sender.hpp"
+
 #include <signal.h>
 
 
@@ -77,7 +77,11 @@ void initialize( int argc, char* argv[] )
 ////////////////////////////////////////////////////////////////////////////////
 void initialize( po::variables_map& command_line )
 {
-    assert( !context_ );
+    if( context_ )
+    {
+        DLOG( INFO ) << "context has already been initialized";
+        return;
+    }
 
     google::InitGoogleLogging( "kibitz_worker" );
 #ifndef BOOST_WINDOWS
@@ -97,13 +101,18 @@ void initialize( po::variables_map& command_line )
     {
         std::cout << "Failed to create zmq context: "
                   << zmq_strerror( errno ) << std::endl;
-        throw;
+        throw runtime_error( std::string( "Unable to create kibitz context" ) );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
 void start()
 {
-    assert( context_ );
+    if( !context_ )
+    {
+        DLOG( INFO ) << "kibitz::initialized must be called before you can start the worker process";
+        return;
+    }
+
     context_->start();
 }
 ////////////////////////////////////////////////////////////////////////////////
