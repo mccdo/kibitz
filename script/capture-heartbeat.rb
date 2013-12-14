@@ -14,7 +14,7 @@ begin
   message = ""
   count = 0
   while count < 3
-    rc = socket.recv_string( message, ZMQ::NonBlocking )
+    rc = socket.recv_string( message, ZMQ::DONTWAIT )
     break if rc >= 0
     sleep 1
     count += 1

@@ -1,4 +1,4 @@
 source :rubygems
-gem 'ffi-rzmq'
+gem 'ffi-rzmq', :github => "chuckremes/ffi-rzmq"
 gem 'json'
 gem 'trollop'
