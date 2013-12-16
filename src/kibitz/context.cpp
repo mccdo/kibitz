@@ -37,7 +37,8 @@ context::context( const po::variables_map& application_configuration )
     signalled_( false ),
     inedge_message_handler_( NULL ),
     initialization_handler_( NULL ),
-    status_publisher_enabled_(false)
+    status_publisher_enabled_(false),
+    collaboration_queue_depth_(0)
 {
     DLOG( INFO ) << "ctor for context entered" ;
     zmq_context_ = zmq_init(
@@ -51,6 +52,33 @@ context::~context()
 {
     ;
 }
+
+  int context::increment_collaboration_queue() {
+    int current_count = 0;
+    {
+      boost::mutex::scoped_lock lock( collaboration_queue_lock_ );
+      current_count  = ++collaboration_queue_depth_;
+    }
+    return current_count;
+  }
+
+  int context::decrement_collaboration_queue() {
+    int current_count = 0;
+    {
+      boost::mutex::scoped_lock lock( collaboration_queue_lock_ );
+      current_count  = --collaboration_queue_depth_;
+    }
+    return current_count;
+  }
+
+  int context::get_collaboration_queue_size()   {
+    int current_count = 0;
+    {
+      boost::mutex::scoped_lock lock( collaboration_queue_lock_ );
+      current_count  = collaboration_queue_depth_;
+    }
+    return current_count;
+  }
 ////////////////////////////////////////////////////////////////////////////////
 void context::send_out_message( const string& payload )
 {

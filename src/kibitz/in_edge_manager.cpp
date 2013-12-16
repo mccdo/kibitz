@@ -104,6 +104,14 @@ void in_edge_manager::operator ()()
 
     try
     {
+
+
+      util::sockman collab_handler_socket( context_.zmq_context(), ZMQ_PAIR );
+      util::check_zmq( zmq_bind( collab_handler_socket, INPROC_COLLABORATION_MESSAGE_HANDLER ) );
+
+      collaboration_handler handler( &context_,  INPROC_COLLABORATION_MESSAGE_HANDLER );
+      boost::thread thrd( handler ) ;
+
         util::sockman_ptr_t notification_sock =
             util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
         util::check_zmq( zmq_bind(
@@ -177,11 +185,10 @@ void in_edge_manager::operator ()()
                     util::recv( pollitems[ 1 ].socket, json );
                     VLOG( 1 ) << "Received collaboration message " << json;
 		    context_.send_worker_status( WORK_RECIEVED );
-		    collaboration_message_bundle_ptr_t msg =
-                        static_pointer_cast< collaboration_message_bundle >(
-                            message_factory( json ) );
-                    boost::thread thrd(
-                        collaboration_handler( &context_, msg ) );
+		    int queue_depth = context_.increment_collaboration_queue();
+		    VLOG( 1 ) << (boost::format("Collaboration queue depth is %1%") % queue_depth ).str() ;
+		    util::send( collab_handler_socket, json );
+
                 }
             }
             else

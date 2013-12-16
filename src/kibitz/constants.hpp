@@ -34,6 +34,8 @@ static const char* INPROC_COMMAND_BINDING = "inproc://msgbus";
   static const char* INPROC_NOTIFICATION_PUBLISH_BINDING="inproc://notificationpubbinding";
 
   static const char* INPROC_NOTIFICATION_PUBLISH_STATUS="inproc://notificationpublishstatus";
+
+  static const char* INPROC_COLLABORATION_MESSAGE_HANDLER="inproc://collaborationmessagehandler";
 }
 
 #endif

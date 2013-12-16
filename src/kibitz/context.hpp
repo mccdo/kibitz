@@ -46,6 +46,9 @@ class context
     boost::mutex mutex_;
     string current_job_id_;
 
+  boost::mutex collaboration_queue_lock_;
+  int collaboration_queue_depth_;
+
 
 public:
     context( const po::variables_map& application_configuration );
@@ -79,6 +82,9 @@ public:
     void set_job_id( const string& job_id ) ;
     void get_job_id( string& job_id );
   void send_worker_status( worker_status_t status )  ;
+  int increment_collaboration_queue() ;
+  int decrement_collaboration_queue() ;
+  int get_collaboration_queue_size()  ;
 };
 
 typedef shared_ptr< context > context_ptr;

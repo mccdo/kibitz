@@ -21,16 +21,20 @@
 #include <kibitz/messages/basic_collaboration_message.hpp>
 #include <boost/foreach.hpp>
 
+
+
 namespace kibitz
 {
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 collaboration_handler::collaboration_handler(
-    context* ctx,
-    collaboration_message_bundle_ptr_t message )
+					     context* ctx,
+					     const string& binding ) 
     :
-    context_( ctx ),
-    collaboration_bundle_( message )
+  context_( ctx ),
+  binding_( binding )
 {
     ;
 }
@@ -39,47 +43,61 @@ collaboration_handler::~collaboration_handler()
 {
     ;
 }
-////////////////////////////////////////////////////////////////////////////////
-void collaboration_handler::operator ()()
-{
-    VLOG( 1 ) << "Entered collaboration handler thread";
-    collaboration_callback cb = context_->get_inedge_message_handler();
-    if( cb )
-    {
-        VLOG( 1 ) << "Invoking collaboration callback" ;
-        try
-        {
-            collaboration_messages_t payloads;
-            string job_id ;
 
-            BOOST_FOREACH( collaboration_message_ptr_t message,
-                collaboration_bundle_->messages() )
-            {
-                VLOG( 1 ) << "GOT COLLAB MESSAGES";
-                basic_collaboration_message_ptr_t payload_message =
-                    static_pointer_cast< basic_collaboration_message >(
-                        message );
-                job_id = payload_message->job_id();
-                payloads.push_back( payload_message->payload() );
-            }
-            LOG( INFO )
-                << "Invoking message handler for worker type ["
-                << context_->worker_type() << "], Job [" << job_id << "]";
-            context_->set_job_id( job_id ) ;
-            cb( payloads );
-        }
-        catch( ... )
-        {
-            LOG( ERROR ) << "Collaboration callback threw an exception";
-        }
-    }
-    else
-    {
-        LOG( ERROR )
-            << "Recieved a message from another worker that "
-            << "there is not a callback defined to handle.";
-    }
-}
+
 ////////////////////////////////////////////////////////////////////////////////
+  void collaboration_handler::operator ()()
+  {
+    VLOG( 1 ) << "Entered collaboration handler thread";
+
+    try {
+      collaboration_callback cb = context_->get_inedge_message_handler();
+
+      if( cb ) {
+
+	util::sockman sock( context_->zmq_context(), ZMQ_PAIR );
+	util::check_zmq( zmq_connect( sock, binding_.c_str() ) );
+      
+	while( true ) {
+	  string json;
+	  util::recv( sock, json );
+
+	  context_->decrement_collaboration_queue() ;
+	  collaboration_message_bundle_ptr_t bundle = static_pointer_cast< collaboration_message_bundle >( message_factory( json ) );
+	  collaboration_messages_t payloads;
+	  string job_id;
+
+	  VLOG(1) << "Got collaboration messages";
+	
+	  BOOST_FOREACH( collaboration_message_ptr_t msg, bundle->messages() ) {
+	    basic_collaboration_message_ptr_t payload_message = static_pointer_cast< basic_collaboration_message >( msg ) ;
+	    job_id = payload_message->job_id();
+	    payloads.push_back( payload_message->payload() );
+	  }
+        
+	  VLOG( 1 )
+	    << "Invoking message handler for worker type ["
+	    << context_->worker_type() << "], Job [" << job_id << "]";
+	  // if end user screws up and doesn't catch something in 
+	  // their code, we need to handle it so it doesn't nuke our thread
+	  try {
+	    context_->set_job_id( job_id );
+	    cb( payloads );
+	  } catch( ... ) {
+	    LOG(ERROR) << "Caught an unhandled exception in collaboration callback. " << __FILE__ << ":" << __LINE__;
+	  }       
+	
+	}
+      }
+
+    } catch( std::exception const& e ) {
+      LOG( ERROR ) << "An exception occurred in collaboration handler thread. " << e.what() <<  " Worker  " << context_->worker_type() 
+		   << ":" << context_->worker_id() ; 
+
+    }
+
+
+  }
+  ////////////////////////////////////////////////////////////////////////////////
 
 } //end kibitz

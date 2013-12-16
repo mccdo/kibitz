@@ -49,7 +49,7 @@ if(WIN32)
     add_definitions( -DBOOST_ALL_DYN_LINK )
     add_definitions( -D_WIN32_WINNT=0x0501 )
 else(WIN32)
-    set(CMAKE_BUILD_TYPE "Release")
+    #set(CMAKE_BUILD_TYPE "Release")
     #set( CMAKE_CXX_FLAGS "-g -O0" )
 endif(WIN32)
 
