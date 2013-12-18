@@ -17,17 +17,17 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-#include <kibitz/logging.hpp>
-
 #include <zmq.h>
 
 #include "locator.hpp"
 
-#include <kibitz/messages/heartbeat.hpp>
+#include <kibitz/logging.hpp>
 
-#include <kibitz/locator/heartbeat_generator.hpp>
 #include <kibitz/locator/binding_broadcaster.hpp>
+#include <kibitz/locator/heartbeat_generator.hpp>
 #include <kibitz/locator/router.hpp>
+
+#include <kibitz/messages/heartbeat.hpp>
 
 #include <Poco/Logger.h>
 #include <Poco/ConsoleChannel.h>

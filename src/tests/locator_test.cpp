@@ -20,8 +20,6 @@
 
 #include <zmq.h>
 
-#include <kibitz/publisher.hpp>
-
 #include <boost/config.hpp>
 #include <boost/thread.hpp>
 #ifdef BOOST_WINDOWS
@@ -40,11 +38,9 @@
 #include <iostream>
 #include <algorithm>
 
-
-#include <kibitz/kibitz_util.hpp>
-#include <kibitz/messages/inproc_notification_message.hpp>
-#include <kibitz/validator/validator.hpp>
+#include <kibitz/publisher.hpp>
 #include <kibitz/locator/common.hpp>
+#include <kibitz/messages/inproc_notification_message.hpp>
 
 using boost::dynamic_pointer_cast;
 
