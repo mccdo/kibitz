@@ -20,7 +20,7 @@ set( BOOST_ROOT "Please specify" CACHE PATH "Root directory where Boost is insta
 if(WIN32)
 	find_package(Boost 1.53.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread prg_exec_monitor )
 else(WIN32)
-	find_package(Boost 1.53.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
+	find_package(Boost 1.50.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
 endif(WIN32)
 
 set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
