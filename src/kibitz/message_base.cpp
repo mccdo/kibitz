@@ -20,6 +20,7 @@
 
 #include <kibitz/message_base.hpp>
 #include <kibitz/kibitz_util.hpp>
+#include <kibitz/kibitz.hpp>
 
 
 using kibitz::util::create_socket;
@@ -33,9 +34,10 @@ namespace kibitz
 message_base::message_base( context* context )
     :
     shutdown_( new bool( false ) ),
-    context_( context )
+    context_( context ),
+    m_logger( Poco::Logger::get("message_base") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 message_base::~message_base()
@@ -50,7 +52,7 @@ bool message_base::shutdown() const
 ////////////////////////////////////////////////////////////////////////////////
 void message_base::internal_command_handler()
 {
-    DLOG( INFO ) << "Created internal thread message handler";
+    KIBITZ_LOG_NOTICE( "Created internal thread message handler" );
     void* socket = NULL;
     try
     {
@@ -62,11 +64,11 @@ void message_base::internal_command_handler()
         {
             string message;
             kibitz::util::recv( socket, message );
-            DLOG( INFO ) << "Message bus received " << message ;
+            KIBITZ_LOG_DEBUG( "Message bus received " << message );
 
             if( message == SHUTDOWN_MSG )
             {
-                DLOG( INFO ) << "setting shutdown flag";
+                KIBITZ_LOG_NOTICE( "setting shutdown flag" );
                 *shutdown_ = true;
                 break;
             }
@@ -74,11 +76,11 @@ void message_base::internal_command_handler()
     }
     catch( const util::queue_interrupt& )
     {
-        LOG( INFO ) << "Caught interrupt" ;
+        KIBITZ_LOG_WARNING( "Caught interrupt" );
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR ) << "Exception terminated thread " << ex.what() ;
+        KIBITZ_LOG_ERROR( "Exception terminated thread " << ex.what() );
     }
 
     close_socket( socket );

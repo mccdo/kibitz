@@ -40,9 +40,7 @@
 ///
 /// \section worker_locator Worker Locator
 /// <p>The worker locator keeps track of workers and routes messages between them.  This
-/// routing is defined by a graph file passed on the command line.  Kibitz
-/// uses Google GLog Logging Framework http://code.google.com/p/google-glog/ so logging
-/// is controlled by GLOG_ environment variables.
+/// routing is defined by a graph file passed on the command line.
 ///
 /// \code
 /// worker-locator:

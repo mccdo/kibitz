@@ -1,4 +1,3 @@
-#include <glog/logging.h>
 
 #include <kibitz/locator/router.hpp>
 
@@ -25,9 +24,11 @@ router::router(
     publisher_( pub ),
     listener_binding_( listener_binding ),
     push_bindings_( bindings ),
-    graph_ptr_( graph_ptr )
+    graph_ptr_( graph_ptr ),
+    m_logger( Poco::Logger::get("router") )
 {
-    DLOG( INFO ) << "Instantiating router";
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
+    KIBITZ_LOG_NOTICE( "Instantiating router" );
 }
 ////////////////////////////////////////////////////////////////////////////////
 router::~router()
@@ -37,7 +38,7 @@ router::~router()
 ////////////////////////////////////////////////////////////////////////////////
 void router::operator()()
 {
-    LOG( INFO ) << "Starting router thread";
+    KIBITZ_LOG_NOTICE( "Starting router thread" );
 
     send_sockets_t out_socks;
 
@@ -57,32 +58,32 @@ void router::operator()()
 
         while( true )
         {
-            VLOG( 1 ) << "Router waiting for  message";
+            KIBITZ_LOG_DEBUG( "Router waiting for  message" );
             string json;
             ku::recv( *message_listener, json );
-            VLOG( 1 ) << "Router got message " << json;
+            KIBITZ_LOG_DEBUG( "Router got message " << json );
             message_ptr_t message_ptr = message_factory( json );
 
             if( message_ptr->message_type() == NOTIFICATION_MESSAGE_TYPE )
             {
-                VLOG( 1 ) << "Router received notification message";
+                KIBITZ_LOG_DEBUG( "Router received notification message" );
                 publisher_.send( notification_socket, json );
             }
             else if( message_ptr->message_type() == COLLABORATION_MESSAGE_TYPE )
             {
-                VLOG( 1 ) << "Router recieved collaboration message " << json;
+                KIBITZ_LOG_DEBUG( "Router recieved collaboration message " << json );
                 route_message( out_socks, json, inedge_cache );
             }
             else
             {
-                LOG( WARNING ) << "Unknown message type received.";
-                LOG( WARNING ) << "Unknown Message = " << json;
+                KIBITZ_LOG_WARNING( "Unknown message type received." << std::endl
+                                   << "Unknown Message = " << json );
             }
         }
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR ) << "Router thread was killed. Reason " << ex.what();
+        KIBITZ_LOG_ERROR( "Router thread was killed. Reason " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,16 +92,15 @@ void router::bind_out_sockets( send_sockets_t& send_sockets )
     BOOST_FOREACH( const binding_pair_t & binding_pair, push_bindings_ )
     {
         void* sock = ku::create_socket( context_, ZMQ_PUSH );
-        VLOG( 1 )
-                << "creating socket for [" << binding_pair.first << "] " << sock;
+        KIBITZ_LOG_DEBUG( "creating socket for [" << binding_pair.first << "] " << sock );
         int port = get_port( binding_pair.second );
         string push_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
-        LOG( INFO ) << "BINDING " << sock << " to " << push_binding;
+        KIBITZ_LOG_INFO( "BINDING " << sock << " to " << push_binding );
         ku::sockman_ptr_t sp( new ku::sockman( sock ) );
         int rc = zmq_bind( *sp, push_binding.c_str() );
         if( rc )
         {
-            LOG( ERROR ) << "zmq bind failed - " << zmq_strerror( zmq_errno() );
+            KIBITZ_LOG_ERROR( "zmq bind failed - " << zmq_strerror( zmq_errno() ) );
         }
         send_sockets[ binding_pair.first ] = sp;
     }
@@ -122,14 +122,13 @@ void router::route_message(
         BOOST_FOREACH( const string & target_worker_type,
                        sending_worker_node->get_out_edges() )
         {
-            VLOG( 1 ) << "Preparing to route to " << target_worker_type;
+            KIBITZ_LOG_DEBUG( "Preparing to route to " << target_worker_type );
             send_sockets_t::const_iterator it =
                 send_sockets.find( target_worker_type );
             if( it != send_sockets.end() )
             {
-                DLOG( INFO )
-                        << "Routed collaboration message for "
-                        << target_worker_type;
+                KIBITZ_LOG_INFO( "Routed collaboration message for "
+                        << target_worker_type );
                 collaboration_message_bundle_ptr_t messages =
                     populate_inedge_messages(
                         target_worker_type,
@@ -138,36 +137,32 @@ void router::route_message(
                         inedge_cache );
                 if( inedges_have_messages( messages ) )
                 {
-                    VLOG( 1 )
-                            << "Routing message for ["
-                            << target_worker_type << "] ";
+                    KIBITZ_LOG_DEBUG( "Routing message for ["
+                            << target_worker_type << "] " );
 
                     string msg = messages->to_json();
                     int rc = zmq_send(
                                  *( it->second ), msg.data(), msg.length(), ZMQ_DONTWAIT );
                     if( rc < 0 )
                     {
-                        LOG( WARNING )
-                                << "Dropped message bound for ["
+                        KIBITZ_LOG_WARNING( "Dropped message bound for ["
                                 << target_worker_type << "]. Reason - "
-                                << zmq_strerror( zmq_errno() ) ;
+                                << zmq_strerror( zmq_errno() ) );
                     }
                 }
             }
             else
             {
-                LOG( WARNING )
-                        << "Got a collaboration message that we dropped "
+                KIBITZ_LOG_WARNING( "Got a collaboration message that we dropped "
                         << "because its target is not in graph definition. Type = "
-                        << target_worker_type ;
+                        << target_worker_type );
             }
         }
     }
     else
     {
-        LOG( WARNING )
-                << "Sending worker " << sending_worker_type
-                << " is not in graph definition. Dropping message";
+        KIBITZ_LOG_WARNING( "Sending worker " << sending_worker_type
+                << " is not in graph definition. Dropping message" );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

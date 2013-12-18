@@ -1,6 +1,8 @@
 
 #include <kibitz/common.hpp>
 #include <kibitz/publisher.hpp>
+#include <kibitz/logging.hpp>
+
 #include <kibitz/messages/message.hpp>
 #include <kibitz/messages/worker_broadcast_message.hpp>
 #include <kibitz/messages/inproc_notification_message.hpp>
@@ -26,10 +28,12 @@ publisher::publisher(
     binding_( pub_binding ),
     zmq_sock_type_( zmq_sock_type ),
     inproc_binding_( inproc_binding ),
-    mode_( mode )
+    mode_( mode ),
+    m_logger( Poco::Logger::get("publisher") )
 {
-    LOG( INFO ) << "Binding pubisher to " << pub_binding;
-    LOG( INFO ) << "Inproc publisher binding " << inproc_binding;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
+    KIBITZ_LOG_NOTICE( "Binding pubisher to " << pub_binding );
+    KIBITZ_LOG_NOTICE( "Inproc publisher binding " << inproc_binding );
 }
 ////////////////////////////////////////////////////////////////////////////////
 publisher::publisher(
@@ -39,9 +43,10 @@ publisher::publisher(
     zmq_context_( zmq_context ),
     zmq_sock_type_( 0 ),
     inproc_binding_( inproc_binding ),
-    mode_( publish::none )
+    mode_( publish::none ),
+    m_logger( Poco::Logger::get("publisher") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 publisher::~publisher()
@@ -52,9 +57,9 @@ publisher::~publisher()
 void* publisher::get_publish_socket()
 {
     void* sock = util::create_socket( zmq_context_, ZMQ_REQ );
-    DLOG( INFO )
-            << "Get publish socket, binding -> " << inproc_binding_
-            << " sock address " << sock;
+    KIBITZ_LOG_NOTICE(
+            "Get publish socket, binding -> " << inproc_binding_
+            << " sock address " << sock );
     util::check_zmq( zmq_connect( sock, inproc_binding_.c_str() ) );
     return sock;
 }
@@ -79,7 +84,7 @@ void publisher::operator()()
 {
     try
     {
-        DLOG( INFO ) << "Entered publish thread";
+        KIBITZ_LOG_NOTICE( "Entered publish thread" );
         // create socket to get inproc messages
         ku::sockman inproc_ptr( zmq_context_, ZMQ_REP );
         util::check_zmq( zmq_bind( inproc_ptr, inproc_binding_.c_str() ) );
@@ -95,17 +100,17 @@ void publisher::operator()()
             util::check_zmq( zmq_connect( publisher_ptr, binding_.c_str() ) );
         }
 
-        DLOG( INFO ) << "Initialized publishe thread" ;
+        KIBITZ_LOG_NOTICE( "Initialized publisher thread" );
 
         while( true )
         {
-            VLOG( 1 ) << "Publish loop";
+            KIBITZ_LOG_DEBUG( "Publish loop" );
             // get message sent from other thread and respond
             string json;
             util::recv( inproc_ptr, json );
             inproc_notification_message response( message::ok );
             util::send( inproc_ptr, response.to_json() );
-            VLOG( 1 ) << "Got message";
+            KIBITZ_LOG_DEBUG( "Got message" );
 
             message_ptr_t msg = message_factory( json );
 
@@ -142,17 +147,17 @@ void publisher::operator()()
             }
 
             // publish message
-            VLOG( 1 ) << "Published message ->" << json ;
+            KIBITZ_LOG_DEBUG( "Published message ->" << json );
             util::send( publisher_ptr, json );
         }
 
-        DLOG( INFO ) << "Publish thread terminated normally";
+        KIBITZ_LOG_NOTICE( "Publish thread terminated normally" );
     }
     catch( const std::exception& e )
     {
-        LOG( ERROR )
-                << "Publisher thread terminated abnormally due to error -> "
-                << e.what() ;
+        KIBITZ_LOG_ERROR(
+                "Publisher thread terminated abnormally due to error -> "
+                << e.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

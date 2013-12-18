@@ -18,20 +18,18 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 #include <iostream>
-#include <stdexcept>
 #include <string>
+
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include <glog/logging.h>
-#include <kibitz/kibitz.hpp>
 
-using std::string;
+#include <kibitz/logging.hpp>
+#include <kibitz/kibitz.hpp>
 
 typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
 void message_handler( const kibitz::collaboration_messages_t& messages ) ;
-
 
 int main( int argc, char* argv[] )
 {
@@ -72,11 +70,11 @@ int main( int argc, char* argv[] )
 void message_handler( const kibitz::collaboration_messages_t& messages )
 {
 
-    DLOG( INFO ) << "Got messages";
-    CHECK( messages.size() == 2 ) << "Expect a two messages" ;
-    string result ;
+    KIBITZ_STATIC_LOG_NOTICE( "terminus", "Got messages" );
+    poco_assert( messages.size() == 2 );// << "Expect a two messages" ;
+    std::string result ;
 
-    BOOST_FOREACH( const string & message, messages )
+    BOOST_FOREACH( const std::string& message, messages )
     {
         if( !result.empty() )
         {
@@ -86,7 +84,7 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
     }
 
     // Note send notification instead of send out message.
-    DLOG( INFO ) << "Sending notification -> " << result;
+    KIBITZ_STATIC_LOG_NOTICE( "terminus", "Sending notification -> " << result );
     kibitz::send_notification_message( result );
 }
 

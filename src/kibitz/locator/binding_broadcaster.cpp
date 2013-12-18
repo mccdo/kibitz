@@ -1,5 +1,5 @@
 
-#include <glog/logging.h>
+#include <kibitz/logging.hpp>
 
 #include <kibitz/locator/binding_broadcaster.hpp>
 
@@ -20,9 +20,12 @@ binding_broadcaster::binding_broadcaster(
     :
     publisher_( pub ),
     bindings_( bindings ),
-    send_frequency_( send_frequency )
+    send_frequency_( send_frequency ),
+    m_logger( Poco::Logger::get("binding_broadcaster") )
 {
-    DLOG( INFO ) << "Instantiating binding broadcaster";
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
+    
+    KIBITZ_LOG_NOTICE( "Instantiating binding broadcaster" );
 }
 ////////////////////////////////////////////////////////////////////////////////
 binding_broadcaster::~binding_broadcaster()
@@ -34,14 +37,14 @@ void binding_broadcaster::operator()()
 {
     try
     {
-        LOG( INFO ) << "Starting binding broadcast thread";
+        KIBITZ_LOG_NOTICE( "Starting binding broadcast thread" );
+
         // wait a bit to let listener socket get started
         util::wait( util::STARTUP_PAUSE );
         util::sockman sock( publisher_.get_publish_socket() );
 
-        LOG( INFO )
-                << "Broadcast thread initialized, bindings will be sent every "
-                << send_frequency_ << " ms.";
+        KIBITZ_LOG_NOTICE( "Broadcast thread initialized, bindings will be sent every "
+                << send_frequency_ << " ms." );
 
         while( true )
         {
@@ -56,9 +59,8 @@ void binding_broadcaster::operator()()
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR )
-                << "Abnormal termination of binding broadcaster. Reason - "
-                << ex.what();
+        KIBITZ_LOG_ERROR( "Abnormal termination of binding broadcaster. Reason - "
+                << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

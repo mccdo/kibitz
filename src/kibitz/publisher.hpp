@@ -4,6 +4,7 @@
 #include <string>
 
 #include <kibitz/kibitz_util.hpp>
+#include <kibitz/logging.hpp>
 
 #include <kibitz/export_config.hpp>
 
@@ -82,6 +83,11 @@ public:
 
     /// Binding to send internal messages between threads
     //    const static char* INPROC_BINDING;
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 

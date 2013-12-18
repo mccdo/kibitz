@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include <glog/logging.h>
+#include <kibitz/logging.hpp>
 #include <kibitz/kibitz.hpp>
 
 using std::string;
@@ -77,12 +77,12 @@ int main( int argc, char* argv[] )
 void message_handler( const kibitz::collaboration_messages_t& messages )
 {
 
-    DLOG( INFO ) << "Got messages" ;
-    CHECK( messages.size() == 1 ) << "Expect a single inbound message" ;
+    KIBITZ_STATIC_LOG_NOTICE( "worker", "Got messages" );
+    poco_assert( messages.size() == 1 );// << "Expect a single inbound message" ;
 
     string role = getenv( "ROLE" );
 
-    CHECK( !role.empty() ) << "ROLE environment variable not set?";
+    poco_assert( !role.empty() );// << "ROLE environment variable not set?";
 
     boost::char_separator<char> sep( ";" );
     tokenizer tokens( messages.front(), sep );
@@ -99,7 +99,7 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
         }
     }
 
-    DLOG( INFO ) << "Sending out message -> " << result;
+    KIBITZ_STATIC_LOG_NOTICE( "worker", "Sending out message -> " << result );
     kibitz::send_out_message( boost::lexical_cast<string>( result ) );
 }
 

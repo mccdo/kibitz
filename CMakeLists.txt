@@ -23,9 +23,6 @@ else(WIN32)
 	find_package(Boost 1.50.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
 endif(WIN32)
 
-set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
-find_package(glog REQUIRED)
-
 set( ZMQ_ROOT "Please specify" CACHE PATH "Root directory where ZMQ is installed" )
 find_package(ZMQ REQUIRED)
 
@@ -39,7 +36,6 @@ find_package(Threads)
 
 INCLUDE_DIRECTORIES( 
     ${Boost_INCLUDE_DIRS}
-    ${GLOG_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIRS}
     ${POCO_INCLUDE_DIR}

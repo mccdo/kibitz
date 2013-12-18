@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <string>
 #include <boost/foreach.hpp>
-#include <glog/logging.h>
+#include <kibitz/logging.hpp>
 #include <kibitz/kibitz.hpp>
 
 using std::string;
@@ -64,8 +64,8 @@ int main( int argc, char* argv[] )
 void notification_handler( const kibitz::payload_t& payload )
 {
     string filename = getenv( "INITDATA" );
-    DLOG( INFO ) << "Payload " << payload ;
-    DLOG( INFO ) << "Reading initial data from file " << filename;
+    KIBITZ_STATIC_LOG_NOTICE( "init_worker", "Payload " << payload );
+    KIBITZ_STATIC_LOG_NOTICE( "init_worker", "Reading initial data from file " << filename );
     std::ifstream stm( filename.c_str() );
     string result;
     while( stm.good() )
@@ -79,7 +79,7 @@ void notification_handler( const kibitz::payload_t& payload )
         result += line;
     }
 
-    DLOG( INFO ) << "Sending out message -> " << result;
+    KIBITZ_STATIC_LOG_NOTICE( "init_worker", "Sending out message -> " << result );
     kibitz::send_out_message( result );
 }
 ////////////////////////////////////////////////////////////////////////////////

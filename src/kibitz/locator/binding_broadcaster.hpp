@@ -7,6 +7,8 @@
 
 #include <kibitz/export_config.hpp>
 
+#include <kibitz/logging.hpp>
+
 namespace kg = kibitz::graph;
 using kibitz::locator::binding_map_t;
 
@@ -34,6 +36,11 @@ public:
 
     /// \brief thread function, controls timing of binding information broadcasts.
     void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 

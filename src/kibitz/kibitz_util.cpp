@@ -23,6 +23,7 @@
 #include <sstream>
 
 #include <kibitz/kibitz_util.hpp>
+#include <kibitz/logging.hpp>
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -32,17 +33,11 @@
 #include <process.h>
 #endif
 
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-#include <glog/logging.h>
-
 using boost::format;
 
 namespace fs = boost::filesystem;
 namespace bpt = boost::posix_time;
 
-using std::stringstream;
 using std::runtime_error;
 
 namespace kibitz
@@ -134,7 +129,7 @@ void* create_socket( void* context, int socktype )
     void* result = zmq_socket( context, socktype ) ;
     if( !result )
     {
-        stringstream stm;
+        std::stringstream stm;
         stm << "zmq_socket failed with " << zmq_errno();
         throw std::runtime_error( stm.str() );
     }
@@ -146,7 +141,7 @@ void check_zmq( int return_code )
     if( return_code )
     {
         int error = zmq_errno();
-        stringstream stm;
+        std::stringstream stm;
         stm << "ZMQ call failed with error code " << error;
         stm << ". Description -> " << zmq_strerror( error );
         throw std::runtime_error( stm.str() );
@@ -161,7 +156,7 @@ void send( void* socket, const string& message )
     int rc = zmq_sendmsg( socket, &msg, 0 );
     if( rc == -1 )
     {
-        LOG( ERROR ) << "SEND FAILED: " << zmq_strerror( zmq_errno() );
+        KIBITZ_STATIC_LOG_ERROR( "kibits_util::send", "SEND FAILED: " << zmq_strerror( zmq_errno() ) );
     }
     zmq_msg_close( &msg );
 }
@@ -213,7 +208,7 @@ void recv( void* socket, string& message )
         }
         else
         {
-            stringstream stm;
+            std::stringstream stm;
             stm << "Error " << error ;
             throw runtime_error( stm.str() );
         }

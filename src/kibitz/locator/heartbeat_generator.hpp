@@ -2,6 +2,7 @@
 #define kibitz_locator_heartbeat_generator_hpp
 
 #include <kibitz/publisher.hpp>
+#include <kibitz/logging.hpp>
 
 #include <kibitz/export_config.hpp>
 
@@ -24,6 +25,11 @@ public:
     ~heartbeat_generator() ;
     /// Thread function
     void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 }

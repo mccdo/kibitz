@@ -31,11 +31,6 @@
 #include <vector>
 
 #include <boost/config.hpp>
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-
-#include <glog/logging.h>
 
 #ifdef BOOST_WINDOWS
 
@@ -99,15 +94,12 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 namespace pt = boost::property_tree;
 
-using namespace google;
 #include <kibitz/bindings.hpp>
 #include <kibitz/kibitz.hpp>
 
 // misc helper functions
 namespace kibitz
 {
-
-
 
 // declared in kibitz.cpp
 class context;

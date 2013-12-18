@@ -35,9 +35,10 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
 heartbeat_receiver::heartbeat_receiver( context* context )
     :
-    message_base( context )
+    message_base( context ),
+    m_logger( Poco::Logger::get("heartbeat_receiver") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 heartbeat_receiver::~heartbeat_receiver()
@@ -47,7 +48,7 @@ heartbeat_receiver::~heartbeat_receiver()
 ////////////////////////////////////////////////////////////////////////////////
 void heartbeat_receiver::operator()()
 {
-    DLOG( INFO ) << "Entered heartbeat receiver thread.";
+    KIBITZ_LOG_NOTICE( "Entered heartbeat receiver thread." );
 
     try
     {
@@ -61,7 +62,7 @@ void heartbeat_receiver::operator()()
                            context_->get_config()[ "locator-host" ].as< string >() %
                            context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
 
-        LOG( INFO ) << "Will subscribe to messages from locator on " << binding;
+        KIBITZ_LOG_NOTICE( "Will subscribe to messages from locator on " << binding );
         check_zmq( zmq_connect( *listen_sock, binding.c_str() ) );
         check_zmq( zmq_setsockopt( *listen_sock, ZMQ_SUBSCRIBE, "", 0 ) );
 
@@ -70,14 +71,13 @@ void heartbeat_receiver::operator()()
 
         while( true )
         {
-            DLOG( INFO ) << "Waiting for heartbeat";
+            KIBITZ_LOG_INFO( "Waiting for heartbeat" );
             string json ;
             //TODO if we dont receive a heartbeat after a certain amount of time
             //try to connect to alternative locator
             kibitz::util::recv( *listen_sock, json );
-            DLOG( INFO )
-                    << context_->worker_type() << ":"
-                    << context_->worker_id() << " received message " << json;
+            KIBITZ_LOG_INFO( context_->worker_type() << ":"
+                    << context_->worker_id() << " received message " << json );
             notification_message_ptr_t message_ptr =
                 dynamic_pointer_cast< notification_message >(
                     message_factory( json ) );
@@ -86,12 +86,12 @@ void heartbeat_receiver::operator()()
                 string notification_type = message_ptr->notification_type();
                 if( notification_type == "heartbeat" )
                 {
-                    VLOG( 1 ) << "Got heartbeat" ;
+                    KIBITZ_LOG_DEBUG( "Got heartbeat" );
                 }
                 else if( notification_type ==
                          binding_notification::NOTIFICATION_TYPE )
                 {
-                    VLOG( 1 ) << "Got binding message";
+                    KIBITZ_LOG_DEBUG( "Got binding message" );
                     in_edges.send_notification( json );
                 }
                 else if( notification_type == "worker_broadcast" )
@@ -101,7 +101,7 @@ void heartbeat_receiver::operator()()
                             message_ptr ) ;
                     if( wb->notification() == "shutdown" )
                     {
-                        LOG( INFO ) << "Received shutdown message";
+                        KIBITZ_LOG_DEBUG( "Received shutdown message" );
                         exit( 0 );
                     }
                 }
@@ -122,35 +122,32 @@ void heartbeat_receiver::operator()()
                             }
                             else
                             {
-                                LOG( ERROR )
-                                        << "There is not a callback function "
+                                KIBITZ_LOG_ERROR( "There is not a callback function "
                                         << "defined to handle the received job "
-                                        << "initialization message.";
+                                        << "initialization message." );
                             }
                         }
                     }
                 }
                 else
                 {
-                    LOG( ERROR )
-                            << "We got a message we don't know how to handle - "
-                            << json;
+                    KIBITZ_LOG_ERROR( "We got a message we don't know how to handle - "
+                            << json );
                 }
             }
             else
             {
-                LOG( ERROR ) << "Unknown message type. Raw message = " << json;
+                KIBITZ_LOG_ERROR( "Unknown message type. Raw message = " << json );
             }
         }
     }
     catch( const util::queue_interrupt& )
     {
-        LOG( INFO )
-                << "Received interrupt shutting down heartbeat receiver thread";
+        KIBITZ_LOG_NOTICE( "Received interrupt shutting down heartbeat receiver thread" );
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR ) << "Exception caused thread to terminate " << ex.what() ;
+        KIBITZ_LOG_ERROR( "Exception caused thread to terminate " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

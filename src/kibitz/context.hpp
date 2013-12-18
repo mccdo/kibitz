@@ -24,6 +24,7 @@
 #include <kibitz/common.hpp>
 #include <kibitz/bus.hpp>
 #include <kibitz/messages/worker_status_message.hpp>
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -79,6 +80,11 @@ public:
     void set_job_id( const string& job_id ) ;
     void get_job_id( string& job_id );
     void send_worker_status( worker_status_t status )  ;
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 
 typedef shared_ptr< context > context_ptr;

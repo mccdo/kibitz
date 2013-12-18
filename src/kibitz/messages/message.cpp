@@ -30,13 +30,10 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/worker_notification.hpp>
 #include <kibitz/messages/worker_status_message.hpp>
-#include <Poco/JSON/ParseHandler.h>
 
-#include <boost/config.hpp>
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-#include <glog/logging.h>
+#include <kibitz/logging.hpp>
+
+#include <Poco/JSON/ParseHandler.h>
 
 namespace kibitz
 {
@@ -117,7 +114,7 @@ message_ptr_t message_factory( const string& json )
     message_ptr_t result;
     stringstream sstm;
     sstm << json;
-    VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
+    KIBITZ_STATIC_LOG_DEBUG( "message_factory", "RAW MESSAGE [" << json << "]" );
 
     JSON::Object::Ptr parsed;
     read_json( json, parsed );
@@ -139,13 +136,11 @@ message_ptr_t message_factory( const string& json )
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-
-
 void read_json( const string& json, JSON::Object::Ptr& ptr )
 {
     JSON::Parser parser;
     Dynamic::Var result = parser.parse( json ) ;
     ptr = result.extract<JSON::Object::Ptr>();
 }
-
+////////////////////////////////////////////////////////////////////////////////
 } //end kibitz

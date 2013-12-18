@@ -34,7 +34,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
-#include <glog/logging.h>
 
 #include <iostream>
 #include <fstream>
@@ -43,6 +42,7 @@
 #include <string>
 #include <boost/foreach.hpp>
 #include <kibitz/kibitz.hpp>
+#include <kibitz/logging.hpp>
 #include <assert.h>
 
 using namespace std;
@@ -67,8 +67,8 @@ int main( int argc, char* argv[] )
         kibitz::initialize( argc, argv );
         // ROOT, CHILD
         string role = getenv( "KIBITZ_ROLE" );
-        CHECK( !role.empty() ) << "Role is not defined";
-        DLOG( INFO ) << "Role is " << role;
+        poco_assert( !role.empty() );// << "Role is not defined";
+        KIBITZ_STATIC_LOG_NOTICE( "regression_tester", "Role is " << role );
 
         if( role == "ROOT" )
         {
@@ -121,7 +121,7 @@ void notification_handler( const kibitz::payload_t& p )
 ////////////////////////////////////////////////////////////////////////////////
 void record_message( const string& filename, const string& message )
 {
-    DLOG( INFO ) << "Writing test file " << filename << " with " << message;
+    KIBITZ_STATIC_LOG_NOTICE( "regression_tester", "Writing test file " << filename << " with " << message );
     path test_file_path = ( current_path() /= "test" ) /= filename;
     ofstream stm ;
     stm.open( test_file_path.c_str() );

@@ -38,9 +38,10 @@ in_edge_manager::in_edge_manager( context& ctx )
     :
     context_( ctx ),
     worker_type_( ctx.get_config()[ "worker-type" ].as< string >() ),
-    worker_id_( ctx.get_config()[ "worker-id" ].as< int >() )
+    worker_id_( ctx.get_config()[ "worker-id" ].as< int >() ),
+    m_logger( Poco::Logger::get("in_edge_manager") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 in_edge_manager::~in_edge_manager()
@@ -52,10 +53,11 @@ in_edge_manager::in_edge_manager( const in_edge_manager& iem )
     :
     context_( iem.context_ ),
     worker_type_( iem.worker_type_ ),
-    worker_id_( iem.worker_id_ )
+    worker_id_( iem.worker_id_ ),
+    m_logger( Poco::Logger::get("in_edge_manager") )
 {
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
     //We do not initialize notification socket
-    ;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::send_notification( const string& json )
@@ -71,16 +73,16 @@ void in_edge_manager::send_notification( const string& json )
     util::send( *notification_socket_, json );
     string response;
     util::recv( *notification_socket_, response );
-    VLOG( 1 ) << "RESPONSE " << response;
+    KIBITZ_LOG_DEBUG( "RESPONSE " << response );
 }
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
 {
-    DLOG( INFO ) << "Got job initialization message ";
+    KIBITZ_LOG_INFO( "Got job initialization message " );
     job_initialization_message_ptr_t job_init_message =
         dynamic_pointer_cast< job_initialization_message >( message );
-    CHECK( job_init_message != NULL )
-            << "invalid notification message cast to job init message";
+    poco_assert( job_init_message != NULL );
+            //<< "invalid notification message cast to job init message";
     //Only targeted worker will execute init callback,
     //if such callback has been implemented
     if( job_init_message->worker_type() == worker_type_ )
@@ -89,9 +91,9 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
         {
             initialization_callback cb =
                 context_.get_initialization_notification_callback();
-            CHECK( cb != NULL )
-                    << "Sent a job initialization message to a "
-                    << "worker without an initialization callback";
+            poco_assert( cb != NULL );
+                    //<< "Sent a job initialization message to a "
+                    //<< "worker without an initialization callback";
             context_.send_worker_status( WORK_RECIEVED );
             cb( job_init_message->payload() );
         }
@@ -100,7 +102,7 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::operator()()
 {
-    DLOG( INFO ) << "in edge manager thread started" ;
+    KIBITZ_LOG_INFO( "in edge manager thread started" );
 
     try
     {
@@ -146,9 +148,8 @@ void in_edge_manager::operator()()
                         {
                             if( bind_msg->binding() != current_binding )
                             {
-                                LOG( INFO )
-                                        << "Binding worker to ["
-                                        << bind_msg->binding() << "]";
+                                KIBITZ_LOG_NOTICE( "Binding worker to ["
+                                        << bind_msg->binding() << "]" );
                                 if( count_items > 1 )
                                 {
                                     util::close_socket( pollitems[ 1 ].socket );
@@ -162,9 +163,8 @@ void in_edge_manager::operator()()
                                                      pollitems[ 1 ].socket,
                                                      current_binding.c_str() ) );
                                 pollitems[ 1 ].events = ZMQ_POLLIN;
-                                DLOG( INFO )
-                                        << "Bind operation succeeded to ["
-                                        << bind_msg->binding() << "]";
+                                KIBITZ_LOG_NOTICE( "Bind operation succeeded to ["
+                                        << bind_msg->binding() << "]" );
                             }
                         }
                     }
@@ -175,7 +175,7 @@ void in_edge_manager::operator()()
                 {
                     string json;
                     util::recv( pollitems[ 1 ].socket, json );
-                    VLOG( 1 ) << "Received collaboration message " << json;
+                    KIBITZ_LOG_DEBUG( "Received collaboration message " << json );
                     context_.send_worker_status( WORK_RECIEVED );
                     collaboration_message_bundle_ptr_t msg =
                         static_pointer_cast< collaboration_message_bundle >(
@@ -187,16 +187,17 @@ void in_edge_manager::operator()()
             else
             {
                 //TODO: handle bad return
+                KIBITZ_LOG_WARNING( "unable to poll data" );
             }
         } //end while
     }
     catch( const util::queue_interrupt& )
     {
-        DLOG( INFO ) << "interrupt terminated in edge manager" ;
+        KIBITZ_LOG_NOTICE( "interrupt terminated in edge manager" );
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR ) << "exception nuked in edge manager - " << ex.what() ;
+        KIBITZ_LOG_ERROR( "exception nuked in edge manager - " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

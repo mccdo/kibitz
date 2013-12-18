@@ -21,7 +21,7 @@
 #define bus_hpp
 
 #include <kibitz/common.hpp>
-
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -39,6 +39,11 @@ public:
         return socket_;
     }
     void close() ;
+protected:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 
 class pub : public bus

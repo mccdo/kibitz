@@ -2,6 +2,7 @@
 #define kibitz_initialization_handler_hpp
 
 #include <kibitz/context.hpp>
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -21,6 +22,11 @@ public:
     ~initialization_handler();
 
     void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 

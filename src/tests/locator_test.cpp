@@ -18,8 +18,6 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 
-#include <glog/logging.h>
-
 #include <zmq.h>
 
 #include <kibitz/publisher.hpp>
@@ -67,8 +65,6 @@ struct graph_traversal_t
 ////////////////////////////////////////////////////////////////////////////////
 int test_main( int argc, char* argv[] )
 {
-    google::InitGoogleLogging( argv[ 0 ] );
-
     {
         std::cout << "checking get_port" << std::endl;;
         std::string binding = "tcp://*:1234";

@@ -3,6 +3,7 @@
 
 #include <kibitz/context.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
+#include <kibitz/logging.hpp>
 
 
 namespace kibitz
@@ -23,6 +24,11 @@ public:
     ~collaboration_handler();
 
     void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 

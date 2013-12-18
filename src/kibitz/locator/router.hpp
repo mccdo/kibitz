@@ -3,11 +3,14 @@
 
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/publisher.hpp>
+#include <kibitz/logging.hpp>
+
 #include <kibitz/validator/worker_graph.hpp>
 
 #include <kibitz/locator/common.hpp>
 
 #include <kibitz/export_config.hpp>
+
 #include <string>
 #include <map>
 #include <utility>
@@ -87,6 +90,11 @@ public:
         worker_graph_ptr graph,
         basic_collaboration_message_ptr_t new_message,
         messages_by_worker_and_job_t& cache ) const;
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 }

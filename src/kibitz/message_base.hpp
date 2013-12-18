@@ -20,17 +20,13 @@
 #ifndef __MESSAGE_BASE_HPP__
 #define __MESSAGE_BASE_HPP__
 
-#include <kibitz/kibitz.hpp>
 #include <kibitz/context.hpp>
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
-
-
 class message_base
 {
-
-
 protected:
     bool* shutdown_;
     context* context_;
@@ -41,6 +37,11 @@ public:
 
     bool shutdown() const ;
     void internal_command_handler( );
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 
 }

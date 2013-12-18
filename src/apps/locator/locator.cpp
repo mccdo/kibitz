@@ -17,9 +17,6 @@
  * Boston, MA 02111-1307, USA.
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
-//glog must be included BEFORE zmq to build on windows
-#include <glog/logging.h>
-
 #include <zmq.h>
 
 #include "locator.hpp"
@@ -29,6 +26,14 @@
 #include <kibitz/locator/heartbeat_generator.hpp>
 #include <kibitz/locator/binding_broadcaster.hpp>
 #include <kibitz/locator/router.hpp>
+
+#include <kibitz/logging.hpp>
+
+#include <Poco/Logger.h>
+#include <Poco/ConsoleChannel.h>
+#include <Poco/FileChannel.h>
+#include <Poco/PatternFormatter.h>
+#include <Poco/FormattingChannel.h>
 
 #include <iostream>
 #include <string>
@@ -57,7 +62,6 @@ GCC_DIAG_ON( unused-parameter )
 
 namespace fs = boost::filesystem;
 using boost::format;
-using namespace google;
 using std::string;
 namespace po = boost::program_options;
 
@@ -90,23 +94,25 @@ int main( int argc, char* argv[] )
     options.add_options()
     ( "help,h",
       "Show help message" )
-    ( "port,p", po::value< int >()->default_value( 5556 ),
+    ( "port,p",         po::value< int >()->default_value( 5556 ),
       "Port used by locator to distribute heartbeats." )
-    ( "listen-port,l", po::value< int >()->default_value( 5557 ),
+    ( "listen-port,l",  po::value< int >()->default_value( 5557 ),
       "Port listens for messages from workers and control scripts." )
     ( "context-threads,t", po::value< int >()->default_value( 4 ),
       "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
     ( "graph-definition-file,f", po::value< string >(),
       "File containing collaboration graph definition" )
-    ( "pid-file", po::value< string >()->default_value( "/var/run/kibitz-locator.pid" ),
+    ( "pid-file",       po::value< string >()->default_value( "/var/run/kibitz-locator.pid" ),
       "Location of pid file for daemon mode" )
     ( "heartbeat-frequency", po::value< int >()->default_value( 100 ),
       "Heartbeat frequency in milliseconds" )
-    ( "host,H", po::value< string >(),
+    ( "host,H",         po::value< string >(),
       "Host name or IP address that workers will connect to for collaboration messages." )
-    ( "base-port,P", po::value< int >()->default_value( 6000 ),
-      "Start of port range that workers will bind to for collaboration messages" );
+    ( "base-port,P",    po::value< int >()->default_value( 6000 ),
+      "Start of port range that workers will bind to for collaboration messages" )
+    ( "log-level,o",    po::value< std::string >()->default_value("warning"),
+      "Set logging level -- fatal, critical, error, warning, notice, information, debug, trace");
 
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, options ), command_line );
@@ -127,12 +133,44 @@ int main( int argc, char* argv[] )
     }
 #endif
 
-    InitGoogleLogging( argv[ 0 ] );
-#ifndef BOOST_WINDOWS
-    //This method is not implemented on windows
-    InstallFailureSignalHandler();
-#endif
-    DLOG( INFO ) << "Start locator" ;
+    ///////////////////////////////////
+    // Set up a logger to push messages out to a file.
+    Poco::Logger& rootLogger( Poco::Logger::get( "" ) );
+    std::string logLevel = command_line["log-level"].as<std::string>();
+    rootLogger.setLevel( logLevel );
+    Poco::FileChannel* fileChannel = new Poco::FileChannel;
+    std::string logPath;
+    
+    logPath = ".";
+    logPath.append( "/" );
+    
+    boost::filesystem::path p( logPath );
+    if( !boost::filesystem::exists( p ) )
+    {
+        boost::filesystem::create_directory( p );
+    }
+    
+    logPath.append( "locator.log" );
+    std::cout << "LogPath = " << logPath << std::endl;
+    
+    fileChannel->setProperty( "path", logPath );
+    fileChannel->setProperty( "rotation", "1M" );
+    fileChannel->setProperty( "archive", "number" );
+    fileChannel->setProperty( "purgeCount", "5" );
+    
+    // Format the logged output as
+    // time_with_microseconds [thread number] (priority) source message extra_crlf
+    Poco::PatternFormatter* formatter = new Poco::PatternFormatter;
+    formatter->setProperty( "pattern", "%H:%M:%S:%F [%I] (%l) %s: %t" );
+    formatter->setProperty( "times", "local" );
+    Poco::FormattingChannel* formattingChannel = new Poco::FormattingChannel( formatter , fileChannel );
+    
+    rootLogger.setChannel( formattingChannel );
+    rootLogger.fatal( "#####################################################" );
+    rootLogger.fatal( "locator started." );
+    ///////////////////////////////////
+
+    KIBITZ_STATIC_LOG_NOTICE( "locator", "Start locator" );
 
     const int port = command_line[ "port" ].as< int >();
     const int heartbeat_frequency =
@@ -150,13 +188,13 @@ int main( int argc, char* argv[] )
 
     if( !context )
     {
-        LOG( ERROR ) << "Could not create zmq context " << zmq_errno();
+        KIBITZ_STATIC_LOG_ERROR( "locator", "Could not create zmq context " << zmq_errno() );
         return 1;
     }
 
     try
     {
-        LOG( INFO ) << "Beginning initialization";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Beginning initialization" );
         string publisher_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
         string worker_root_binding = ( boost::format( "tcp://%1%" ) %
                                        command_line[ "host" ].as< string >() ).str();
@@ -164,10 +202,10 @@ int main( int argc, char* argv[] )
                                     command_line[ "listen-port" ].as< int >() ).str();
         std::string graph_file_name =
             command_line[ "graph-definition-file" ].as< string >() ;
-        LOG( INFO ) << "Preparing collaboration graph from " << graph_file_name;
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Preparing collaboration graph from " << graph_file_name );
         kg::worker_graph_ptr worker_graph_ptr =
             kg::create_worker_graph_from_file( graph_file_name );
-        LOG( INFO ) << "Graph creation succeeded" ;
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Graph creation succeeded" );
         kibitz::publisher pub(
             context,
             publisher_binding,
@@ -184,23 +222,23 @@ int main( int argc, char* argv[] )
             context, pub, listener_binding, bindings, worker_graph_ptr ) ;
         binding_broadcaster binder( pub, bindings );
 
-        LOG( INFO ) << "Creating worker threads";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Creating worker threads" );
         boost::thread_group threads;
         threads.create_thread( pub );
-        LOG( INFO ) << "Created notification message publisher";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Created notification message publisher" );
         threads.create_thread( heartbeats );
-        LOG( INFO ) << "Created heartbeat generator";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Created heartbeat generator" );
         threads.create_thread( router );
-        LOG( INFO ) << "Created message router";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Created message router" );
         threads.create_thread( binder );
-        LOG( INFO ) << "Ready... Initialization complete";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Ready... Initialization complete" );
         threads.join_all();
-        DLOG( INFO ) << "Exiting";
+        KIBITZ_STATIC_LOG_NOTICE( "locator", "Exiting" );
     }
     catch( const std::exception& ex )
     {
         exit_code = 1;
-        LOG( ERROR ) << "An exception killed worker locator " << ex.what() ;
+        KIBITZ_STATIC_LOG_ERROR( "locator", "An exception killed worker locator " << ex.what() );
     }
 
     fs::path path( pid_file );

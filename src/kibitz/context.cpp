@@ -37,12 +37,15 @@ context::context( const po::variables_map& application_configuration )
     signalled_( false ),
     inedge_message_handler_( NULL ),
     initialization_handler_( NULL ),
-    status_publisher_enabled_( false )
+    status_publisher_enabled_( false ),
+    m_logger( Poco::Logger::get("context") )
 {
-    DLOG( INFO ) << "ctor for context entered" ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
+
+    KIBITZ_LOG_NOTICE( "ctor for context entered" );
     zmq_context_ = zmq_init(
                        application_configuration[ "context-threads" ].as< int >() );
-    DLOG( INFO ) << "zmq initialized";
+    KIBITZ_LOG_NOTICE( "zmq initialized" );
     message_bus_socket_ = util::create_socket( zmq_context_, ZMQ_PUB );
     util::check_zmq( zmq_bind( message_bus_socket_, INPROC_COMMAND_BINDING ) );
 }
@@ -75,15 +78,14 @@ void context::send_notification_message( const string& payload )
     if( application_configuration_.count( "notification-port" ) )
     {
         worker_notification notification( payload ) ;
-        VLOG( 1 ) << "Published notification " << payload;
+        KIBITZ_LOG_DEBUG( "Published notification " << payload );
         publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
         pub.send( notification.to_json() ) ;
     }
     else
     {
-        LOG( WARNING )
-                << "Notification publish failed because notification-port "
-                << "was not supplied on command line";
+        KIBITZ_LOG_WARNING( "Notification publish failed because notification-port "
+                << "was not supplied on command line" );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +119,7 @@ const po::variables_map& context::get_config() const
 void context::send_internal_message( const char* message )
 {
     std::string s( message );
-    DLOG( INFO ) << "sending internal message -> " << message;
+    KIBITZ_LOG_INFO( "sending internal message -> " << message );
     kibitz::util::send( message_bus_socket_, s );
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,9 +152,8 @@ void context::start()
     {
         string notification_binding = ( boost::format( "tcp://*:%1%" ) %
                                         application_configuration_[ "notification-port" ].as< int >() ).str();
-        LOG( INFO )
-                << "Worker [" << worker_type_name_ << "." << worker_id_
-                << "] may publish notifications on " << notification_binding ;
+        KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
+                << "] may publish notifications on " << notification_binding );
 
         publisher notify_pub(
             zmq_context(),
@@ -166,8 +167,8 @@ void context::start()
     if( application_configuration_.count( "status-sink-binding" ) )
     {
         string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
-        LOG( INFO ) << "Worker [" << worker_type_name_ << "." << worker_id_
-                    << "] will publish status " << status_sink_binding;
+        KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
+                    << "] will publish status " << status_sink_binding );
         publisher status_pub(
             zmq_context(),
             status_sink_binding,
@@ -209,7 +210,7 @@ void context::send_worker_status( worker_status_t status )
         }
         catch( ... )
         {
-            LOG( INFO ) << "Attempt to send status message failed, retrying...";
+            KIBITZ_LOG_NOTICE( "Attempt to send status message failed, retrying..." );
             boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
         }
     }
@@ -222,7 +223,7 @@ void context::stop()
 ////////////////////////////////////////////////////////////////////////////////
 void context::terminate()
 {
-    DLOG( INFO ) << "context.terminate shutting down application" ;
+    KIBITZ_LOG_NOTICE( "context.terminate shutting down application" );
     //collaboration_publisher_ptr_->close();
     //notification_publisher_ptr_->close();
 

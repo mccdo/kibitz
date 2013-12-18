@@ -23,6 +23,7 @@
 #include <kibitz/common.hpp>
 #include <kibitz/messages/notification_message.hpp>
 #include <kibitz/kibitz_util.hpp>
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -55,7 +56,11 @@ public:
 
 
     static const char* NOTIFICATION_BINDING;
-
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 
