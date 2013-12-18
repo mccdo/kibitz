@@ -26,35 +26,35 @@
 
 namespace kibitz
 {
-  /// \brief Handles messages coming from parent worker nodes
-  ///
+/// \brief Handles messages coming from parent worker nodes
+///
 class in_edge_manager
 {
     context& context_;
     const string worker_type_ ;
     const int worker_id_;
-  util::sockman_ptr_t notification_socket_;
+    util::sockman_ptr_t notification_socket_;
 
     void check_and_start_job( notification_message_ptr_t message ) ;
 public:
     in_edge_manager( context& ctx );
-  /// Copy c'tor - we provide this because we don't want to 
-  /// copy internal zmq sockets between threads
-  in_edge_manager( const in_edge_manager& iem );
+    /// Copy c'tor - we provide this because we don't want to
+    /// copy internal zmq sockets between threads
+    in_edge_manager( const in_edge_manager& iem );
     virtual ~in_edge_manager() ;
 
-  /// Thread functor
+    /// Thread functor
     void operator()() ;
 
-  /// Used to communicate from other threads to
-  /// the in edge manager
-  ///
-  /// \param json message to send to this thread
-  ///
-  void send_notification(  const string& json ) ;
-  
+    /// Used to communicate from other threads to
+    /// the in edge manager
+    ///
+    /// \param json message to send to this thread
+    ///
+    void send_notification( const string& json ) ;
 
-  static const char* NOTIFICATION_BINDING;
+
+    static const char* NOTIFICATION_BINDING;
 
 };
 }

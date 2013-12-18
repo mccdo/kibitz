@@ -60,24 +60,26 @@ namespace notification
 static const char* WORKER_TYPE = "worker_type";
 static const char* WORKER_ID = "worker_id";
 static const char* PAYLOAD = "payload";
-  static const char* INPROC_NOTIFICATION = "inproc";
-  static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
-  static const char* WORKER_BROADCAST = "worker_broadcast";
-  static const char* SHUTDOWN_NOTIFICATION = "shutdown";
-  
+static const char* INPROC_NOTIFICATION = "inproc";
+static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
+static const char* WORKER_BROADCAST = "worker_broadcast";
+static const char* SHUTDOWN_NOTIFICATION = "shutdown";
+
 }
 
 
-  static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
-  static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
+static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
+static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
 
 
-template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T& value ) {
-  Dynamic::Var field = p->get( key ) ;
-  if( field.isEmpty() ) {
-    throw std::runtime_error( (boost::format("Key %1% was not found. %2% %3%") % key % __FILE__ % __LINE__ ).str() );
-  }
-  value = field.extract<T>();
+template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T& value )
+{
+    Dynamic::Var field = p->get( key ) ;
+    if( field.isEmpty() )
+    {
+        throw std::runtime_error( ( boost::format( "Key %1% was not found. %2% %3%" ) % key % __FILE__ % __LINE__ ).str() );
+    }
+    value = field.extract<T>();
 }
 
 
@@ -89,15 +91,16 @@ protected :
     message( const string& message_type, const string& version )
         : message_type_( message_type ),
           version_( version )  {}
-    message( JSON::Object::Ptr json ) {
-      get_value( json, "message_type", message_type_ );
-      get_value( json, "version" , version_ );
+    message( JSON::Object::Ptr json )
+    {
+        get_value( json, "message_type", message_type_ );
+        get_value( json, "version" , version_ );
     }
 
     virtual void populate_header( JSON::Object::Ptr json ) const
     {
-      json->set( "message_type", message_type_ );
-      json->set( "version", version_ ) ;
+        json->set( "message_type", message_type_ );
+        json->set( "version", version_ ) ;
     }
 public:
     static const int16_t PORT_UNASSIGNED = 0x7FFF;
@@ -125,7 +128,7 @@ KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const string& json ) ;
 KIBITZ_MESSAGE_EXPORT void read_json( const string& json, JSON::Object::Ptr& ptr );
 
 
-  
+
 }
 
 

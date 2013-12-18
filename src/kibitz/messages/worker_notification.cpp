@@ -34,11 +34,11 @@ worker_notification::worker_notification( const string& payload )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  worker_notification::worker_notification( JSON::Object::Ptr json ) 
+worker_notification::worker_notification( JSON::Object::Ptr json )
     :
     notification_message( json )
 {
-  get_value( json, "payload", payload_ );
+    get_value( json, "payload", payload_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
 string worker_notification::to_json() const

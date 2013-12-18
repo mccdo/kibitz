@@ -17,12 +17,12 @@ binding_notification::binding_notification(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  binding_notification::binding_notification( JSON::Object::Ptr json )
+binding_notification::binding_notification( JSON::Object::Ptr json )
     :
     notification_message( binding_notification::NOTIFICATION_TYPE )
 {
-  get_value( json, "target_worker", target_worker_ );
-  get_value( json, "zmq_binding", zmq_binding_ );
+    get_value( json, "target_worker", target_worker_ );
+    get_value( json, "zmq_binding", zmq_binding_ );
 
 }
 ////////////////////////////////////////////////////////////////////////////////

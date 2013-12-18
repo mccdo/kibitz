@@ -40,7 +40,7 @@ collaboration_handler::~collaboration_handler()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void collaboration_handler::operator ()()
+void collaboration_handler::operator()()
 {
     VLOG( 1 ) << "Entered collaboration handler thread";
     collaboration_callback cb = context_->get_inedge_message_handler();
@@ -53,7 +53,7 @@ void collaboration_handler::operator ()()
             string job_id ;
 
             BOOST_FOREACH( collaboration_message_ptr_t message,
-                collaboration_bundle_->messages() )
+                           collaboration_bundle_->messages() )
             {
                 VLOG( 1 ) << "GOT COLLAB MESSAGES";
                 basic_collaboration_message_ptr_t payload_message =
@@ -63,8 +63,8 @@ void collaboration_handler::operator ()()
                 payloads.push_back( payload_message->payload() );
             }
             LOG( INFO )
-                << "Invoking message handler for worker type ["
-                << context_->worker_type() << "], Job [" << job_id << "]";
+                    << "Invoking message handler for worker type ["
+                    << context_->worker_type() << "], Job [" << job_id << "]";
             context_->set_job_id( job_id ) ;
             cb( payloads );
         }
@@ -76,8 +76,8 @@ void collaboration_handler::operator ()()
     else
     {
         LOG( ERROR )
-            << "Recieved a message from another worker that "
-            << "there is not a callback defined to handle.";
+                << "Recieved a message from another worker that "
+                << "there is not a callback defined to handle.";
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

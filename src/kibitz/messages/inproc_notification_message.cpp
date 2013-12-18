@@ -32,11 +32,11 @@ inproc_notification_message::inproc_notification_message( int notification )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  inproc_notification_message::inproc_notification_message( JSON::Object::Ptr json )
+inproc_notification_message::inproc_notification_message( JSON::Object::Ptr json )
     :
     notification_message( json )
 {
-  get_value( json, "notification", notification_ );
+    get_value( json, "notification", notification_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
 string inproc_notification_message::to_json() const

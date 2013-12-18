@@ -76,7 +76,7 @@ string pid_file;
 void signal_handler( int, siginfo_t*, void* )
 {
     fs::path path( pid_file );
-    if( fs::exists(  path ) )
+    if( fs::exists( path ) )
     {
         fs::remove_all( path );
     }
@@ -159,14 +159,14 @@ int main( int argc, char* argv[] )
         LOG( INFO ) << "Beginning initialization";
         string publisher_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
         string worker_root_binding = ( boost::format( "tcp://%1%" ) %
-            command_line[ "host" ].as< string >() ).str();
+                                       command_line[ "host" ].as< string >() ).str();
         string listener_binding = ( boost::format( "tcp://*:%1%" ) %
-            command_line[ "listen-port" ].as< int >() ).str();
+                                    command_line[ "listen-port" ].as< int >() ).str();
         std::string graph_file_name =
             command_line[ "graph-definition-file" ].as< string >() ;
         LOG( INFO ) << "Preparing collaboration graph from " << graph_file_name;
         kg::worker_graph_ptr worker_graph_ptr =
-            kg::create_worker_graph_from_file( graph_file_name  );
+            kg::create_worker_graph_from_file( graph_file_name );
         LOG( INFO ) << "Graph creation succeeded" ;
         kibitz::publisher pub(
             context,
@@ -178,7 +178,7 @@ int main( int argc, char* argv[] )
 
         kl::binding_map_t bindings;
         kl::create_bindings( worker_root_binding, worker_graph_ptr,
-            command_line[ "base-port" ].as< int >(), bindings );
+                             command_line[ "base-port" ].as< int >(), bindings );
 
         kl::router router(
             context, pub, listener_binding, bindings, worker_graph_ptr ) ;

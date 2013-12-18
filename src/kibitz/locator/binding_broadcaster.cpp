@@ -30,7 +30,7 @@ binding_broadcaster::~binding_broadcaster()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void binding_broadcaster::operator ()()
+void binding_broadcaster::operator()()
 {
     try
     {
@@ -40,8 +40,8 @@ void binding_broadcaster::operator ()()
         util::sockman sock( publisher_.get_publish_socket() );
 
         LOG( INFO )
-            << "Broadcast thread initialized, bindings will be sent every "
-            << send_frequency_ << " ms.";
+                << "Broadcast thread initialized, bindings will be sent every "
+                << send_frequency_ << " ms.";
 
         while( true )
         {
@@ -57,8 +57,8 @@ void binding_broadcaster::operator ()()
     catch( const std::exception& ex )
     {
         LOG( ERROR )
-            << "Abnormal termination of binding broadcaster. Reason - "
-            << ex.what();
+                << "Abnormal termination of binding broadcaster. Reason - "
+                << ex.what();
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

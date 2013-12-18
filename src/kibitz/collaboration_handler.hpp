@@ -5,23 +5,25 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
-  /// Handles job collaboration message on a seperate thread.
-  class collaboration_handler {
+/// Handles job collaboration message on a seperate thread.
+class collaboration_handler
+{
     context* context_;
     collaboration_message_bundle_ptr_t collaboration_bundle_;
-  public:
+public:
     /// c'tor
-    /// 
+    ///
     /// \param ctx pointer to application context
     /// \param message bundle of collaboration messages
     ///
-    collaboration_handler( context* ctx, collaboration_message_bundle_ptr_t message  ) ;
+    collaboration_handler( context* ctx, collaboration_message_bundle_ptr_t message ) ;
     ~collaboration_handler();
 
-    void operator() ();
-  };
+    void operator()();
+};
 }
 
 #endif

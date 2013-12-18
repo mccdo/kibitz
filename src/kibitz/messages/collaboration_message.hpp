@@ -50,17 +50,17 @@ protected:
     {
     }
 
-    collaboration_message( JSON::Object::Ptr json  )
+    collaboration_message( JSON::Object::Ptr json )
         : message( json )
     {
-      get_value( json, "collaboration_type", collaboration_type_ );
-      get_value( json, "job_id", job_id_ );
+        get_value( json, "collaboration_type", collaboration_type_ );
+        get_value( json, "job_id", job_id_ );
     }
 
     void populate_header( JSON::Object::Ptr json ) const
     {
         message::populate_header( json ) ;
-        json->set(  "collaboration_type", collaboration_type_ );
+        json->set( "collaboration_type", collaboration_type_ );
         json->set( "job_id", job_id_ );
     }
 

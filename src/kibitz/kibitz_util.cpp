@@ -75,7 +75,7 @@ bool time_elapsed( int duration_millisec, bpt::ptime& last_time )
     bpt::ptime current_time( get_current_local_time() );
     bpt::time_duration duration = current_time - last_time;
     if( duration.total_microseconds() >
-        ( duration_millisec * microsec_in_millisec ) )
+            ( duration_millisec * microsec_in_millisec ) )
     {
         last_time = current_time;
         elapsed = true;
@@ -97,8 +97,8 @@ void daemonize( const string& pid_file )
     if( err )
     {
 #endif
-    throw std::runtime_error(
-        ( boost::format( "Could not daemonize process. errno %1%" ) % errno ).str() );
+        throw std::runtime_error(
+            ( boost::format( "Could not daemonize process. errno %1%" ) % errno ).str() );
 #ifndef BOOST_WINDOWS
     }
 #endif

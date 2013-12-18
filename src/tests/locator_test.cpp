@@ -134,7 +134,7 @@ int test_main( int argc, char* argv[] )
         kg::strip_comments( "a commented line\n" ) == "a commented line\n" );
 
     std::string json =
-    "{"
+        "{"
         "\"message_type\":\"notification\","
         "\"version\":\"1.0\","
         "\"notification_type\":\"heartbeat\","
@@ -144,7 +144,7 @@ int test_main( int argc, char* argv[] )
         "\"process_id\":200000,"
         "\"ticks\":1000,"
         "\"port\":10000"
-    "}";
+        "}";
 
     void* zmq_context = zmq_init( 2 );
     BOOST_CHECK( zmq_context );

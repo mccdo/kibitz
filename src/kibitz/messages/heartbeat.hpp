@@ -30,8 +30,8 @@ namespace kibitz
 
 class worker_notification_message;
 
-  /// \brief Sent periodically to indicate aliveness of locator
-  ///
+/// \brief Sent periodically to indicate aliveness of locator
+///
 class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
 {
     string host_name_;
@@ -41,13 +41,25 @@ class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
     friend class worker_notification_message;
 public :
     heartbeat( int port ) ;
-    heartbeat( JSON::Object::Ptr json  );
+    heartbeat( JSON::Object::Ptr json );
     virtual ~heartbeat() ;
     virtual string to_json() const ;
-    const string& host() const { return host_name_; }
-    int process_id() const { return pid_; }
-    int port() const { return port_; }
-    int ticks() const { return ticks_; }
+    const string& host() const
+    {
+        return host_name_;
+    }
+    int process_id() const
+    {
+        return pid_;
+    }
+    int port() const
+    {
+        return port_;
+    }
+    int ticks() const
+    {
+        return ticks_;
+    }
     void increment_tick_count();
 };
 

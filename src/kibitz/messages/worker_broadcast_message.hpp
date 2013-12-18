@@ -38,7 +38,7 @@ class worker_broadcast_message : public notification_message
 public:
 
 
-  worker_broadcast_message( JSON::Object::Ptr json ) ;
+    worker_broadcast_message( JSON::Object::Ptr json ) ;
     worker_broadcast_message( const string& notification ) ;
     virtual ~worker_broadcast_message() {}
     virtual string to_json() const;

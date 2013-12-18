@@ -28,27 +28,27 @@ namespace kibitz
 {
 
 
-  /// \brief Message used when a worker sends a notification message
-  ///
-  /// These messages are intended to contain a payload that is sent to
-  /// agents that are external to kibitz. The json message is stripped and
-  /// only the payload is sent to external agents. 
-  class KIBITZ_MESSAGE_EXPORT worker_notification : public notification_message
-  {
+/// \brief Message used when a worker sends a notification message
+///
+/// These messages are intended to contain a payload that is sent to
+/// agents that are external to kibitz. The json message is stripped and
+/// only the payload is sent to external agents.
+class KIBITZ_MESSAGE_EXPORT worker_notification : public notification_message
+{
     string payload_;
-  public:
-    worker_notification( JSON::Object::Ptr json ) ; 
-    worker_notification( const string& payload  );
+public:
+    worker_notification( JSON::Object::Ptr json ) ;
+    worker_notification( const string& payload );
     virtual string to_json() const ;
     const string& get_payload() const
     {
-      return payload_;
+        return payload_;
     }
 
     static const char* NOTIFICATION_TYPE;
-  };
+};
 
-  typedef shared_ptr<worker_notification> worker_notification_ptr_t;
+typedef shared_ptr<worker_notification> worker_notification_ptr_t;
 }
 
 #endif

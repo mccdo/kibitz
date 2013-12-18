@@ -41,8 +41,8 @@ int main( int argc, char* argv[] )
     try
     {
         kibitz::initialize( argc, argv );
-	// set callback that will be invoked when 
-	// upstream workers send us messages
+        // set callback that will be invoked when
+        // upstream workers send us messages
         kibitz::set_in_message_handler( message_handler );
         kibitz::start();
         kibitz::terminate();
@@ -61,31 +61,33 @@ int main( int argc, char* argv[] )
 ////////////////////////////////////////////////////////////////////////
 //  This is a message handler for a terminal worker.  A terminal worker
 //  is the last worker called in a collaboration and does not forward
-//  messages to other workers, the job is done. 
-//  A terminal worker calls send_notification_message instead of 
+//  messages to other workers, the job is done.
+//  A terminal worker calls send_notification_message instead of
 //  send_out_message.  send_notification_message will publish results
 //  to other services that are listening outside the collaboration.  You
 //  could think of this as a signal that the job is complete.  You could
-//  just as well write data to a database or a file at this point, the 
-//  notification call is not required.  
+//  just as well write data to a database or a file at this point, the
+//  notification call is not required.
 ////////////////////////////////////////////////////////////////////////
 void message_handler( const kibitz::collaboration_messages_t& messages )
 {
 
-  DLOG(INFO) << "Got messages";
-  CHECK( messages.size() == 2 ) << "Expect a two messages" ;
-  string result ;
+    DLOG( INFO ) << "Got messages";
+    CHECK( messages.size() == 2 ) << "Expect a two messages" ;
+    string result ;
 
-  BOOST_FOREACH( const string& message, messages ) {
-    if( !result.empty() ) {
-      result += ";";
+    BOOST_FOREACH( const string & message, messages )
+    {
+        if( !result.empty() )
+        {
+            result += ";";
+        }
+        result += message;
     }
-    result += message;
-  }
 
-  // Note send notification instead of send out message. 
-  DLOG(INFO) << "Sending notification -> " << result;
-  kibitz::send_notification_message( result );
+    // Note send notification instead of send out message.
+    DLOG( INFO ) << "Sending notification -> " << result;
+    kibitz::send_notification_message( result );
 }
 
 

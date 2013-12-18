@@ -16,15 +16,17 @@ collaboration_message_bundle::collaboration_message_bundle(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  collaboration_message_bundle::collaboration_message_bundle(  JSON::Object::Ptr json )
-    :collaboration_message( json ) {
+collaboration_message_bundle::collaboration_message_bundle( JSON::Object::Ptr json )
+    : collaboration_message( json )
+{
 
-  JSON::Array::Ptr messages;
-  get_value( json, "messages", messages );
-  for( JSON::Array::ConstIterator i = messages->begin(); i != messages->end() ; ++i ) {
-    basic_collaboration_message_ptr_t ptr = basic_collaboration_message::create( i->extract<JSON::Object::Ptr>() );
-    messages_.push_back( ptr );
-  }
+    JSON::Array::Ptr messages;
+    get_value( json, "messages", messages );
+    for( JSON::Array::ConstIterator i = messages->begin(); i != messages->end() ; ++i )
+    {
+        basic_collaboration_message_ptr_t ptr = basic_collaboration_message::create( i->extract<JSON::Object::Ptr>() );
+        messages_.push_back( ptr );
+    }
 
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,10 +45,10 @@ string collaboration_message_bundle::to_json() const
 
     BOOST_FOREACH( basic_collaboration_message_ptr_t message, messages_ )
     {
-      JSON::Object::Ptr obj;
-      read_json( "{}", obj );
-      message->to_json( obj );
-      messages.add( obj );
+        JSON::Object::Ptr obj;
+        read_json( "{}", obj );
+        message->to_json( obj );
+        messages.add( obj );
     }
 
     json->set( "messages", messages );

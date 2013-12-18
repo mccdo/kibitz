@@ -27,35 +27,35 @@
 namespace kibitz
 {
 
-  ///  Message used to start jobs.
-  class KIBITZ_MESSAGE_EXPORT job_initialization_message : public notification_message
-  {
+///  Message used to start jobs.
+class KIBITZ_MESSAGE_EXPORT job_initialization_message : public notification_message
+{
     string worker_type_;
     int worker_id_;
     string payload_;
-  public:
+public:
     job_initialization_message( JSON::Object::Ptr json ) ;
     virtual ~job_initialization_message( ) {}
     const string& worker_type() const
     {
-      return worker_type_;
+        return worker_type_;
     }
     const int worker_id() const
     {
-      return worker_id_ ;
+        return worker_id_ ;
     }
 
-    const string& payload() const 
+    const string& payload() const
     {
-      return payload_;
+        return payload_;
     }
-  
+
     virtual string to_json() const ;
 
     static const char* NOTIFICATION_TYPE;
-  };
+};
 
-  typedef shared_ptr<job_initialization_message> job_initialization_message_ptr_t ;
+typedef shared_ptr<job_initialization_message> job_initialization_message_ptr_t ;
 }
 
 

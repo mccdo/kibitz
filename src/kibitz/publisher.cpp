@@ -53,15 +53,15 @@ void* publisher::get_publish_socket()
 {
     void* sock = util::create_socket( zmq_context_, ZMQ_REQ );
     DLOG( INFO )
-        << "Get publish socket, binding -> " << inproc_binding_
-        << " sock address " << sock;
+            << "Get publish socket, binding -> " << inproc_binding_
+            << " sock address " << sock;
     util::check_zmq( zmq_connect( sock, inproc_binding_.c_str() ) );
     return sock;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void publisher::send( const std::string& json )
 {
-    ku::sockman sock( zmq_context_, ZMQ_REQ  );
+    ku::sockman sock( zmq_context_, ZMQ_REQ );
     util::check_zmq( zmq_connect( sock, inproc_binding_.c_str() ) );
     util::send( sock, json );
     string response ;
@@ -75,7 +75,7 @@ void publisher::send( void* zmq_socket, const std::string& json )
     util::recv( zmq_socket, response );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void publisher::operator ()()
+void publisher::operator()()
 {
     try
     {
@@ -115,7 +115,7 @@ void publisher::operator ()()
                     dynamic_pointer_cast< notification_message >( msg ) ;
 
                 if( notification_msg->notification_type() ==
-                    notification::INPROC_NOTIFICATION )
+                        notification::INPROC_NOTIFICATION )
                 {
                     inproc_notification_ptr_t inproc_msg =
                         dynamic_pointer_cast< inproc_notification_message >(
@@ -132,7 +132,7 @@ void publisher::operator ()()
                 // and only send the payload since the intent of this type of message is
                 // to be transmitted to agents external to kibitz
                 if( notification_msg->notification_type() ==
-                    worker_notification::NOTIFICATION_TYPE )
+                        worker_notification::NOTIFICATION_TYPE )
                 {
                     worker_notification_ptr_t wn =
                         static_pointer_cast< worker_notification >(
@@ -151,8 +151,8 @@ void publisher::operator ()()
     catch( const std::exception& e )
     {
         LOG( ERROR )
-            << "Publisher thread terminated abnormally due to error -> "
-            << e.what() ;
+                << "Publisher thread terminated abnormally due to error -> "
+                << e.what() ;
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

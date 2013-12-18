@@ -35,7 +35,7 @@ router::~router()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void router::operator ()()
+void router::operator()()
 {
     LOG( INFO ) << "Starting router thread";
 
@@ -49,7 +49,7 @@ void router::operator ()()
         ku::sockman_ptr_t message_listener =
             ku::create_socket_ptr( context_, ZMQ_PULL );
         ku::check_zmq( zmq_bind(
-            *message_listener, listener_binding_.c_str() ) );
+                           *message_listener, listener_binding_.c_str() ) );
 
         util::sockman notification_socket( publisher_.get_publish_socket() );
 
@@ -88,11 +88,11 @@ void router::operator ()()
 ////////////////////////////////////////////////////////////////////////////////
 void router::bind_out_sockets( send_sockets_t& send_sockets )
 {
-    BOOST_FOREACH( const binding_pair_t& binding_pair, push_bindings_ )
+    BOOST_FOREACH( const binding_pair_t & binding_pair, push_bindings_ )
     {
-        void* sock = ku::create_socket( context_, ZMQ_PUSH  );
+        void* sock = ku::create_socket( context_, ZMQ_PUSH );
         VLOG( 1 )
-            << "creating socket for [" << binding_pair.first << "] " << sock;
+                << "creating socket for [" << binding_pair.first << "] " << sock;
         int port = get_port( binding_pair.second );
         string push_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
         LOG( INFO ) << "BINDING " << sock << " to " << push_binding;
@@ -119,8 +119,8 @@ void router::route_message(
         graph_ptr_->get_worker( sending_worker_type );
     if( sending_worker_node != NULL )
     {
-        BOOST_FOREACH( const string& target_worker_type,
-            sending_worker_node->get_out_edges() )
+        BOOST_FOREACH( const string & target_worker_type,
+                       sending_worker_node->get_out_edges() )
         {
             VLOG( 1 ) << "Preparing to route to " << target_worker_type;
             send_sockets_t::const_iterator it =
@@ -128,8 +128,8 @@ void router::route_message(
             if( it != send_sockets.end() )
             {
                 DLOG( INFO )
-                    << "Routed collaboration message for "
-                    << target_worker_type;
+                        << "Routed collaboration message for "
+                        << target_worker_type;
                 collaboration_message_bundle_ptr_t messages =
                     populate_inedge_messages(
                         target_worker_type,
@@ -139,35 +139,35 @@ void router::route_message(
                 if( inedges_have_messages( messages ) )
                 {
                     VLOG( 1 )
-                        << "Routing message for ["
-                        << target_worker_type << "] ";
+                            << "Routing message for ["
+                            << target_worker_type << "] ";
 
                     string msg = messages->to_json();
                     int rc = zmq_send(
-                        *(it->second), msg.data(), msg.length(), ZMQ_DONTWAIT );
+                                 *( it->second ), msg.data(), msg.length(), ZMQ_DONTWAIT );
                     if( rc < 0 )
                     {
                         LOG( WARNING )
-                            << "Dropped message bound for ["
-                            << target_worker_type << "]. Reason - "
-                            << zmq_strerror( zmq_errno() ) ;
+                                << "Dropped message bound for ["
+                                << target_worker_type << "]. Reason - "
+                                << zmq_strerror( zmq_errno() ) ;
                     }
                 }
             }
             else
             {
                 LOG( WARNING )
-                    << "Got a collaboration message that we dropped "
-                    << "because its target is not in graph definition. Type = "
-                    << target_worker_type ;
+                        << "Got a collaboration message that we dropped "
+                        << "because its target is not in graph definition. Type = "
+                        << target_worker_type ;
             }
         }
     }
     else
     {
         LOG( WARNING )
-            << "Sending worker " << sending_worker_type
-            << " is not in graph definition. Dropping message";
+                << "Sending worker " << sending_worker_type
+                << " is not in graph definition. Dropping message";
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ collaboration_message_bundle_ptr_t router::populate_inedge_messages(
         }
 
         messages = collaboration_message_bundle_ptr_t(
-            new collaboration_message_bundle( collaboration_messages ) );
+                       new collaboration_message_bundle( collaboration_messages ) );
         // ditch the record associated with this job
         cache[ target_worker ].erase( new_message->job_id() );
     }

@@ -65,7 +65,7 @@ void in_edge_manager::send_notification( const string& json )
         notification_socket_ =
             util::create_socket_ptr( context_.zmq_context(), ZMQ_REQ );
         util::check_zmq( zmq_connect(
-            *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
+                             *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
     }
 
     util::send( *notification_socket_, json );
@@ -80,7 +80,7 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
     job_initialization_message_ptr_t job_init_message =
         dynamic_pointer_cast< job_initialization_message >( message );
     CHECK( job_init_message != NULL )
-        << "invalid notification message cast to job init message";
+            << "invalid notification message cast to job init message";
     //Only targeted worker will execute init callback,
     //if such callback has been implemented
     if( job_init_message->worker_type() == worker_type_ )
@@ -90,15 +90,15 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
             initialization_callback cb =
                 context_.get_initialization_notification_callback();
             CHECK( cb != NULL )
-                << "Sent a job initialization message to a "
-                << "worker without an initialization callback";
-	    context_.send_worker_status( WORK_RECIEVED );
+                    << "Sent a job initialization message to a "
+                    << "worker without an initialization callback";
+            context_.send_worker_status( WORK_RECIEVED );
             cb( job_init_message->payload() );
         }
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::operator ()()
+void in_edge_manager::operator()()
 {
     DLOG( INFO ) << "in edge manager thread started" ;
 
@@ -107,7 +107,7 @@ void in_edge_manager::operator ()()
         util::sockman_ptr_t notification_sock =
             util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
         util::check_zmq( zmq_bind(
-            *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
+                             *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
 
         zmq_pollitem_t* pollitems =
             ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) * 2 );
@@ -138,7 +138,7 @@ void in_edge_manager::operator ()()
                     util::send( pollitems[ 0 ].socket, response.to_json() );
 
                     if( msg->notification_type() ==
-                        binding_notification::NOTIFICATION_TYPE )
+                            binding_notification::NOTIFICATION_TYPE )
                     {
                         binding_notification_ptr_t bind_msg =
                             static_pointer_cast<binding_notification>( msg ) ;
@@ -147,8 +147,8 @@ void in_edge_manager::operator ()()
                             if( bind_msg->binding() != current_binding )
                             {
                                 LOG( INFO )
-                                    << "Binding worker to ["
-                                    << bind_msg->binding() << "]";
+                                        << "Binding worker to ["
+                                        << bind_msg->binding() << "]";
                                 if( count_items > 1 )
                                 {
                                     util::close_socket( pollitems[ 1 ].socket );
@@ -157,14 +157,14 @@ void in_edge_manager::operator ()()
                                 count_items = 2;
                                 current_binding = bind_msg->binding();
                                 pollitems[ 1 ].socket = util::create_socket(
-                                    context_.zmq_context(), ZMQ_PULL );
+                                                            context_.zmq_context(), ZMQ_PULL );
                                 util::check_zmq( zmq_connect(
-                                    pollitems[ 1 ].socket,
-                                    current_binding.c_str() ) );
+                                                     pollitems[ 1 ].socket,
+                                                     current_binding.c_str() ) );
                                 pollitems[ 1 ].events = ZMQ_POLLIN;
                                 DLOG( INFO )
-                                    << "Bind operation succeeded to ["
-                                    << bind_msg->binding() << "]";
+                                        << "Bind operation succeeded to ["
+                                        << bind_msg->binding() << "]";
                             }
                         }
                     }
@@ -176,8 +176,8 @@ void in_edge_manager::operator ()()
                     string json;
                     util::recv( pollitems[ 1 ].socket, json );
                     VLOG( 1 ) << "Received collaboration message " << json;
-		    context_.send_worker_status( WORK_RECIEVED );
-		    collaboration_message_bundle_ptr_t msg =
+                    context_.send_worker_status( WORK_RECIEVED );
+                    collaboration_message_bundle_ptr_t msg =
                         static_pointer_cast< collaboration_message_bundle >(
                             message_factory( json ) );
                     boost::thread thrd(

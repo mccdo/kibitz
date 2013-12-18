@@ -48,8 +48,8 @@ public:
     virtual string to_json( JSON::Object::Ptr json ) ;
     virtual string to_json() const ;
 
- 
- 
+
+
     static shared_ptr<basic_collaboration_message> create( JSON::Object::Ptr json ) ;
 
 };

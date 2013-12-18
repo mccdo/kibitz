@@ -38,7 +38,7 @@ initialization_handler::~initialization_handler()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void initialization_handler::operator ()()
+void initialization_handler::operator()()
 {
     VLOG( 1 ) << "Entered initialization handler thread";
     initialization_callback cb =

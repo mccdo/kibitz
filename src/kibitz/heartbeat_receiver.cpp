@@ -45,7 +45,7 @@ heartbeat_receiver::~heartbeat_receiver()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void heartbeat_receiver::operator ()()
+void heartbeat_receiver::operator()()
 {
     DLOG( INFO ) << "Entered heartbeat receiver thread.";
 
@@ -58,8 +58,8 @@ void heartbeat_receiver::operator ()()
         //Probably listen simulateously to both primary and secondary,
         //when secondary gets flagged as primary use that
         string binding = ( boost::format( "tcp://%1%:%2%" ) %
-            context_->get_config()[ "locator-host" ].as< string >() %
-            context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
+                           context_->get_config()[ "locator-host" ].as< string >() %
+                           context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
 
         LOG( INFO ) << "Will subscribe to messages from locator on " << binding;
         check_zmq( zmq_connect( *listen_sock, binding.c_str() ) );
@@ -76,8 +76,8 @@ void heartbeat_receiver::operator ()()
             //try to connect to alternative locator
             kibitz::util::recv( *listen_sock, json );
             DLOG( INFO )
-                << context_->worker_type() << ":"
-                << context_->worker_id() << " received message " << json;
+                    << context_->worker_type() << ":"
+                    << context_->worker_id() << " received message " << json;
             notification_message_ptr_t message_ptr =
                 dynamic_pointer_cast< notification_message >(
                     message_factory( json ) );
@@ -118,14 +118,14 @@ void heartbeat_receiver::operator ()()
                             if( context_->get_initialization_notification_callback() )
                             {
                                 boost::thread thrd( initialization_handler(
-                                    context_, jm->payload() ) );
+                                                        context_, jm->payload() ) );
                             }
                             else
                             {
                                 LOG( ERROR )
-                                    << "There is not a callback function "
-                                    << "defined to handle the received job "
-                                    << "initialization message.";
+                                        << "There is not a callback function "
+                                        << "defined to handle the received job "
+                                        << "initialization message.";
                             }
                         }
                     }
@@ -133,8 +133,8 @@ void heartbeat_receiver::operator ()()
                 else
                 {
                     LOG( ERROR )
-                        << "We got a message we don't know how to handle - "
-                        << json;
+                            << "We got a message we don't know how to handle - "
+                            << json;
                 }
             }
             else
@@ -146,7 +146,7 @@ void heartbeat_receiver::operator ()()
     catch( const util::queue_interrupt& )
     {
         LOG( INFO )
-            << "Received interrupt shutting down heartbeat receiver thread";
+                << "Received interrupt shutting down heartbeat receiver thread";
     }
     catch( const std::exception& ex )
     {

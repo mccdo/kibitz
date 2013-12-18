@@ -5,27 +5,29 @@
 
 using boost::ptree;
 
-namespace locator {
-  class context {
-    
+namespace locator
+{
+class context
+{
+
     void* zmq_context_;
     int zmq_context_thrds_ ;
 
     ptree configuration_;
 
     context();
-  public:
+public:
 
     static const int DEFAULT_CONTEXT_THREADS = 2;
 
 
     ~context() ;
-    
-  };
 
-  typedef boost::shared_ptr< context > context_ptr_t ;
+};
 
- 
+typedef boost::shared_ptr< context > context_ptr_t ;
+
+
 
 }
 

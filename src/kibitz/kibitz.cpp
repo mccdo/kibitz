@@ -33,16 +33,16 @@ boost::program_options::options_description get_command_line_description()
 {
     boost::program_options::options_description generalOptionDesc( "Kibitz worker command line options" );
     generalOptionDesc.add_options()
-        ( "help,h", "Show help message" )
-        ( "worker-id,I",            po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
-        ( "worker-type,T",          po::value< string >(), "(Required) Name of the type of worker." )
-        //TODO: implement HA pair host1;host2
-        ( "locator-host,L",         po::value< string >(), "IP Address or DNS name of locator" )
-        ( "locator-receive-port,R", po::value< int >()->default_value( 5556 ), "Port to receive notifications from locator" )
-        ( "locator-send-port,S",    po::value< int >()->default_value( 5557 ), "Port to send messages to locator" )
-        ( "notification-port,P",    po::value< int >(), "Optional port to publish notification messages" )
-        ( "context-threads,t",      po::value< int >()->default_value( 2 ), "Thread count passed to zmq_init" )
-        ( "status-sink-binding,b",  po::value< string >(), "Optional zmq binding for listener for status messages such as service start and stop" );
+    ( "help,h", "Show help message" )
+    ( "worker-id,I",            po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
+    ( "worker-type,T",          po::value< string >(), "(Required) Name of the type of worker." )
+    //TODO: implement HA pair host1;host2
+    ( "locator-host,L",         po::value< string >(), "IP Address or DNS name of locator" )
+    ( "locator-receive-port,R", po::value< int >()->default_value( 5556 ), "Port to receive notifications from locator" )
+    ( "locator-send-port,S",    po::value< int >()->default_value( 5557 ), "Port to send messages to locator" )
+    ( "notification-port,P",    po::value< int >(), "Optional port to publish notification messages" )
+    ( "context-threads,t",      po::value< int >()->default_value( 2 ), "Thread count passed to zmq_init" )
+    ( "status-sink-binding,b",  po::value< string >(), "Optional zmq binding for listener for status messages such as service start and stop" );
     return generalOptionDesc;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ void validate_command_line( const po::variables_map& command_line )
 void initialize( int argc, char* argv[] )
 {
     DLOG( INFO ) << "initialize start";
-    
+
     po::variables_map command_line;
     po::store( po::parse_command_line( argc, argv, get_command_line_description() ), command_line );
 

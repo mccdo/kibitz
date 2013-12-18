@@ -37,11 +37,11 @@ context::context( const po::variables_map& application_configuration )
     signalled_( false ),
     inedge_message_handler_( NULL ),
     initialization_handler_( NULL ),
-    status_publisher_enabled_(false)
+    status_publisher_enabled_( false )
 {
     DLOG( INFO ) << "ctor for context entered" ;
     zmq_context_ = zmq_init(
-        application_configuration[ "context-threads" ].as< int >() );
+                       application_configuration[ "context-threads" ].as< int >() );
     DLOG( INFO ) << "zmq initialized";
     message_bus_socket_ = util::create_socket( zmq_context_, ZMQ_PUB );
     util::check_zmq( zmq_bind( message_bus_socket_, INPROC_COMMAND_BINDING ) );
@@ -82,8 +82,8 @@ void context::send_notification_message( const string& payload )
     else
     {
         LOG( WARNING )
-            << "Notification publish failed because notification-port "
-            << "was not supplied on command line";
+                << "Notification publish failed because notification-port "
+                << "was not supplied on command line";
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,8 +136,8 @@ void context::start()
     thread_group threads;
 
     std::string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
-        application_configuration_[ "locator-host" ].as< string >() %
-        application_configuration_[ "locator-send-port" ].as< int >() ).str();
+                                    application_configuration_[ "locator-host" ].as< string >() %
+                                    application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
     publisher locator_pub(
         zmq_context(),
@@ -149,10 +149,10 @@ void context::start()
     if( application_configuration_.count( "notification-port" ) )
     {
         string notification_binding = ( boost::format( "tcp://*:%1%" ) %
-            application_configuration_[ "notification-port" ].as< int >() ).str();
+                                        application_configuration_[ "notification-port" ].as< int >() ).str();
         LOG( INFO )
-           << "Worker [" << worker_type_name_ << "." << worker_id_
-           << "] may publish notifications on " << notification_binding ;
+                << "Worker [" << worker_type_name_ << "." << worker_id_
+                << "] may publish notifications on " << notification_binding ;
 
         publisher notify_pub(
             zmq_context(),
@@ -163,19 +163,20 @@ void context::start()
         threads.create_thread( notify_pub );
     }
 
-    if( application_configuration_.count( "status-sink-binding" ) ) {
-      string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
-      LOG(INFO) << "Worker [" << worker_type_name_ << "." << worker_id_ 
-		<< "] will publish status " << status_sink_binding;
-      publisher status_pub( 
-			   zmq_context(),
-			   status_sink_binding,
-			   ZMQ_PUSH,
-			   INPROC_NOTIFICATION_PUBLISH_STATUS, 
-			   publish::connect 
-			 );
-      threads.create_thread( status_pub ) ;
-      status_publisher_enabled_ = true;
+    if( application_configuration_.count( "status-sink-binding" ) )
+    {
+        string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
+        LOG( INFO ) << "Worker [" << worker_type_name_ << "." << worker_id_
+                    << "] will publish status " << status_sink_binding;
+        publisher status_pub(
+            zmq_context(),
+            status_sink_binding,
+            ZMQ_PUSH,
+            INPROC_NOTIFICATION_PUBLISH_STATUS,
+            publish::connect
+        );
+        threads.create_thread( status_pub ) ;
+        status_publisher_enabled_ = true;
     }
 
     heartbeat_receiver hb_receiver( this );
@@ -187,7 +188,7 @@ void context::start()
     threads.join_all();
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_worker_status(worker_status_t status )
+void context::send_worker_status( worker_status_t status )
 {
     if( !status_publisher_enabled_ )
     {
@@ -201,14 +202,14 @@ void context::send_worker_status(worker_status_t status )
         {
             std::string worker_type = application_configuration_["worker-type"].as< std::string >();
             std::string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
-            publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS  );
+            publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS );
             worker_status_message message( worker_type, worker_id, status );
             p.send( message.to_json() );
-            return;	  
+            return;
         }
         catch( ... )
         {
-            LOG(INFO) << "Attempt to send status message failed, retrying...";
+            LOG( INFO ) << "Attempt to send status message failed, retrying...";
             boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
         }
     }

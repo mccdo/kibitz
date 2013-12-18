@@ -37,7 +37,7 @@ class KIBITZ_MESSAGE_EXPORT worker_notification_message : public notification_me
 
 
 public:
-    worker_notification_message( JSON::Object::Ptr json ) ; 
+    worker_notification_message( JSON::Object::Ptr json ) ;
     worker_notification_message( heartbeat_ptr_t hb );
     worker_notification_message( const string& worker_type );
     virtual ~worker_notification_message() {}
