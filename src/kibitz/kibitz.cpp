@@ -111,7 +111,7 @@ void initialize( po::variables_map& command_line )
     const std::string workerType =
         command_line["worker-type"].as<std::string>();
     const std::string workerId =
-        boost::lexical_cast< std::string >( command_line["log-level"].as<std::string>() );
+        boost::lexical_cast< std::string >( command_line["worker-id"].as<int>() );
     
     logPath += "kibitz_" + workerId + "_" + workerType + ".log";
     std::cout << "LogPath = " << logPath << std::endl;
