@@ -43,7 +43,7 @@ message_ptr_t notification_message_factory( JSON::Object::Ptr json )
 {
     message_ptr_t result;
 
-    string notification_type;
+    std::string notification_type;
     get_value( json,  "notification_type", notification_type );
 
     if( notification_type == "heartbeat" )
@@ -93,7 +93,7 @@ message_ptr_t collaboration_message_factory( JSON::Object::Ptr json )
 {
     message_ptr_t result;
 
-    string collaboration_type ;
+    std::string collaboration_type ;
     get_value( json, "collaboration_type", collaboration_type );
 
     if( collaboration_type == "generic" )
@@ -109,17 +109,17 @@ message_ptr_t collaboration_message_factory( JSON::Object::Ptr json )
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-message_ptr_t message_factory( const string& json )
+message_ptr_t message_factory( const std::string& json )
 {
     message_ptr_t result;
-    stringstream sstm;
+    std::stringstream sstm;
     sstm << json;
     KIBITZ_STATIC_LOG_DEBUG( "message_factory", "RAW MESSAGE [" << json << "]" );
 
     JSON::Object::Ptr parsed;
     read_json( json, parsed );
 
-    string message_type;
+    std::string message_type;
     get_value( parsed, "message_type", message_type );
 
     if( message_type == "notification" )
@@ -136,7 +136,7 @@ message_ptr_t message_factory( const string& json )
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void read_json( const string& json, JSON::Object::Ptr& ptr )
+void read_json( const std::string& json, JSON::Object::Ptr& ptr )
 {
     JSON::Parser parser;
     Dynamic::Var result = parser.parse( json ) ;

@@ -11,14 +11,14 @@ namespace kibitz
 class initialization_handler
 {
     context* context_;
-    string initialization_data_;
+    std::string initialization_data_;
 public:
     /// c'tor
     ///
     /// \param ctx pointer to application context
     /// \param initialization_data payload from job initialization message
     ///
-    initialization_handler( context* ctx, const string& initialization_data ) ;
+    initialization_handler( context* ctx, const std::string& initialization_data ) ;
     ~initialization_handler();
 
     void operator()();

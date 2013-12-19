@@ -49,8 +49,6 @@ typedef unsigned __int64 uint64_t;
 
 using namespace Poco;
 using boost::shared_ptr;
-using std::string;
-using std::stringstream;
 
 namespace kibitz
 {
@@ -72,7 +70,7 @@ static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
 static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
 
 
-template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T& value )
+template< typename T > void get_value( JSON::Object::Ptr p, const std::string& key, T& value )
 {
     Dynamic::Var field = p->get( key ) ;
     if( field.isEmpty() )
@@ -85,10 +83,10 @@ template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T
 
 class KIBITZ_MESSAGE_EXPORT message
 {
-    string message_type_;
-    string version_;
+    std::string message_type_;
+    std::string version_;
 protected :
-    message( const string& message_type, const string& version )
+    message( const std::string& message_type, const std::string& version )
         : message_type_( message_type ),
           version_( version )  {}
     message( JSON::Object::Ptr json )
@@ -109,12 +107,12 @@ public:
     virtual ~message() {}
     static const int stop = 0;
     static const int ok = 0;
-    virtual string to_json() const = 0;
-    const string& message_type() const
+    virtual std::string to_json() const = 0;
+    const std::string& message_type() const
     {
         return message_type_;
     }
-    const string& version() const
+    const std::string& version() const
     {
         return version_ ;
     }
@@ -123,9 +121,9 @@ public:
 
 typedef shared_ptr<message> message_ptr_t;
 
-KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const string& json ) ;
+KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const std::string& json ) ;
 
-KIBITZ_MESSAGE_EXPORT void read_json( const string& json, JSON::Object::Ptr& ptr );
+KIBITZ_MESSAGE_EXPORT void read_json( const std::string& json, JSON::Object::Ptr& ptr );
 
 
 

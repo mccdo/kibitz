@@ -23,7 +23,7 @@ public:
     {
         return messages_;
     }
-    string to_json() const ;
+    std::string to_json() const ;
 
     static const char* MESSAGE_TYPE;
 };

@@ -69,14 +69,14 @@ void publisher::send( const std::string& json )
     ku::sockman sock( zmq_context_, ZMQ_REQ );
     util::check_zmq( zmq_connect( sock, inproc_binding_.c_str() ) );
     util::send( sock, json );
-    string response ;
+    std::string response ;
     util::recv( sock, response );
 }
 ////////////////////////////////////////////////////////////////////////////////
 void publisher::send( void* zmq_socket, const std::string& json )
 {
     util::send( zmq_socket, json );
-    string response ;
+    std::string response ;
     util::recv( zmq_socket, response );
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ void publisher::operator()()
         {
             KIBITZ_LOG_DEBUG( "Publish loop" );
             // get message sent from other thread and respond
-            string json;
+            std::string json;
             util::recv( inproc_ptr, json );
             inproc_notification_message response( message::ok );
             util::send( inproc_ptr, response.to_json() );
@@ -149,6 +149,10 @@ void publisher::operator()()
             // publish message
             KIBITZ_LOG_DEBUG( "Published message ->" << json );
             util::send( publisher_ptr, json );
+            
+            //See if this thread has been interrupted:
+            //http://www.boost.org/doc/libs/1_53_0/doc/html/thread/thread_management.html#thread.thread_management.this_thread.interruption_point
+            boost::this_thread::interruption_point();
         }
 
         KIBITZ_LOG_NOTICE( "Publish thread terminated normally" );

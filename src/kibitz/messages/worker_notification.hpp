@@ -35,12 +35,12 @@ namespace kibitz
 /// only the payload is sent to external agents.
 class KIBITZ_MESSAGE_EXPORT worker_notification : public notification_message
 {
-    string payload_;
+    std::string payload_;
 public:
     worker_notification( JSON::Object::Ptr json ) ;
-    worker_notification( const string& payload );
-    virtual string to_json() const ;
-    const string& get_payload() const
+    worker_notification( const std::string& payload );
+    virtual std::string to_json() const ;
+    const std::string& get_payload() const
     {
         return payload_;
     }

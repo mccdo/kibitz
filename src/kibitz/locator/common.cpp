@@ -24,14 +24,14 @@ void create_bindings(
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-int get_port( const string& binding )
+int get_port( const std::string& binding )
 {
     int pos = binding.rfind( ':' );
-    if( pos == string::npos )
+    if( pos == std::string::npos )
     {
         throw std::runtime_error( "Invalid binding format" );
     }
-    string portstring = binding.substr( ++pos );
+    std::string portstring = binding.substr( ++pos );
     return boost::lexical_cast< int >( portstring );
 }
 ////////////////////////////////////////////////////////////////////////////////

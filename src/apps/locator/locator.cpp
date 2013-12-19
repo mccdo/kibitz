@@ -62,7 +62,6 @@ GCC_DIAG_ON( unused-parameter )
 
 namespace fs = boost::filesystem;
 using boost::format;
-using std::string;
 namespace po = boost::program_options;
 
 using kibitz::util::create_socket;
@@ -75,7 +74,7 @@ using kibitz::locator::binding_map_t;
 namespace kg = kibitz::graph;
 namespace kl = kibitz::locator;
 
-string pid_file;
+std::string pid_file;
 #ifndef BOOST_WINDOWS
 void signal_handler( int, siginfo_t*, void* )
 {
@@ -101,13 +100,13 @@ int main( int argc, char* argv[] )
     ( "context-threads,t", po::value< int >()->default_value( 4 ),
       "zmq context thread count" )
     ( "daemon,d", "Run as a daemon" )
-    ( "graph-definition-file,f", po::value< string >(),
+    ( "graph-definition-file,f", po::value< std::string >(),
       "File containing collaboration graph definition" )
-    ( "pid-file",       po::value< string >()->default_value( "/var/run/kibitz-locator.pid" ),
+    ( "pid-file",       po::value< std::string >()->default_value( "/var/run/kibitz-locator.pid" ),
       "Location of pid file for daemon mode" )
     ( "heartbeat-frequency", po::value< int >()->default_value( 100 ),
       "Heartbeat frequency in milliseconds" )
-    ( "host,H",         po::value< string >(),
+    ( "host,H",         po::value< std::string >(),
       "Host name or IP address that workers will connect to for collaboration messages." )
     ( "base-port,P",    po::value< int >()->default_value( 6000 ),
       "Start of port range that workers will bind to for collaboration messages" )
@@ -121,7 +120,7 @@ int main( int argc, char* argv[] )
 #ifndef BOOST_WINDOWS
     if( command_line.count( "daemon" ) )
     {
-        pid_file = command_line[ "pid-file" ].as< string >();
+        pid_file = command_line[ "pid-file" ].as< std::string >();
         kibitz::util::daemonize( pid_file );
         // we want to capture SIGINT so we
         // can clean up pid file and re-raise signal
@@ -195,13 +194,13 @@ int main( int argc, char* argv[] )
     try
     {
         KIBITZ_STATIC_LOG_NOTICE( "locator", "Beginning initialization" );
-        string publisher_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
-        string worker_root_binding = ( boost::format( "tcp://%1%" ) %
-                                       command_line[ "host" ].as< string >() ).str();
-        string listener_binding = ( boost::format( "tcp://*:%1%" ) %
+        std::string publisher_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
+        std::string worker_root_binding = ( boost::format( "tcp://%1%" ) %
+                                       command_line[ "host" ].as< std::string >() ).str();
+        std::string listener_binding = ( boost::format( "tcp://*:%1%" ) %
                                     command_line[ "listen-port" ].as< int >() ).str();
         std::string graph_file_name =
-            command_line[ "graph-definition-file" ].as< string >() ;
+            command_line[ "graph-definition-file" ].as< std::string >() ;
         KIBITZ_STATIC_LOG_NOTICE( "locator", "Preparing collaboration graph from " << graph_file_name );
         kg::worker_graph_ptr worker_graph_ptr =
             kg::create_worker_graph_from_file( graph_file_name );

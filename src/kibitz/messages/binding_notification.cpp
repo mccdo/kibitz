@@ -7,8 +7,8 @@ const char* binding_notification::NOTIFICATION_TYPE = "binding";
 
 ////////////////////////////////////////////////////////////////////////////////
 binding_notification::binding_notification(
-    const string& target_worker,
-    const string& zmq_binding )
+    const std::string& target_worker,
+    const std::string& zmq_binding )
     :
     notification_message( binding_notification::NOTIFICATION_TYPE ),
     target_worker_( target_worker ),
@@ -31,9 +31,9 @@ binding_notification::~binding_notification()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string binding_notification::to_json() const
+std::string binding_notification::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

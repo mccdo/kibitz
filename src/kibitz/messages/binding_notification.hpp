@@ -11,10 +11,8 @@ namespace kibitz
 ///
 class KIBITZ_MESSAGE_EXPORT binding_notification : public notification_message
 {
-    string target_worker_;
-    string zmq_binding_;
-
-
+    std::string target_worker_;
+    std::string zmq_binding_;
 
 public:
     /// c'tor
@@ -22,17 +20,17 @@ public:
     /// \param target_worker name of worker type that will use this binding
     /// \param zmq_binding zmq binding where worker will get collaboration messages
     ///
-    binding_notification( const string& target_worker, const string& zmq_binding );
+    binding_notification( const std::string& target_worker, const std::string& zmq_binding );
 
     binding_notification( JSON::Object::Ptr json );
     virtual ~binding_notification();
-    virtual string to_json() const;
+    virtual std::string to_json() const;
 
-    const string& target_worker() const
+    const std::string& target_worker() const
     {
         return target_worker_;
     }
-    const string& binding() const
+    const std::string& binding() const
     {
         return zmq_binding_;
     }

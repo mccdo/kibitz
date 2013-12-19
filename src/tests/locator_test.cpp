@@ -163,7 +163,7 @@ int test_main( int argc, char* argv[] )
 
         publisher.send( json ) ;
 
-        string response;
+        std::string response;
         ku::recv( sub, response );
         std::cout << "Got subscription response " << response << std::endl;
         BOOST_CHECK( json == response );

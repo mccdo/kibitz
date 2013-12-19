@@ -7,7 +7,7 @@ namespace kibitz
 
 const char* worker_status_message::NOTIFICATION_TYPE = "worker_status_message";
 
-worker_status_message::worker_status_message( const string& worker_type, const string& worker_id, worker_status_t status )
+worker_status_message::worker_status_message( const std::string& worker_type, const std::string& worker_id, worker_status_t status )
     : notification_message( worker_status_message::NOTIFICATION_TYPE ),
       worker_type_( worker_type ),
       worker_id_( worker_id ),
@@ -27,9 +27,9 @@ worker_status_message::worker_status_message( JSON::Object::Ptr json )
     get_value( json, "timestamp", timestamp_ );
 }
 
-string worker_status_message::to_json() const
+std::string worker_status_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json ) ;

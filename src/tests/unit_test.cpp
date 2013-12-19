@@ -44,13 +44,12 @@ namespace po = boost::program_options;
 
 int test_main( int argc, char* argv[] )
 {
-
     po::options_description options( "test" );
     options.add_options()
     ( "help,h", "Show help message" )
     ( "worker-id,I", po::value< int >()->default_value( 1 ), "xxx" )
-    ( "worker-type,T", po::value< string >()->default_value( "test-worker" ), "(Required) Name of the type of worker." )
-    ( "multicast-binding,b", po::value<string>()->default_value( "xxx" ), "(Required) zmq epgm multicast binding" )
+    ( "worker-type,T", po::value< std::string >()->default_value( "test-worker" ), "(Required) Name of the type of worker." )
+    ( "multicast-binding,b", po::value< std::string >()->default_value( "xxx" ), "(Required) zmq epgm multicast binding" )
     ( "publish-port,p", po::value<int>()->default_value( 8999 ), "Port for tcp based zmq messages" )
     ( "notification-port,P", po::value<int>()->default_value( 9999 ), "port to publish notification messages" )
     ( "context-threads,t", po::value< int >()->default_value( 1 ), "Thread count passed to zmq_init" )
@@ -62,7 +61,7 @@ int test_main( int argc, char* argv[] )
     // TODO: fix me
 
     // kibitz::heartbeat heartbeat( command_line );
-    // string json = heartbeat.to_json() ;
+    // std::string json = heartbeat.to_json() ;
     // BOOST_CHECK( !json.empty() );
     // kibitz::message_ptr_t message = kibitz::message_factory( json );
     // BOOST_CHECK( message != NULL );
@@ -100,7 +99,7 @@ int test_main( int argc, char* argv[] )
     Dynamic::Var missing_type = parsed->get( "not_present" );
     BOOST_CHECK( missing_type.isEmpty() );
 
-    string t;
+    std::string t;
     kibitz::get_value( parsed, "message_type", t );
     BOOST_CHECK( t == "collaboration" );
 
@@ -125,7 +124,7 @@ int test_main( int argc, char* argv[] )
 
     try
     {
-        string empty_json = "";
+        std::string empty_json = "";
         JSON::Object::Ptr empty_parsed;
         kibitz::read_json( empty_json, empty_parsed );
         BOOST_CHECK( false );

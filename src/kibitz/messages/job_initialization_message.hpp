@@ -30,13 +30,13 @@ namespace kibitz
 ///  Message used to start jobs.
 class KIBITZ_MESSAGE_EXPORT job_initialization_message : public notification_message
 {
-    string worker_type_;
+    std::string worker_type_;
     int worker_id_;
-    string payload_;
+    std::string payload_;
 public:
     job_initialization_message( JSON::Object::Ptr json ) ;
     virtual ~job_initialization_message( ) {}
-    const string& worker_type() const
+    const std::string& worker_type() const
     {
         return worker_type_;
     }
@@ -45,12 +45,12 @@ public:
         return worker_id_ ;
     }
 
-    const string& payload() const
+    const std::string& payload() const
     {
         return payload_;
     }
 
-    virtual string to_json() const ;
+    virtual std::string to_json() const ;
 
     static const char* NOTIFICATION_TYPE;
 };

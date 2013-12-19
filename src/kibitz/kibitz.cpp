@@ -54,12 +54,12 @@ void validate_command_line( const po::variables_map& command_line )
 {
     if( !command_line.count( "worker-id" ) )
     {
-        throw runtime_error( string( "Missing required worker-id argument" ) );
+        throw runtime_error( std::string( "Missing required worker-id argument" ) );
     }
 
     if( !command_line.count( "worker-type" ) )
     {
-        throw runtime_error( string( "Missing required worker-type argument" ) );
+        throw runtime_error( std::string( "Missing required worker-type argument" ) );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,12 +175,12 @@ void set_initialization_notification_handler( initialization_callback fn )
     context_->register_initialization_notification_handler( fn ) ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void send_out_message( const string& payload )
+void send_out_message( const std::string& payload )
 {
     context_->send_out_message( payload );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void send_notification_message( const string& payload )
+void send_notification_message( const std::string& payload )
 {
     context_->send_notification_message( payload );
 }

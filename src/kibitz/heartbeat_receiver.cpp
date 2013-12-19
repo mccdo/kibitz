@@ -25,7 +25,7 @@
 #include <kibitz/in_edge_manager.hpp>
 #include <kibitz/messages/binding_notification.hpp>
 #include <kibitz/initialization_handler.hpp>
-#include <signal.h>
+
 using kibitz::util::create_socket;
 using kibitz::util::check_zmq;
 
@@ -58,8 +58,8 @@ void heartbeat_receiver::operator()()
         //primary;secondary, hang on to secondary host and try to use it.
         //Probably listen simulateously to both primary and secondary,
         //when secondary gets flagged as primary use that
-        string binding = ( boost::format( "tcp://%1%:%2%" ) %
-                           context_->get_config()[ "locator-host" ].as< string >() %
+        std::string binding = ( boost::format( "tcp://%1%:%2%" ) %
+                           context_->get_config()[ "locator-host" ].as< std::string >() %
                            context_->get_config()[ "locator-receive-port" ].as< int >() ).str();
 
         KIBITZ_LOG_NOTICE( "Will subscribe to messages from locator on " << binding );
@@ -72,7 +72,7 @@ void heartbeat_receiver::operator()()
         while( true )
         {
             KIBITZ_LOG_INFO( "Waiting for heartbeat" );
-            string json ;
+            std::string json;
             //TODO if we dont receive a heartbeat after a certain amount of time
             //try to connect to alternative locator
             kibitz::util::recv( *listen_sock, json );
@@ -83,7 +83,7 @@ void heartbeat_receiver::operator()()
                     message_factory( json ) );
             if( message_ptr != NULL )
             {
-                string notification_type = message_ptr->notification_type();
+                std::string notification_type = message_ptr->notification_type();
                 if( notification_type == "heartbeat" )
                 {
                     KIBITZ_LOG_DEBUG( "Got heartbeat" );
@@ -102,7 +102,7 @@ void heartbeat_receiver::operator()()
                     if( wb->notification() == "shutdown" )
                     {
                         KIBITZ_LOG_DEBUG( "Received shutdown message" );
-                        exit( 0 );
+                        break;
                     }
                 }
                 else if( notification_type ==
@@ -139,6 +139,9 @@ void heartbeat_receiver::operator()()
             {
                 KIBITZ_LOG_ERROR( "Unknown message type. Raw message = " << json );
             }
+            //See if this thread has been interrupted:
+            //http://www.boost.org/doc/libs/1_53_0/doc/html/thread/thread_management.html#thread.thread_management.this_thread.interruption_point
+            boost::this_thread::interruption_point();
         }
     }
     catch( const util::queue_interrupt& )

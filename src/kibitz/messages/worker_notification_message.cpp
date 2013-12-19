@@ -48,7 +48,7 @@ worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
 }
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification_message::worker_notification_message(
-    const string& worker_type )
+    const std::string& worker_type )
     :
     notification_message( "worker_notification" ),
     worker_type_( worker_type ),
@@ -58,12 +58,12 @@ worker_notification_message::worker_notification_message(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const string& worker_notification_message::worker_type() const
+const std::string& worker_notification_message::worker_type() const
 {
     return worker_type_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const string& worker_notification_message::host_name() const
+const std::string& worker_notification_message::host_name() const
 {
     return host_name_;
 }
@@ -78,9 +78,9 @@ int16_t worker_notification_message::port() const
     return port_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string worker_notification_message::to_json() const
+std::string worker_notification_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

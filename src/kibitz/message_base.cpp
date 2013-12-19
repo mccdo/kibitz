@@ -62,7 +62,7 @@ void message_base::internal_command_handler()
 
         while( true )
         {
-            string message;
+            std::string message;
             kibitz::util::recv( socket, message );
             KIBITZ_LOG_DEBUG( "Message bus received " << message );
 

@@ -22,12 +22,10 @@
 
 namespace kibitz
 {
-
-
 ////////////////////////////////////////////////////////////////////////////////
-string basic_collaboration_message::to_json() const
+std::string basic_collaboration_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr  json;
     read_json( "{}", json );
     collaboration_message::populate_header( json );
@@ -36,11 +34,10 @@ string basic_collaboration_message::to_json() const
     json->stringify( stm );
     return stm.str();
 }
-
-
-string basic_collaboration_message::to_json( JSON::Object::Ptr json )
+////////////////////////////////////////////////////////////////////////////////
+std::string basic_collaboration_message::to_json( JSON::Object::Ptr json )
 {
-    stringstream stm;
+    std::stringstream stm;
     collaboration_message::populate_header( json );
     json->set( "payload", payload_ );
     json->set( "worker_type", worker_type_ );
@@ -49,8 +46,8 @@ string basic_collaboration_message::to_json( JSON::Object::Ptr json )
 }
 ////////////////////////////////////////////////////////////////////////////////
 basic_collaboration_message::basic_collaboration_message(
-    const string& worker_type,
-    const string& payload )
+    const std::string& worker_type,
+    const std::string& payload )
     :
     collaboration_message( "generic" ),
     worker_type_( worker_type ),

@@ -16,7 +16,7 @@ namespace locator
 router::router(
     void* context,
     const publisher& pub,
-    const string& listener_binding,
+    const std::string& listener_binding,
     const binding_map_t& bindings,
     worker_graph_ptr graph_ptr )
     :
@@ -59,7 +59,7 @@ void router::operator()()
         while( true )
         {
             KIBITZ_LOG_DEBUG( "Router waiting for  message" );
-            string json;
+            std::string json;
             ku::recv( *message_listener, json );
             KIBITZ_LOG_DEBUG( "Router got message " << json );
             message_ptr_t message_ptr = message_factory( json );
@@ -94,7 +94,7 @@ void router::bind_out_sockets( send_sockets_t& send_sockets )
         void* sock = ku::create_socket( context_, ZMQ_PUSH );
         KIBITZ_LOG_DEBUG( "creating socket for [" << binding_pair.first << "] " << sock );
         int port = get_port( binding_pair.second );
-        string push_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
+        std::string push_binding = ( boost::format( "tcp://*:%1%" ) % port ).str();
         KIBITZ_LOG_INFO( "BINDING " << sock << " to " << push_binding );
         ku::sockman_ptr_t sp( new ku::sockman( sock ) );
         int rc = zmq_bind( *sp, push_binding.c_str() );
@@ -108,18 +108,18 @@ void router::bind_out_sockets( send_sockets_t& send_sockets )
 ////////////////////////////////////////////////////////////////////////////////
 void router::route_message(
     const send_sockets_t& send_sockets,
-    const string& json,
+    const std::string& json,
     messages_by_worker_and_job_t& inedge_cache )
 {
     basic_collaboration_message_ptr_t msg =
         dynamic_pointer_cast< basic_collaboration_message >(
             message_factory( json ) );
-    string sending_worker_type = msg->worker_type();
+    std::string sending_worker_type = msg->worker_type();
     node_ptr_t sending_worker_node =
         graph_ptr_->get_worker( sending_worker_type );
     if( sending_worker_node != NULL )
     {
-        BOOST_FOREACH( const string & target_worker_type,
+        BOOST_FOREACH( const std::string & target_worker_type,
                        sending_worker_node->get_out_edges() )
         {
             KIBITZ_LOG_DEBUG( "Preparing to route to " << target_worker_type );
@@ -140,7 +140,7 @@ void router::route_message(
                     KIBITZ_LOG_DEBUG( "Routing message for ["
                             << target_worker_type << "] " );
 
-                    string msg = messages->to_json();
+                    std::string msg = messages->to_json();
                     int rc = zmq_send(
                                  *( it->second ), msg.data(), msg.length(), ZMQ_DONTWAIT );
                     if( rc < 0 )

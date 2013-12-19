@@ -34,7 +34,7 @@ class worker_notification_message;
 ///
 class KIBITZ_MESSAGE_EXPORT heartbeat : public notification_message
 {
-    string host_name_;
+    std::string host_name_;
     int pid_;
     int port_;
     int ticks_;
@@ -43,8 +43,8 @@ public :
     heartbeat( int port ) ;
     heartbeat( JSON::Object::Ptr json );
     virtual ~heartbeat() ;
-    virtual string to_json() const ;
-    const string& host() const
+    virtual std::string to_json() const ;
+    const std::string& host() const
     {
         return host_name_;
     }

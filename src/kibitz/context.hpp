@@ -29,13 +29,13 @@
 namespace kibitz
 {
 
-typedef std::vector< string > worker_types_t;
+typedef std::vector< std::string > worker_types_t;
 
 class context
 {
 
-    string worker_type_name_;
-    string worker_id_;
+    std::string worker_type_name_;
+    std::string worker_id_;
     po::variables_map application_configuration_;
     void* zmq_context_;
     void* message_bus_socket_;
@@ -45,18 +45,18 @@ class context
     initialization_callback initialization_handler_;
     bool status_publisher_enabled_;
     boost::mutex mutex_;
-    string current_job_id_;
+    std::string current_job_id_;
 
 
 public:
     context( const po::variables_map& application_configuration );
     ~context();
-    void set_worker_type( const string& worker_type_name ) ;
-    void set_worker_id( const string& worker_id );
+    void set_worker_type( const std::string& worker_type_name ) ;
+    void set_worker_id( const std::string& worker_id );
 
-    const string& worker_type() const
+    const std::string& worker_type() const
     {
-        return application_configuration_["worker-type"].as<string>();
+        return application_configuration_["worker-type"].as<std::string>();
     }
     int worker_id()
     {
@@ -75,10 +75,10 @@ public:
 
     const po::variables_map& get_config() const;
 
-    void send_out_message( const string& payload ) ;
-    void send_notification_message( const string& payload );
-    void set_job_id( const string& job_id ) ;
-    void get_job_id( string& job_id );
+    void send_out_message( const std::string& payload ) ;
+    void send_notification_message( const std::string& payload );
+    void set_job_id( const std::string& job_id ) ;
+    void get_job_id( std::string& job_id );
     void send_worker_status( worker_status_t status )  ;
 private:
     ///Logger utilities for debugging

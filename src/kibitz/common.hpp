@@ -77,8 +77,6 @@ GCC_DIAG_ON( unused-parameter )
 
 #include <kibitz/constants.hpp>
 
-using std::string;
-using std::stringstream;
 using std::runtime_error;
 
 using boost::lexical_cast;

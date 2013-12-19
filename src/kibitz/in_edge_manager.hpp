@@ -32,7 +32,7 @@ namespace kibitz
 class in_edge_manager
 {
     context& context_;
-    const string worker_type_ ;
+    const std::string worker_type_ ;
     const int worker_id_;
     util::sockman_ptr_t notification_socket_;
 
@@ -52,7 +52,7 @@ public:
     ///
     /// \param json message to send to this thread
     ///
-    void send_notification( const string& json ) ;
+    void send_notification( const std::string& json ) ;
 
 
     static const char* NOTIFICATION_BINDING;

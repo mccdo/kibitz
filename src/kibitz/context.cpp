@@ -25,7 +25,6 @@
 #include <kibitz/publisher.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
 
-
 namespace kibitz
 {
 
@@ -55,11 +54,11 @@ context::~context()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_out_message( const string& payload )
+void context::send_out_message( const std::string& payload )
 {
-    string worker_type =
-        application_configuration_[ "worker-type" ].as< string >();
-    string job_id;
+    std::string worker_type =
+        application_configuration_[ "worker-type" ].as< std::string >();
+    std::string job_id;
     get_job_id( job_id );
 
     basic_collaboration_message msg( worker_type, payload );
@@ -73,7 +72,7 @@ void context::send_out_message( const string& payload )
     send_worker_status( WORK_SENT );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_notification_message( const string& payload )
+void context::send_notification_message( const std::string& payload )
 {
     if( application_configuration_.count( "notification-port" ) )
     {
@@ -123,12 +122,12 @@ void context::send_internal_message( const char* message )
     kibitz::util::send( message_bus_socket_, s );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_worker_type( const string& worker_type_name )
+void context::set_worker_type( const std::string& worker_type_name )
 {
     worker_type_name_ = worker_type_name;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_worker_id( const string& worker_id )
+void context::set_worker_id( const std::string& worker_id )
 {
     worker_id_ = worker_id ;
 }
@@ -138,7 +137,7 @@ void context::start()
     thread_group threads;
 
     std::string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
-                                    application_configuration_[ "locator-host" ].as< string >() %
+                                    application_configuration_[ "locator-host" ].as< std::string >() %
                                     application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
     publisher locator_pub(
@@ -150,7 +149,7 @@ void context::start()
 
     if( application_configuration_.count( "notification-port" ) )
     {
-        string notification_binding = ( boost::format( "tcp://*:%1%" ) %
+        std::string notification_binding = ( boost::format( "tcp://*:%1%" ) %
                                         application_configuration_[ "notification-port" ].as< int >() ).str();
         KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
                 << "] may publish notifications on " << notification_binding );
@@ -166,7 +165,7 @@ void context::start()
 
     if( application_configuration_.count( "status-sink-binding" ) )
     {
-        string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
+        std::string status_sink_binding = application_configuration_["status-sink-binding"].as< std::string >();
         KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
                     << "] will publish status " << status_sink_binding );
         publisher status_pub(
@@ -202,7 +201,7 @@ void context::send_worker_status( worker_status_t status )
         try
         {
             std::string worker_type = application_configuration_["worker-type"].as< std::string >();
-            std::string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
+            std::string worker_id = boost::lexical_cast<std::string>( application_configuration_["worker-id"].as< int >() ) ;
             publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS );
             worker_status_message message( worker_type, worker_id, status );
             p.send( message.to_json() );
@@ -240,13 +239,13 @@ void* context::zmq_context()
     return zmq_context_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_job_id( const string& job_id )
+void context::set_job_id( const std::string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ ) ;
     current_job_id_ = job_id;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::get_job_id( string& job_id )
+void context::get_job_id( std::string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ );
     job_id = current_job_id_;

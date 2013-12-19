@@ -36,9 +36,9 @@ job_initialization_message::job_initialization_message( JSON::Object::Ptr json )
     get_value( json, kn::PAYLOAD,   payload_ ) ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string job_initialization_message::to_json() const
+std::string job_initialization_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

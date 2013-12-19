@@ -1,8 +1,6 @@
 #ifndef __WORKER_GRAPH_HPP__
 #define __WORKER_GRAPH_HPP__
 
-//#include <kibitz/common.hpp>
-
 #include <boost/shared_ptr.hpp>
 #include <boost/foreach.hpp>
 

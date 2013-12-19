@@ -13,7 +13,6 @@
 #include <kibitz/export_config.hpp>
 
 using kibitz::graph::worker_graph_ptr;
-using std::string;
 using boost::shared_ptr;
 using boost::format;
 
@@ -41,7 +40,7 @@ KIBITZ_LOCATOR_EXPORT void create_bindings( const worker_binding_t& binding_root
 /// Gets port from string binding
 /// \param binding string of the form tcp://foo.com:123345
 /// \return port
-KIBITZ_LOCATOR_EXPORT int get_port( const string& binding ) ;
+KIBITZ_LOCATOR_EXPORT int get_port( const std::string& binding ) ;
 }
 }
 

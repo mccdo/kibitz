@@ -51,7 +51,7 @@ void collaboration_handler::operator()()
         try
         {
             collaboration_messages_t payloads;
-            string job_id ;
+            std::string job_id ;
 
             BOOST_FOREACH( collaboration_message_ptr_t message,
                            collaboration_bundle_->messages() )

@@ -31,22 +31,20 @@
 
 using boost::lexical_cast;
 
-
-
 namespace kibitz
 {
 
 
 class KIBITZ_MESSAGE_EXPORT collaboration_message : public message
 {
-    string collaboration_type_;
-    string job_id_;
+    std::string collaboration_type_;
+    std::string job_id_;
 protected:
 
-    collaboration_message( const string& collaboration_type, const string& version = "1.0" )
+    collaboration_message( const std::string& collaboration_type, const std::string& version = "1.0" )
         : message( "collaboration", version ),
           collaboration_type_( collaboration_type ),
-          job_id_( lexical_cast<string>( boost::uuids::random_generator()() ) )
+        job_id_( lexical_cast< std::string>( boost::uuids::random_generator()() ) )
     {
     }
 
@@ -66,16 +64,16 @@ protected:
 
 public:
     virtual ~collaboration_message() {}
-    virtual string to_json() const = 0;
-    virtual const string& collaboration_type() const
+    virtual std::string to_json() const = 0;
+    virtual const std::string& collaboration_type() const
     {
         return collaboration_type_ ;
     }
-    virtual const string& job_id() const
+    virtual const std::string& job_id() const
     {
         return job_id_;
     }
-    virtual void set_job_id( const string& job_id )
+    virtual void set_job_id( const std::string& job_id )
     {
         job_id_ = job_id;
     }

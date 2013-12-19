@@ -25,7 +25,7 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
 initialization_handler::initialization_handler(
     context* ctx,
-    const string& initialization_data )
+    const std::string& initialization_data )
     :
     context_( ctx ),
     initialization_data_( initialization_data ),

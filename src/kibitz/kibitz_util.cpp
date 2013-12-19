@@ -46,7 +46,7 @@ namespace util
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-queue_interrupt::queue_interrupt( const string& msg )
+queue_interrupt::queue_interrupt( const std::string& msg )
     :
     runtime_error( msg )
 {
@@ -78,7 +78,7 @@ bool time_elapsed( int duration_millisec, bpt::ptime& last_time )
     return elapsed;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void daemonize( const string& pid_file )
+void daemonize( const std::string& pid_file )
 {
     fs::path pid_path( pid_file );
     if( fs::exists( pid_path ) )
@@ -148,7 +148,7 @@ void check_zmq( int return_code )
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void send( void* socket, const string& message )
+void send( void* socket, const std::string& message )
 {
     zmq_msg_t msg;
     zmq_msg_init_size( &msg, message.length() );
@@ -161,7 +161,7 @@ void send( void* socket, const string& message )
     zmq_msg_close( &msg );
 }
 ////////////////////////////////////////////////////////////////////////////////
-bool recv_async( void* socket, string& message )
+bool recv_async( void* socket, std::string& message )
 {
     assert( message.empty() );
     bool message_arrived = false;
@@ -192,7 +192,7 @@ bool recv_async( void* socket, string& message )
     return message_arrived;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void recv( void* socket, string& message )
+void recv( void* socket, std::string& message )
 {
     assert( message.empty() );
     zmq_msg_t msg;

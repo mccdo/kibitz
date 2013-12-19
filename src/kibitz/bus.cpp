@@ -52,7 +52,7 @@ pub::pub( void* zmq_context, const char* binding )
     util::check_zmq( zmq_bind( socket_, binding ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void pub::send( const string& json )
+void pub::send( const std::string& json )
 {
     KIBITZ_LOG_INFO( "publishing " << json );
     util::send( socket_, json );

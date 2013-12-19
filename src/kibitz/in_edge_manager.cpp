@@ -37,7 +37,7 @@ const char* in_edge_manager::NOTIFICATION_BINDING = "inproc://in_edge_manager";
 in_edge_manager::in_edge_manager( context& ctx )
     :
     context_( ctx ),
-    worker_type_( ctx.get_config()[ "worker-type" ].as< string >() ),
+    worker_type_( ctx.get_config()[ "worker-type" ].as< std::string >() ),
     worker_id_( ctx.get_config()[ "worker-id" ].as< int >() ),
     m_logger( Poco::Logger::get("in_edge_manager") )
 {
@@ -60,7 +60,7 @@ in_edge_manager::in_edge_manager( const in_edge_manager& iem )
     //We do not initialize notification socket
 }
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::send_notification( const string& json )
+void in_edge_manager::send_notification( const std::string& json )
 {
     if( notification_socket_ == NULL )
     {
@@ -71,7 +71,7 @@ void in_edge_manager::send_notification( const string& json )
     }
 
     util::send( *notification_socket_, json );
-    string response;
+    std::string response;
     util::recv( *notification_socket_, response );
     KIBITZ_LOG_DEBUG( "RESPONSE " << response );
 }
@@ -120,7 +120,7 @@ void in_edge_manager::operator()()
         pollitems[ 0 ].revents = 0;
         memset( &pollitems[ 1 ], 0, sizeof( zmq_pollitem_t ) );
 
-        string current_binding;
+        std::string current_binding;
 
         while( true )
         {
@@ -129,7 +129,7 @@ void in_edge_manager::operator()()
             {
                 if( pollitems[ 0 ].revents & ZMQ_POLLIN )
                 {
-                    string json;
+                    std::string json;
                     util::recv( pollitems[ 0 ].socket, json );
 
                     notification_message_ptr_t msg =
@@ -173,7 +173,7 @@ void in_edge_manager::operator()()
                 //Handle collaboration message
                 if( pollitems[ 1 ].revents & ZMQ_POLLIN )
                 {
-                    string json;
+                    std::string json;
                     util::recv( pollitems[ 1 ].socket, json );
                     KIBITZ_LOG_DEBUG( "Received collaboration message " << json );
                     context_.send_worker_status( WORK_RECIEVED );
@@ -187,8 +187,12 @@ void in_edge_manager::operator()()
             else
             {
                 //TODO: handle bad return
-                KIBITZ_LOG_WARNING( "unable to poll data" );
+                KIBITZ_LOG_DEBUG( "unable to poll data" );
             }
+            
+            //See if this thread has been interrupted:
+            //http://www.boost.org/doc/libs/1_53_0/doc/html/thread/thread_management.html#thread.thread_management.this_thread.interruption_point
+            boost::this_thread::interruption_point();
         } //end while
     }
     catch( const util::queue_interrupt& )
@@ -197,7 +201,7 @@ void in_edge_manager::operator()()
     }
     catch( const std::exception& ex )
     {
-        KIBITZ_LOG_ERROR( "exception nuked in edge manager - " << ex.what() );
+        KIBITZ_LOG_ERROR( "exception in edge manager - " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

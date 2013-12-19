@@ -51,7 +51,7 @@ class pub : public bus
 public:
     pub( void* zmq_context, const char* binding );
     virtual ~pub() {}
-    void send( const string& json );
+    void send( const std::string& json );
 };
 
 class sub : public bus

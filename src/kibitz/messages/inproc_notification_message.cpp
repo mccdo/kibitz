@@ -39,9 +39,9 @@ inproc_notification_message::inproc_notification_message( JSON::Object::Ptr json
     get_value( json, "notification", notification_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
-string inproc_notification_message::to_json() const
+std::string inproc_notification_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

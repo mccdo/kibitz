@@ -17,21 +17,21 @@ enum worker_status_t
 ///
 class KIBITZ_MESSAGE_EXPORT worker_status_message : public notification_message
 {
-    string worker_type_;
-    string worker_id_;
+    std::string worker_type_;
+    std::string worker_id_;
     worker_status_t status_;
-    string timestamp_;
+    std::string timestamp_;
 public:
-    worker_status_message( const string& worker_type, const string& worker_id, worker_status_t status );
+    worker_status_message( const std::string& worker_type, const std::string& worker_id, worker_status_t status );
     worker_status_message( JSON::Object::Ptr json );
     virtual ~worker_status_message() {}
-    virtual string to_json() const;
+    virtual std::string to_json() const;
 
-    const string& worker_type() const
+    const std::string& worker_type() const
     {
         return worker_type_;
     }
-    const string& worker_id() const
+    const std::string& worker_id() const
     {
         return worker_id_;
     }
@@ -39,7 +39,7 @@ public:
     {
         return status_;
     }
-    const string& timestamp() const
+    const std::string& timestamp() const
     {
         return timestamp_;
     }

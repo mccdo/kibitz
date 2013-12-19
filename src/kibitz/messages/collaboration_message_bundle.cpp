@@ -35,9 +35,9 @@ collaboration_message_bundle::~collaboration_message_bundle()
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string collaboration_message_bundle::to_json() const
+std::string collaboration_message_bundle::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     collaboration_message::populate_header( json );
