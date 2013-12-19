@@ -26,17 +26,29 @@
 #include <kibitz/logging.hpp>
 #include <kibitz/kibitz.hpp>
 
-using std::string;
+#include <csignal>
 
 typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
 void message_handler( const kibitz::collaboration_messages_t& messages ) ;
 
-
+////////////////////////////////////////////////////////////////////////////////
+void signalHandler( int signum )
+{
+    std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
+    kibitz::terminate();
+}
+////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
     std::cout << "starting test worker" << std::endl;
     int result = 0;
+
+    //Catch signals so that we can shut down kibitz
+    signal( SIGINT, signalHandler );
+    signal( SIGABRT, signalHandler );
+    signal( SIGTERM, signalHandler );
+    signal( SIGSEGV, signalHandler );
 
     try
     {
@@ -80,14 +92,14 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
     KIBITZ_STATIC_LOG_NOTICE( "worker", "Got messages" );
     poco_assert( messages.size() == 1 );// << "Expect a single inbound message" ;
 
-    string role = getenv( "ROLE" );
+    std::string role = getenv( "ROLE" );
 
     poco_assert( !role.empty() );// << "ROLE environment variable not set?";
 
     boost::char_separator<char> sep( ";" );
     tokenizer tokens( messages.front(), sep );
     int result = role == "adder" ? 0 : 1;
-    BOOST_FOREACH( const string & number, tokens )
+    BOOST_FOREACH( const std::string & number, tokens )
     {
         if( role == "adder" )
         {
@@ -100,7 +112,7 @@ void message_handler( const kibitz::collaboration_messages_t& messages )
     }
 
     KIBITZ_STATIC_LOG_NOTICE( "worker", "Sending out message -> " << result );
-    kibitz::send_out_message( boost::lexical_cast<string>( result ) );
+    kibitz::send_out_message( boost::lexical_cast<std::string>( result ) );
 }
 
 
