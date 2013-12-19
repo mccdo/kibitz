@@ -85,6 +85,10 @@ private:
     Poco::Logger& m_logger;
     ///Logger utilities for debugging
     LogStreamPtr m_logStream;
+    ///The thread group that maintains all of the threads for this context. This
+    ///member is used to interrupt all of the threads from an external signal.
+    boost::thread_group m_threads;
+
 };
 
 typedef shared_ptr< context > context_ptr;

@@ -134,8 +134,6 @@ void context::set_worker_id( const std::string& worker_id )
 ////////////////////////////////////////////////////////////////////////////////
 void context::start()
 {
-    thread_group threads;
-
     std::string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
                                     application_configuration_[ "locator-host" ].as< std::string >() %
                                     application_configuration_[ "locator-send-port" ].as< int >() ).str();
@@ -160,7 +158,7 @@ void context::start()
             ZMQ_PUB,
             INPROC_NOTIFICATION_PUBLISH_BINDING,
             publish::bind );
-        threads.create_thread( notify_pub );
+        m_threads.create_thread( notify_pub );
     }
 
     if( application_configuration_.count( "status-sink-binding" ) )
@@ -175,17 +173,17 @@ void context::start()
             INPROC_NOTIFICATION_PUBLISH_STATUS,
             publish::connect
         );
-        threads.create_thread( status_pub ) ;
+        m_threads.create_thread( status_pub ) ;
         status_publisher_enabled_ = true;
     }
 
     heartbeat_receiver hb_receiver( this );
     kibitz::in_edge_manager in_edge_manager( *this );
-    threads.create_thread( locator_pub );
-    threads.create_thread( in_edge_manager );
-    threads.create_thread( hb_receiver );
+    m_threads.create_thread( locator_pub );
+    m_threads.create_thread( in_edge_manager );
+    m_threads.create_thread( hb_receiver );
     send_worker_status( START );
-    threads.join_all();
+    m_threads.join_all();
 }
 ////////////////////////////////////////////////////////////////////////////////
 void context::send_worker_status( worker_status_t status )
@@ -223,9 +221,7 @@ void context::stop()
 void context::terminate()
 {
     KIBITZ_LOG_NOTICE( "context.terminate shutting down application" );
-    //collaboration_publisher_ptr_->close();
-    //notification_publisher_ptr_->close();
-
+    m_threads.interrupt_all();
     util::close_socket( message_bus_socket_ );
 
     if( zmq_context_ )
