@@ -27,8 +27,10 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
 bus::bus( void* zmq_context, const char* binding, int sock_type )
     :
-    socket_( NULL )
+    socket_( NULL ),
+    m_logger( Poco::Logger::get("bus") )
 {
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
     socket_ = util::create_socket( zmq_context, sock_type );
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,9 +52,9 @@ pub::pub( void* zmq_context, const char* binding )
     util::check_zmq( zmq_bind( socket_, binding ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void pub::send( const string& json )
+void pub::send( const std::string& json )
 {
-    DLOG( INFO ) << "publishing " << json;
+    KIBITZ_LOG_INFO( "publishing " << json );
     util::send( socket_, json );
 }
 ////////////////////////////////////////////////////////////////////////////////

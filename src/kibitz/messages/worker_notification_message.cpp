@@ -24,22 +24,22 @@ namespace kibitz
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-  worker_notification_message::worker_notification_message( JSON::Object::Ptr json ) 
+worker_notification_message::worker_notification_message( JSON::Object::Ptr json )
     :
     notification_message( json )
 
 {
-  get_value( json, "worker_type", worker_type_ ); 
-  get_value( json, "worker_id",   worker_id_ ); 
-  get_value( json, "host_name",   host_name_ ) ;
-  get_value( json, "port",   port_ ); 
-    
+    get_value( json, "worker_type", worker_type_ );
+    get_value( json, "worker_id",   worker_id_ );
+    get_value( json, "host_name",   host_name_ ) ;
+    get_value( json, "port",   port_ );
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
     :
     notification_message( "worker_notification" ),
-    worker_type_( "unassigned"),
+    worker_type_( "unassigned" ),
     worker_id_( WORKER_ID_UNASSIGNED ),
     host_name_( hb->host_name_ ),
     port_( hb->port_ )
@@ -48,7 +48,7 @@ worker_notification_message::worker_notification_message( heartbeat_ptr_t hb )
 }
 ////////////////////////////////////////////////////////////////////////////////
 worker_notification_message::worker_notification_message(
-    const string& worker_type )
+    const std::string& worker_type )
     :
     notification_message( "worker_notification" ),
     worker_type_( worker_type ),
@@ -58,12 +58,12 @@ worker_notification_message::worker_notification_message(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const string& worker_notification_message::worker_type() const
+const std::string& worker_notification_message::worker_type() const
 {
     return worker_type_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const string& worker_notification_message::host_name() const
+const std::string& worker_notification_message::host_name() const
 {
     return host_name_;
 }
@@ -78,12 +78,12 @@ int16_t worker_notification_message::port() const
     return port_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string worker_notification_message::to_json() const
+std::string worker_notification_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
-    notification_message::populate_header( json ); 
+    notification_message::populate_header( json );
     json->set( "worker_type", worker_type_ );
     json->set( "worker_id", worker_id_ );
     json->set( "host_name", host_name_ );

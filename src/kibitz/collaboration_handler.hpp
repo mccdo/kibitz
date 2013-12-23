@@ -4,27 +4,34 @@
 #include <kibitz/context.hpp>
 #include <kibitz/publisher.hpp>
 #include <kibitz/messages/collaboration_message_bundle.hpp>
+#include <kibitz/logging.hpp>
 
 
-namespace kibitz {
+namespace kibitz
+{
 
-  /// Handles job collaboration message on a seperate thread.
-  class collaboration_handler {
+/// Handles job collaboration message on a seperate thread.
+class collaboration_handler
+{
     context* context_;
-    string binding_;
+  std::string binding_;
     
   public:
     /// c'tor
-    /// 
-    /// \param ctx pointer to application context
-    /// \param message bundle of collaboration messages
     ///
-    collaboration_handler( context* ctx,  const string& binding  ) ;
-    void dispatch_collaboration_message_to_handler( void* inproc_publisher_socket, const string& json ) ;
+    /// \param ctx pointer to application context
+    /// \param binding inproc zmq binding that will be used to recieve messages from in_edge_manager
+    ///
+  collaboration_handler( context* ctx,  const std::string& binding  ) ;
     ~collaboration_handler();
 
-    void operator() ();
-  };
+    void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
+};
 }
 
 #endif

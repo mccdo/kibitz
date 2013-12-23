@@ -21,6 +21,7 @@
 #define heartbeat_receiver_hpp
 
 #include <kibitz/message_base.hpp>
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -30,6 +31,11 @@ public :
     heartbeat_receiver( context* context ) ;
     ~heartbeat_receiver( );
     void operator()();
+private:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 }
 

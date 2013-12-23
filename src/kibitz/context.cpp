@@ -22,9 +22,9 @@
 #include <kibitz/kibitz_util.hpp>
 #include <kibitz/messages/worker_notification.hpp>
 #include <kibitz/in_edge_manager.hpp>
+#include <kibitz/collaboration_handler.hpp>
 #include <kibitz/publisher.hpp>
 #include <kibitz/messages/basic_collaboration_message.hpp>
-
 
 namespace kibitz
 {
@@ -38,12 +38,15 @@ context::context( const po::variables_map& application_configuration )
     inedge_message_handler_( NULL ),
     initialization_handler_( NULL ),
     status_publisher_enabled_(false),
-    collaboration_queue_depth_(0)
+    collaboration_queue_depth_(0),
+    m_logger( Poco::Logger::get("context") )
 {
-    DLOG( INFO ) << "ctor for context entered" ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
+
+    KIBITZ_LOG_NOTICE( "ctor for context entered" );
     zmq_context_ = zmq_init(
-        application_configuration[ "context-threads" ].as< int >() );
-    DLOG( INFO ) << "zmq initialized";
+                       application_configuration[ "context-threads" ].as< int >() );
+    KIBITZ_LOG_NOTICE( "zmq initialized" );
     message_bus_socket_ = util::create_socket( zmq_context_, ZMQ_PUB );
     util::check_zmq( zmq_bind( message_bus_socket_, INPROC_COMMAND_BINDING ) );
 }
@@ -52,6 +55,8 @@ context::~context()
 {
     ;
 }
+
+
 
   int context::increment_collaboration_queue() {
     int current_count = 0;
@@ -80,11 +85,11 @@ context::~context()
     return current_count;
   }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_out_message( const string& payload )
+void context::send_out_message( const std::string& payload )
 {
-    string worker_type =
-        application_configuration_[ "worker-type" ].as< string >();
-    string job_id;
+    std::string worker_type =
+        application_configuration_[ "worker-type" ].as< std::string >();
+    std::string job_id;
     get_job_id( job_id );
 
     basic_collaboration_message msg( worker_type, payload );
@@ -98,20 +103,19 @@ void context::send_out_message( const string& payload )
     send_worker_status( WORK_SENT );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_notification_message( const string& payload )
+void context::send_notification_message( const std::string& payload )
 {
     if( application_configuration_.count( "notification-port" ) )
     {
         worker_notification notification( payload ) ;
-        VLOG( 1 ) << "Published notification " << payload;
+        KIBITZ_LOG_DEBUG( "Published notification " << payload );
         publisher pub( zmq_context(), INPROC_NOTIFICATION_PUBLISH_BINDING );
         pub.send( notification.to_json() ) ;
     }
     else
     {
-        LOG( WARNING )
-            << "Notification publish failed because notification-port "
-            << "was not supplied on command line";
+        KIBITZ_LOG_WARNING( "Notification publish failed because notification-port "
+                << "was not supplied on command line" );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,27 +149,25 @@ const po::variables_map& context::get_config() const
 void context::send_internal_message( const char* message )
 {
     std::string s( message );
-    DLOG( INFO ) << "sending internal message -> " << message;
+    KIBITZ_LOG_INFO( "sending internal message -> " << message );
     kibitz::util::send( message_bus_socket_, s );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_worker_type( const string& worker_type_name )
+void context::set_worker_type( const std::string& worker_type_name )
 {
     worker_type_name_ = worker_type_name;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_worker_id( const string& worker_id )
+void context::set_worker_id( const std::string& worker_id )
 {
     worker_id_ = worker_id ;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void context::start()
 {
-    thread_group threads;
-
     std::string locator_binding = ( boost::format( "tcp://%1%:%2%" ) %
-        application_configuration_[ "locator-host" ].as< string >() %
-        application_configuration_[ "locator-send-port" ].as< int >() ).str();
+                                    application_configuration_[ "locator-host" ].as< std::string >() %
+                                    application_configuration_[ "locator-send-port" ].as< int >() ).str();
 
     publisher locator_pub(
         zmq_context(),
@@ -176,11 +178,10 @@ void context::start()
 
     if( application_configuration_.count( "notification-port" ) )
     {
-        string notification_binding = ( boost::format( "tcp://*:%1%" ) %
-            application_configuration_[ "notification-port" ].as< int >() ).str();
-        LOG( INFO )
-           << "Worker [" << worker_type_name_ << "." << worker_id_
-           << "] may publish notifications on " << notification_binding ;
+        std::string notification_binding = ( boost::format( "tcp://*:%1%" ) %
+                                        application_configuration_[ "notification-port" ].as< int >() ).str();
+        KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
+                << "] may publish notifications on " << notification_binding );
 
         publisher notify_pub(
             zmq_context(),
@@ -188,34 +189,37 @@ void context::start()
             ZMQ_PUB,
             INPROC_NOTIFICATION_PUBLISH_BINDING,
             publish::bind );
-        threads.create_thread( notify_pub );
+        create_thread( notify_pub );
     }
 
-    if( application_configuration_.count( "status-sink-binding" ) ) {
-      string status_sink_binding = application_configuration_["status-sink-binding"].as< string >();
-      LOG(INFO) << "Worker [" << worker_type_name_ << "." << worker_id_ 
-		<< "] will publish status " << status_sink_binding;
-      publisher status_pub( 
-			   zmq_context(),
-			   status_sink_binding,
-			   ZMQ_PUSH,
-			   INPROC_NOTIFICATION_PUBLISH_STATUS, 
-			   publish::connect 
-			 );
-      threads.create_thread( status_pub ) ;
-      status_publisher_enabled_ = true;
+    if( application_configuration_.count( "status-sink-binding" ) )
+    {
+        std::string status_sink_binding = application_configuration_["status-sink-binding"].as< std::string >();
+        KIBITZ_LOG_NOTICE( "Worker [" << worker_type_name_ << "." << worker_id_
+                    << "] will publish status " << status_sink_binding );
+        publisher status_pub(
+            zmq_context(),
+            status_sink_binding,
+            ZMQ_PUSH,
+            INPROC_NOTIFICATION_PUBLISH_STATUS,
+            publish::connect
+        );
+        create_thread( status_pub ) ;
+        status_publisher_enabled_ = true;
     }
 
     heartbeat_receiver hb_receiver( this );
     kibitz::in_edge_manager in_edge_manager( *this );
-    threads.create_thread( locator_pub );
-    threads.create_thread( in_edge_manager );
-    threads.create_thread( hb_receiver );
+    kibitz::collaboration_handler collaboration_handler( this,  INPROC_COLLABORATION_MESSAGE_HANDLER );
+    create_thread( collaboration_handler ) ;
+    create_thread( locator_pub );
+    create_thread( in_edge_manager );
+    create_thread( hb_receiver );
     send_worker_status( START );
-    threads.join_all();
+    m_threads.join_all();
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::send_worker_status(worker_status_t status )
+void context::send_worker_status( worker_status_t status )
 {
     if( !status_publisher_enabled_ )
     {
@@ -228,15 +232,15 @@ void context::send_worker_status(worker_status_t status )
         try
         {
             std::string worker_type = application_configuration_["worker-type"].as< std::string >();
-            std::string worker_id = boost::lexical_cast<string>( application_configuration_["worker-id"].as< int >() ) ;
-            publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS  );
+            std::string worker_id = boost::lexical_cast<std::string>( application_configuration_["worker-id"].as< int >() ) ;
+            publisher p( zmq_context(), INPROC_NOTIFICATION_PUBLISH_STATUS );
             worker_status_message message( worker_type, worker_id, status );
             p.send( message.to_json() );
-            return;	  
+            return;
         }
         catch( ... )
         {
-            LOG(INFO) << "Attempt to send status message failed, retrying...";
+            KIBITZ_LOG_NOTICE( "Attempt to send status message failed, retrying..." );
             boost::this_thread::sleep( boost::posix_time::microseconds( 1000 ) );
         }
     }
@@ -244,15 +248,13 @@ void context::send_worker_status(worker_status_t status )
 ////////////////////////////////////////////////////////////////////////////////
 void context::stop()
 {
-    ;
+  m_threads.interrupt_all();
 }
 ////////////////////////////////////////////////////////////////////////////////
 void context::terminate()
 {
-    DLOG( INFO ) << "context.terminate shutting down application" ;
-    //collaboration_publisher_ptr_->close();
-    //notification_publisher_ptr_->close();
-
+    KIBITZ_LOG_NOTICE( "context.terminate shutting down application" );
+    m_threads.interrupt_all();
     util::close_socket( message_bus_socket_ );
 
     if( zmq_context_ )
@@ -266,13 +268,13 @@ void* context::zmq_context()
     return zmq_context_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::set_job_id( const string& job_id )
+void context::set_job_id( const std::string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ ) ;
     current_job_id_ = job_id;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void context::get_job_id( string& job_id )
+void context::get_job_id( std::string& job_id )
 {
     boost::mutex::scoped_lock lock( mutex_ );
     job_id = current_job_id_;

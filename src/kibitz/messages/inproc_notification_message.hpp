@@ -35,7 +35,7 @@ class KIBITZ_MESSAGE_EXPORT inproc_notification_message : public notification_me
 public:
     inproc_notification_message( JSON::Object::Ptr json ) ;
     inproc_notification_message( int notification );
-    virtual string to_json() const ;
+    virtual std::string to_json() const ;
     int get_notification() const
     {
         return notification_;

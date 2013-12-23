@@ -23,9 +23,6 @@ else(WIN32)
 	find_package(Boost 1.50.0 REQUIRED COMPONENTS program_options regex chrono date_time filesystem system thread )
 endif(WIN32)
 
-set( GLOG_ROOT "Please specify" CACHE PATH "Root directory where glog is installed" )
-find_package(glog REQUIRED)
-
 set( ZMQ_ROOT "Please specify" CACHE PATH "Root directory where ZMQ is installed" )
 find_package(ZMQ REQUIRED)
 
@@ -39,7 +36,6 @@ find_package(Threads)
 
 INCLUDE_DIRECTORIES( 
     ${Boost_INCLUDE_DIRS}
-    ${GLOG_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIRS}
     ${POCO_INCLUDE_DIR}
@@ -50,7 +46,7 @@ if(WIN32)
     add_definitions( -D_WIN32_WINNT=0x0501 )
 else(WIN32)
     #set(CMAKE_BUILD_TYPE "Release")
-    #set( CMAKE_CXX_FLAGS "-g -O0" )
+    set( CMAKE_CXX_FLAGS "-g -O0 -DKIBITZ_DEBUG" )
 endif(WIN32)
 
 include(VESSetupCompiler)

@@ -22,12 +22,10 @@
 
 namespace kibitz
 {
-
-
 ////////////////////////////////////////////////////////////////////////////////
-string basic_collaboration_message::to_json() const
+std::string basic_collaboration_message::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr  json;
     read_json( "{}", json );
     collaboration_message::populate_header( json );
@@ -36,20 +34,20 @@ string basic_collaboration_message::to_json() const
     json->stringify( stm );
     return stm.str();
 }
-
-
-  string basic_collaboration_message::to_json( JSON::Object::Ptr json ) {
-    stringstream stm;
+////////////////////////////////////////////////////////////////////////////////
+std::string basic_collaboration_message::to_json( JSON::Object::Ptr json )
+{
+    std::stringstream stm;
     collaboration_message::populate_header( json );
     json->set( "payload", payload_ );
     json->set( "worker_type", worker_type_ );
     json->stringify( stm );
-    return stm.str();    
-  }
+    return stm.str();
+}
 ////////////////////////////////////////////////////////////////////////////////
 basic_collaboration_message::basic_collaboration_message(
-    const string& worker_type,
-    const string& payload )
+    const std::string& worker_type,
+    const std::string& payload )
     :
     collaboration_message( "generic" ),
     worker_type_( worker_type ),
@@ -58,20 +56,21 @@ basic_collaboration_message::basic_collaboration_message(
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  basic_collaboration_message::basic_collaboration_message( JSON::Object::Ptr json )
+basic_collaboration_message::basic_collaboration_message( JSON::Object::Ptr json )
     :
     collaboration_message( json )
 {
-  get_value( json, "worker_type", worker_type_ );
-  get_value( json, "payload", payload_ );
-    
+    get_value( json, "worker_type", worker_type_ );
+    get_value( json, "payload", payload_ );
+
 }
 
 
 
-  basic_collaboration_message_ptr_t basic_collaboration_message::create(JSON::Object::Ptr json ) {
+basic_collaboration_message_ptr_t basic_collaboration_message::create( JSON::Object::Ptr json )
+{
     return basic_collaboration_message_ptr_t(
-        new basic_collaboration_message( json ) );
+               new basic_collaboration_message( json ) );
 }
 
 

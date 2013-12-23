@@ -27,17 +27,18 @@ namespace kibitz
 
 const char* job_initialization_message::NOTIFICATION_TYPE = "job_initialization";
 
-  ////////////////////////////////////////////////////////////////////////////////
-  job_initialization_message::job_initialization_message( JSON::Object::Ptr json ) 
-    :notification_message( json ) {
-    get_value( json, kn::WORKER_TYPE, worker_type_ ) ;
-    get_value( json, kn::WORKER_ID,  worker_id_ ); 
-    get_value( json, kn::PAYLOAD,   payload_ ) ; 
-  }
 ////////////////////////////////////////////////////////////////////////////////
-string job_initialization_message::to_json() const
+job_initialization_message::job_initialization_message( JSON::Object::Ptr json )
+    : notification_message( json )
 {
-    stringstream stm;
+    get_value( json, kn::WORKER_TYPE, worker_type_ ) ;
+    get_value( json, kn::WORKER_ID,  worker_id_ );
+    get_value( json, kn::PAYLOAD,   payload_ ) ;
+}
+////////////////////////////////////////////////////////////////////////////////
+std::string job_initialization_message::to_json() const
+{
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

@@ -31,12 +31,13 @@ namespace kibitz
 ////////////////////////////////////////////////////////////////////////////////
 collaboration_handler::collaboration_handler(
 					     context* ctx,
-					     const string& binding ) 
+					     const std::string& binding ) 
     :
   context_( ctx ),
-  binding_( binding )
+binding_( binding ),
+    m_logger( Poco::Logger::get("collaboration_handler") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 collaboration_handler::~collaboration_handler()
@@ -46,9 +47,10 @@ collaboration_handler::~collaboration_handler()
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
   void collaboration_handler::operator ()()
   {
-    VLOG( 1 ) << "Entered collaboration handler thread";
+    KIBITZ_LOG_DEBUG( "Entered collaboration handler thread" );
 
     try {
       collaboration_callback cb = context_->get_inedge_message_handler();
@@ -59,15 +61,15 @@ collaboration_handler::~collaboration_handler()
 	util::check_zmq( zmq_connect( sock, binding_.c_str() ) );
       
 	while( true ) {
-	  string json;
+	  std::string json;
 	  util::recv( sock, json );
 
 	  context_->decrement_collaboration_queue() ;
 	  collaboration_message_bundle_ptr_t bundle = static_pointer_cast< collaboration_message_bundle >( message_factory( json ) );
 	  collaboration_messages_t payloads;
-	  string job_id;
+	  std::string job_id;
 
-	  VLOG(1) << "Got collaboration messages";
+	  KIBITZ_LOG_DEBUG( "Got collaboration messages" );
 	
 	  BOOST_FOREACH( collaboration_message_ptr_t msg, bundle->messages() ) {
 	    basic_collaboration_message_ptr_t payload_message = static_pointer_cast< basic_collaboration_message >( msg ) ;
@@ -75,25 +77,23 @@ collaboration_handler::~collaboration_handler()
 	    payloads.push_back( payload_message->payload() );
 	  }
         
-	  VLOG( 1 )
-	    << "Invoking message handler for worker type ["
-	    << context_->worker_type() << "], Job [" << job_id << "]";
+	  KIBITZ_LOG_DEBUG((boost::format("Job %1% received by  worker %2%:%3%.") % job_id % context_->worker_type() % context_->worker_id() ).str() );  
+
 	  // if end user screws up and doesn't catch something in 
 	  // their code, we need to handle it so it doesn't nuke our thread
 	  try {
 	    context_->set_job_id( job_id );
 	    cb( payloads );
 	  } catch( ... ) {
-	    LOG(ERROR) << "Caught an unhandled exception in collaboration callback. " << __FILE__ << ":" << __LINE__;
+	    KIBITZ_LOG_ERROR("Caught an unhandled exception in collaboration callback.");
 	  }       
 	
 	}
       }
 
     } catch( std::exception const& e ) {
-      LOG( ERROR ) << "An exception occurred in collaboration handler thread. " << e.what() <<  " Worker  " << context_->worker_type() 
-		   << ":" << context_->worker_id() ; 
-
+      KIBITZ_LOG_ERROR((boost::format("An exception occurred in collaboration handler thread. %1% Worker %2%:%3%.") % e.what() % 
+			context_->worker_type() % context_->worker_id() ).str() ) ; 
     }
 
 

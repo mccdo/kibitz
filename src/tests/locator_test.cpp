@@ -18,11 +18,7 @@
  *
  *************** <auto-copyright.rb END do not edit this line> ***************/
 
-#include <glog/logging.h>
-
 #include <zmq.h>
-
-#include <kibitz/publisher.hpp>
 
 #include <boost/config.hpp>
 #include <boost/thread.hpp>
@@ -42,11 +38,9 @@
 #include <iostream>
 #include <algorithm>
 
-
-#include <kibitz/kibitz_util.hpp>
-#include <kibitz/messages/inproc_notification_message.hpp>
-#include <kibitz/validator/validator.hpp>
+#include <kibitz/publisher.hpp>
 #include <kibitz/locator/common.hpp>
+#include <kibitz/messages/inproc_notification_message.hpp>
 
 using boost::dynamic_pointer_cast;
 
@@ -67,8 +61,6 @@ struct graph_traversal_t
 ////////////////////////////////////////////////////////////////////////////////
 int test_main( int argc, char* argv[] )
 {
-    google::InitGoogleLogging( argv[ 0 ] );
-
     {
         std::cout << "checking get_port" << std::endl;;
         std::string binding = "tcp://*:1234";
@@ -134,7 +126,7 @@ int test_main( int argc, char* argv[] )
         kg::strip_comments( "a commented line\n" ) == "a commented line\n" );
 
     std::string json =
-    "{"
+        "{"
         "\"message_type\":\"notification\","
         "\"version\":\"1.0\","
         "\"notification_type\":\"heartbeat\","
@@ -144,7 +136,7 @@ int test_main( int argc, char* argv[] )
         "\"process_id\":200000,"
         "\"ticks\":1000,"
         "\"port\":10000"
-    "}";
+        "}";
 
     void* zmq_context = zmq_init( 2 );
     BOOST_CHECK( zmq_context );
@@ -171,7 +163,7 @@ int test_main( int argc, char* argv[] )
 
         publisher.send( json ) ;
 
-        string response;
+        std::string response;
         ku::recv( sub, response );
         std::cout << "Got subscription response " << response << std::endl;
         BOOST_CHECK( json == response );

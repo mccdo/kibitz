@@ -4,15 +4,8 @@
 #include <kibitz/messages/heartbeat.hpp>
 #include <kibitz/locator/heartbeat_generator.hpp>
 
-#include <boost/config.hpp>
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-#include <glog/logging.h>
-
 using namespace boost::posix_time;
 namespace ku = kibitz::util;
-using namespace google;
 
 namespace kibitz
 {
@@ -27,9 +20,10 @@ heartbeat_generator::heartbeat_generator(
     :
     publisher_( pub ),
     frequency_ms_( frequency_ms ),
-    publish_port_( port )
+    publish_port_( port ),
+    m_logger( Poco::Logger::get("heartbeat_generator") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 heartbeat_generator::~heartbeat_generator()
@@ -39,7 +33,7 @@ heartbeat_generator::~heartbeat_generator()
 ////////////////////////////////////////////////////////////////////////////////
 void heartbeat_generator::operator()()
 {
-    LOG( INFO ) << "Started heartbeat thread";
+    KIBITZ_LOG_NOTICE( "Started heartbeat thread" );
     boost::condition_variable condition;
     boost::mutex mutex;
     boost::unique_lock< boost::mutex > lock( mutex );
@@ -55,7 +49,7 @@ void heartbeat_generator::operator()()
     {
         condition.timed_wait( lock, pause_duration );
         hb.increment_tick_count() ;
-        VLOG( 2 ) << "Sent heartbeat";
+        KIBITZ_LOG_DEBUG( "Sent heartbeat" );
         publisher_.send( sock, hb.to_json() );
     }
 }

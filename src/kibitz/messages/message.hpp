@@ -49,8 +49,6 @@ typedef unsigned __int64 uint64_t;
 
 using namespace Poco;
 using boost::shared_ptr;
-using std::string;
-using std::stringstream;
 
 namespace kibitz
 {
@@ -60,44 +58,47 @@ namespace notification
 static const char* WORKER_TYPE = "worker_type";
 static const char* WORKER_ID = "worker_id";
 static const char* PAYLOAD = "payload";
-  static const char* INPROC_NOTIFICATION = "inproc";
-  static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
-  static const char* WORKER_BROADCAST = "worker_broadcast";
-  static const char* SHUTDOWN_NOTIFICATION = "shutdown";
-  
+static const char* INPROC_NOTIFICATION = "inproc";
+static const char* HEARTBEAT_NOTIFICATION = "heartbeat";
+static const char* WORKER_BROADCAST = "worker_broadcast";
+static const char* SHUTDOWN_NOTIFICATION = "shutdown";
+
 }
 
 
-  static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
-  static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
+static const char* NOTIFICATION_MESSAGE_TYPE = "notification";
+static const char* COLLABORATION_MESSAGE_TYPE = "collaboration";
 
 
-template< typename T > void get_value( JSON::Object::Ptr p, const string& key, T& value ) {
-  Dynamic::Var field = p->get( key ) ;
-  if( field.isEmpty() ) {
-    throw std::runtime_error( (boost::format("Key %1% was not found. %2% %3%") % key % __FILE__ % __LINE__ ).str() );
-  }
-  value = field.extract<T>();
+template< typename T > void get_value( JSON::Object::Ptr p, const std::string& key, T& value )
+{
+    Dynamic::Var field = p->get( key ) ;
+    if( field.isEmpty() )
+    {
+        throw std::runtime_error( ( boost::format( "Key %1% was not found. %2% %3%" ) % key % __FILE__ % __LINE__ ).str() );
+    }
+    value = field.extract<T>();
 }
 
 
 class KIBITZ_MESSAGE_EXPORT message
 {
-    string message_type_;
-    string version_;
+    std::string message_type_;
+    std::string version_;
 protected :
-    message( const string& message_type, const string& version )
+    message( const std::string& message_type, const std::string& version )
         : message_type_( message_type ),
           version_( version )  {}
-    message( JSON::Object::Ptr json ) {
-      get_value( json, "message_type", message_type_ );
-      get_value( json, "version" , version_ );
+    message( JSON::Object::Ptr json )
+    {
+        get_value( json, "message_type", message_type_ );
+        get_value( json, "version" , version_ );
     }
 
     virtual void populate_header( JSON::Object::Ptr json ) const
     {
-      json->set( "message_type", message_type_ );
-      json->set( "version", version_ ) ;
+        json->set( "message_type", message_type_ );
+        json->set( "version", version_ ) ;
     }
 public:
     static const int16_t PORT_UNASSIGNED = 0x7FFF;
@@ -106,12 +107,12 @@ public:
     virtual ~message() {}
     static const int stop = 0;
     static const int ok = 0;
-    virtual string to_json() const = 0;
-    const string& message_type() const
+    virtual std::string to_json() const = 0;
+    const std::string& message_type() const
     {
         return message_type_;
     }
-    const string& version() const
+    const std::string& version() const
     {
         return version_ ;
     }
@@ -120,12 +121,12 @@ public:
 
 typedef shared_ptr<message> message_ptr_t;
 
-KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const string& json ) ;
+KIBITZ_MESSAGE_EXPORT message_ptr_t message_factory( const std::string& json ) ;
 
-KIBITZ_MESSAGE_EXPORT void read_json( const string& json, JSON::Object::Ptr& ptr );
+KIBITZ_MESSAGE_EXPORT void read_json( const std::string& json, JSON::Object::Ptr& ptr );
 
 
-  
+
 }
 
 

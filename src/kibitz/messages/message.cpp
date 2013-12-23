@@ -30,25 +30,22 @@
 #include <kibitz/messages/collaboration_message_bundle.hpp>
 #include <kibitz/messages/worker_notification.hpp>
 #include <kibitz/messages/worker_status_message.hpp>
-#include <Poco/JSON/ParseHandler.h>
 
-#include <boost/config.hpp>
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-#include <glog/logging.h>
+#include <kibitz/logging.hpp>
+
+#include <Poco/JSON/ParseHandler.h>
 
 namespace kibitz
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-  message_ptr_t notification_message_factory( JSON::Object::Ptr json  )
+message_ptr_t notification_message_factory( JSON::Object::Ptr json )
 {
     message_ptr_t result;
 
-    string notification_type;
-    get_value( json,  "notification_type", notification_type  );
-    
+    std::string notification_type;
+    get_value( json,  "notification_type", notification_type );
+
     if( notification_type == "heartbeat" )
     {
         result = message_ptr_t( new heartbeat( json ) );
@@ -84,20 +81,21 @@ namespace kibitz
         result = message_ptr_t( new worker_notification( json ) );
     }
 
-    if( notification_type == worker_status_message::NOTIFICATION_TYPE ) {
-      result = message_ptr_t( new worker_status_message( json ) );
+    if( notification_type == worker_status_message::NOTIFICATION_TYPE )
+    {
+        result = message_ptr_t( new worker_status_message( json ) );
     }
 
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  message_ptr_t collaboration_message_factory( JSON::Object::Ptr json  )
+message_ptr_t collaboration_message_factory( JSON::Object::Ptr json )
 {
     message_ptr_t result;
 
-    string collaboration_type ;
-    get_value( json, "collaboration_type", collaboration_type ); 
-    
+    std::string collaboration_type ;
+    get_value( json, "collaboration_type", collaboration_type );
+
     if( collaboration_type == "generic" )
     {
         result = message_ptr_t( new basic_collaboration_message( json ) );
@@ -105,44 +103,44 @@ namespace kibitz
 
     if( collaboration_type == collaboration_message_bundle::MESSAGE_TYPE )
     {
-      result = message_ptr_t( new collaboration_message_bundle( json ) );
+        result = message_ptr_t( new collaboration_message_bundle( json ) );
     }
 
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-message_ptr_t message_factory( const string& json ) {
-  message_ptr_t result;
-  stringstream sstm;
-  sstm << json;
-  VLOG( 1 ) << "RAW MESSAGE [" << json << "]";
+message_ptr_t message_factory( const std::string& json )
+{
+    message_ptr_t result;
+    std::stringstream sstm;
+    sstm << json;
+    KIBITZ_STATIC_LOG_DEBUG( "message_factory", "RAW MESSAGE [" << json << "]" );
 
-  JSON::Object::Ptr parsed;
-  read_json( json, parsed );
+    JSON::Object::Ptr parsed;
+    read_json( json, parsed );
 
-  string message_type; 
-  get_value( parsed, "message_type", message_type );
+    std::string message_type;
+    get_value( parsed, "message_type", message_type );
 
-  if( message_type == "notification" )
+    if( message_type == "notification" )
     {
-      result = notification_message_factory( parsed );
+        result = notification_message_factory( parsed );
     }
 
-  if( message_type == "collaboration" )
+    if( message_type == "collaboration" )
     {
-      result = collaboration_message_factory( parsed );
+        result = collaboration_message_factory( parsed );
     }
 
 
-  return result;
+    return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-
-
-  void read_json( const string& json, JSON::Object::Ptr& ptr ) {
+void read_json( const std::string& json, JSON::Object::Ptr& ptr )
+{
     JSON::Parser parser;
     Dynamic::Var result = parser.parse( json ) ;
     ptr = result.extract<JSON::Object::Ptr>();
-  }
-
+}
+////////////////////////////////////////////////////////////////////////////////
 } //end kibitz

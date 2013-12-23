@@ -94,7 +94,7 @@ node_ptr_t worker_graph::get_worker( const std::string& worker_name )
 ordered_node_names_t worker_graph::get_workers() const
 {
     ordered_node_names_t result;
-    BOOST_FOREACH( const node_pair_t& node, node_map_ )
+    BOOST_FOREACH( const node_pair_t & node, node_map_ )
     {
         result.insert( node.first );
     }
@@ -129,7 +129,10 @@ std::string strip_comments( const std::string& commented_line )
     std::string result ;
     BOOST_FOREACH( char c, commented_line )
     {
-        if( c == COMMENT_DELIMITER ) break;
+        if( c == COMMENT_DELIMITER )
+        {
+            break;
+        }
         result += c;
     }
 
@@ -142,7 +145,7 @@ worker_graph_ptr create_worker_graph_from_string(
     worker_graph_ptr graph_ptr( new worker_graph() ) ;
     separator_t line_delimiter( "\n" );
     tokenizer_t line_tokenizer( graph_definition, line_delimiter );
-    BOOST_FOREACH( const std::string& line, line_tokenizer )
+    BOOST_FOREACH( const std::string & line, line_tokenizer )
     {
         // skip comment lines
         std::string decommented_line = strip_comments( line );
@@ -154,15 +157,15 @@ worker_graph_ptr create_worker_graph_from_string(
         tokenizer_t node_tokenizer( decommented_line, node_delimiter );
         std::deque< std::string > nodes;
 
-        BOOST_FOREACH( const std::string& s, node_tokenizer )
+        BOOST_FOREACH( const std::string & s, node_tokenizer )
         {
             nodes.push_back( s );
         }
         if( nodes.size() < 2 )
         {
-            throw std::runtime_error( (boost::format(
-                "Invalid line in graph definition, "
-                "lines must have at minimum, two nodes. %1%" ) % line ).str() );
+            throw std::runtime_error( ( boost::format(
+                                            "Invalid line in graph definition, "
+                                            "lines must have at minimum, two nodes. %1%" ) % line ).str() );
         }
 
         std::string parent_worker_name = nodes.front();

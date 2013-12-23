@@ -34,15 +34,15 @@ static const char* INITIALIZE_JOB = "initialize_job";
 class worker_broadcast_message : public notification_message
 {
 
-    string notification_;
+    std::string notification_;
 public:
 
 
-  worker_broadcast_message( JSON::Object::Ptr json ) ;
-    worker_broadcast_message( const string& notification ) ;
+    worker_broadcast_message( JSON::Object::Ptr json ) ;
+    worker_broadcast_message( const std::string& notification ) ;
     virtual ~worker_broadcast_message() {}
-    virtual string to_json() const;
-    const string& notification() const
+    virtual std::string to_json() const;
+    const std::string& notification() const
     {
         return notification_;
     }

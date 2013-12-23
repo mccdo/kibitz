@@ -17,21 +17,21 @@ void create_bindings(
     int base_port,
     binding_map_t& bindings )
 {
-    BOOST_FOREACH( const worker_type_name_t& worker_type, graph->get_workers() )
+    BOOST_FOREACH( const worker_type_name_t & worker_type, graph->get_workers() )
     {
         bindings[ worker_type ] =
             ( boost::format( "%1%:%2%" ) % binding_root % base_port++ ).str();
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-int get_port( const string& binding )
+int get_port( const std::string& binding )
 {
     int pos = binding.rfind( ':' );
-    if( pos == string::npos )
+    if( pos == std::string::npos )
     {
         throw std::runtime_error( "Invalid binding format" );
     }
-    string portstring = binding.substr( ++pos );
+    std::string portstring = binding.substr( ++pos );
     return boost::lexical_cast< int >( portstring );
 }
 ////////////////////////////////////////////////////////////////////////////////

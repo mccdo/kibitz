@@ -30,24 +30,25 @@ namespace kibitz
 
 class KIBITZ_MESSAGE_EXPORT notification_message : public message
 {
-    string notification_type_;
+    std::string notification_type_;
 protected:
-    notification_message( const string& notification_type, const string& version = "1.0" )
+    notification_message( const std::string& notification_type, const std::string& version = "1.0" )
         : message( "notification", version ),
           notification_type_( notification_type ) {}
-    notification_message( JSON::Object::Ptr json ) 
-      : message( json ) {
-      get_value( json, "notification_type", notification_type_ );
+    notification_message( JSON::Object::Ptr json )
+        : message( json )
+    {
+        get_value( json, "notification_type", notification_type_ );
     }
-    void populate_header( JSON::Object::Ptr json  ) const
+    void populate_header( JSON::Object::Ptr json ) const
     {
         message::populate_header( json );
         json->set( "notification_type", notification_type_ );
     }
 public :
     virtual ~notification_message() {}
-    virtual string to_json() const = 0;
-    const string& notification_type() const
+    virtual std::string to_json() const = 0;
+    const std::string& notification_type() const
     {
         return notification_type_ ;
     }

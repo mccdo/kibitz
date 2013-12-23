@@ -38,7 +38,7 @@ function restart_locator
 	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
     fi
 
-    GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost 
+    $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --log-level=debug
 }
 
 
@@ -57,10 +57,10 @@ check_result
 # echo "A -> B,C -> D"
 
 
-KIBITZ_ROLE=ROOT GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -Llocalhost &
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TB -Llocalhost  &
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TC -Llocalhost &
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 &
+KIBITZ_ROLE=ROOT $REGRESSION_TESTER -I1 -TA -Llocalhost --log-level=debug &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TB -Llocalhost  &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TC -Llocalhost &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --log-level=debug &
 
 sleep 4
 
@@ -92,7 +92,7 @@ check_result
 rm -fv test/*
 
 
-KIBITZ_ROLE=CHILD GLOG_v=2 GLOG_log_dir=$(pwd)/log GLOG_minloglevel=0 $REGRESSION_TESTER -I2 -TB -Llocalhost &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I2 -TB -Llocalhost &
 
 sleep 4
 # first message will go to b.1 

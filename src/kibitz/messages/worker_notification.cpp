@@ -26,7 +26,7 @@ namespace kibitz
 const char* worker_notification::NOTIFICATION_TYPE = "worker-notification1";
 
 ////////////////////////////////////////////////////////////////////////////////
-worker_notification::worker_notification( const string& payload )
+worker_notification::worker_notification( const std::string& payload )
     :
     notification_message( NOTIFICATION_TYPE ),
     payload_( payload )
@@ -34,16 +34,16 @@ worker_notification::worker_notification( const string& payload )
     ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-  worker_notification::worker_notification( JSON::Object::Ptr json ) 
+worker_notification::worker_notification( JSON::Object::Ptr json )
     :
     notification_message( json )
 {
-  get_value( json, "payload", payload_ );
+    get_value( json, "payload", payload_ );
 }
 ////////////////////////////////////////////////////////////////////////////////
-string worker_notification::to_json() const
+std::string worker_notification::to_json() const
 {
-    stringstream stm;
+    std::stringstream stm;
     JSON::Object::Ptr json;
     read_json( "{}", json );
     notification_message::populate_header( json );

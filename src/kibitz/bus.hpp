@@ -21,7 +21,7 @@
 #define bus_hpp
 
 #include <kibitz/common.hpp>
-
+#include <kibitz/logging.hpp>
 
 namespace kibitz
 {
@@ -39,6 +39,11 @@ public:
         return socket_;
     }
     void close() ;
+protected:
+    ///Logger utilities for debugging
+    Poco::Logger& m_logger;
+    ///Logger utilities for debugging
+    LogStreamPtr m_logStream;
 };
 
 class pub : public bus
@@ -46,7 +51,7 @@ class pub : public bus
 public:
     pub( void* zmq_context, const char* binding );
     virtual ~pub() {}
-    void send( const string& json );
+    void send( const std::string& json );
 };
 
 class sub : public bus

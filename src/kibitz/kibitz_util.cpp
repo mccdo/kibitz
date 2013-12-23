@@ -23,6 +23,7 @@
 #include <sstream>
 
 #include <kibitz/kibitz_util.hpp>
+#include <kibitz/logging.hpp>
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -32,17 +33,11 @@
 #include <process.h>
 #endif
 
-#ifdef BOOST_WINDOWS
-#define GLOG_NO_ABBREVIATED_SEVERITIES 1
-#endif
-#include <glog/logging.h>
-
 using boost::format;
 
 namespace fs = boost::filesystem;
 namespace bpt = boost::posix_time;
 
-using std::stringstream;
 using std::runtime_error;
 
 namespace kibitz
@@ -51,7 +46,7 @@ namespace util
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-queue_interrupt::queue_interrupt( const string& msg )
+queue_interrupt::queue_interrupt( const std::string& msg )
     :
     runtime_error( msg )
 {
@@ -75,7 +70,7 @@ bool time_elapsed( int duration_millisec, bpt::ptime& last_time )
     bpt::ptime current_time( get_current_local_time() );
     bpt::time_duration duration = current_time - last_time;
     if( duration.total_microseconds() >
-        ( duration_millisec * microsec_in_millisec ) )
+            ( duration_millisec * microsec_in_millisec ) )
     {
         last_time = current_time;
         elapsed = true;
@@ -83,7 +78,7 @@ bool time_elapsed( int duration_millisec, bpt::ptime& last_time )
     return elapsed;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void daemonize( const string& pid_file )
+void daemonize( const std::string& pid_file )
 {
     fs::path pid_path( pid_file );
     if( fs::exists( pid_path ) )
@@ -97,8 +92,8 @@ void daemonize( const string& pid_file )
     if( err )
     {
 #endif
-    throw std::runtime_error(
-        ( boost::format( "Could not daemonize process. errno %1%" ) % errno ).str() );
+        throw std::runtime_error(
+            ( boost::format( "Could not daemonize process. errno %1%" ) % errno ).str() );
 #ifndef BOOST_WINDOWS
     }
 #endif
@@ -134,7 +129,7 @@ void* create_socket( void* context, int socktype )
     void* result = zmq_socket( context, socktype ) ;
     if( !result )
     {
-        stringstream stm;
+        std::stringstream stm;
         stm << "zmq_socket failed with " << zmq_errno();
         throw std::runtime_error( stm.str() );
     }
@@ -146,14 +141,14 @@ void check_zmq( int return_code )
     if( return_code )
     {
         int error = zmq_errno();
-        stringstream stm;
+        std::stringstream stm;
         stm << "ZMQ call failed with error code " << error;
         stm << ". Description -> " << zmq_strerror( error );
         throw std::runtime_error( stm.str() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void send( void* socket, const string& message )
+void send( void* socket, const std::string& message )
 {
     zmq_msg_t msg;
     zmq_msg_init_size( &msg, message.length() );
@@ -161,18 +156,38 @@ void send( void* socket, const string& message )
     int rc = zmq_sendmsg( socket, &msg, 0 );
     if( rc == -1 )
     {
-        LOG( ERROR ) << "SEND FAILED: " << zmq_strerror( zmq_errno() );
+        KIBITZ_STATIC_LOG_ERROR( "kibits_util::send", "SEND FAILED: " << zmq_strerror( zmq_errno() ) );
     }
     zmq_msg_close( &msg );
 }
 ////////////////////////////////////////////////////////////////////////////////
-bool recv_async( void* socket, string& message )
+bool recv_async( void* socket, std::string& message )
 {
     assert( message.empty() );
+    
     bool message_arrived = false;
-    zmq_msg_t msg;
-    zmq_msg_init( &msg );
-    int rc = zmq_recvmsg( socket, &msg, ZMQ_DONTWAIT );
+
+    zmq_msg_t zmq_msg;
+    zmq_msg_init( &zmq_msg );
+
+    int rc = zmq_msg_recv( &zmq_msg, socket, ZMQ_DONTWAIT );
+    
+    if( rc >= 0 ) {
+      message.append(static_cast<char*>(zmq_msg_data( &zmq_msg )), rc );
+      message_arrived = true;
+   }
+
+//     const size_t buffer_len = 1024;
+//     char buffer[buffer_len];
+
+//     int rc = zmq_recv( socket, buffer, buffer_len, ZMQ_DONTWAIT );
+//     if( rc >= 0 ) {
+//       buffer[rc] = 0;
+//       message = buffer;
+//       message_arrived = true;
+//     }
+
+    zmq_msg_close( &zmq_msg );
 
     if( rc < 0 )
     {
@@ -189,15 +204,11 @@ bool recv_async( void* socket, string& message )
                 ( boost::format( "Error reading queue. Err = %1%" ) % err ).str() );
         }
     }
-    else
-    {
-        message_arrived = true;
-    }
 
     return message_arrived;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void recv( void* socket, string& message )
+void recv( void* socket, std::string& message )
 {
     assert( message.empty() );
     zmq_msg_t msg;
@@ -213,7 +224,7 @@ void recv( void* socket, string& message )
         }
         else
         {
-            stringstream stm;
+            std::stringstream stm;
             stm << "Error " << error ;
             throw runtime_error( stm.str() );
         }

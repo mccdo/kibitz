@@ -37,10 +37,11 @@ const char* in_edge_manager::NOTIFICATION_BINDING = "inproc://in_edge_manager";
 in_edge_manager::in_edge_manager( context& ctx )
     :
     context_( ctx ),
-    worker_type_( ctx.get_config()[ "worker-type" ].as< string >() ),
-    worker_id_( ctx.get_config()[ "worker-id" ].as< int >() )
+    worker_type_( ctx.get_config()[ "worker-type" ].as< std::string >() ),
+    worker_id_( ctx.get_config()[ "worker-id" ].as< int >() ),
+    m_logger( Poco::Logger::get("in_edge_manager") )
 {
-    ;
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
 }
 ////////////////////////////////////////////////////////////////////////////////
 in_edge_manager::~in_edge_manager()
@@ -52,35 +53,36 @@ in_edge_manager::in_edge_manager( const in_edge_manager& iem )
     :
     context_( iem.context_ ),
     worker_type_( iem.worker_type_ ),
-    worker_id_( iem.worker_id_ )
+    worker_id_( iem.worker_id_ ),
+    m_logger( Poco::Logger::get("in_edge_manager") )
 {
+    m_logStream = LogStreamPtr( new Poco::LogStream( m_logger ) );
     //We do not initialize notification socket
-    ;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::send_notification( const string& json )
+void in_edge_manager::send_notification( const std::string& json )
 {
     if( notification_socket_ == NULL )
     {
         notification_socket_ =
             util::create_socket_ptr( context_.zmq_context(), ZMQ_REQ );
         util::check_zmq( zmq_connect(
-            *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
+                             *notification_socket_, in_edge_manager::NOTIFICATION_BINDING ) );
     }
 
     util::send( *notification_socket_, json );
-    string response;
+    std::string response;
     util::recv( *notification_socket_, response );
-    VLOG( 1 ) << "RESPONSE " << response;
+    KIBITZ_LOG_DEBUG( "RESPONSE " << response );
 }
 ////////////////////////////////////////////////////////////////////////////////
 void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
 {
-    DLOG( INFO ) << "Got job initialization message ";
+    KIBITZ_LOG_INFO( "Got job initialization message " );
     job_initialization_message_ptr_t job_init_message =
         dynamic_pointer_cast< job_initialization_message >( message );
-    CHECK( job_init_message != NULL )
-        << "invalid notification message cast to job init message";
+    poco_assert( job_init_message != NULL );
+            //<< "invalid notification message cast to job init message";
     //Only targeted worker will execute init callback,
     //if such callback has been implemented
     if( job_init_message->worker_type() == worker_type_ )
@@ -89,18 +91,18 @@ void in_edge_manager::check_and_start_job( notification_message_ptr_t message )
         {
             initialization_callback cb =
                 context_.get_initialization_notification_callback();
-            CHECK( cb != NULL )
-                << "Sent a job initialization message to a "
-                << "worker without an initialization callback";
-	    context_.send_worker_status( WORK_RECIEVED );
+            poco_assert( cb != NULL );
+                    //<< "Sent a job initialization message to a "
+                    //<< "worker without an initialization callback";
+            context_.send_worker_status( WORK_RECIEVED );
             cb( job_init_message->payload() );
         }
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void in_edge_manager::operator ()()
+void in_edge_manager::operator()()
 {
-    DLOG( INFO ) << "in edge manager thread started" ;
+    KIBITZ_LOG_INFO( "in edge manager thread started" );
 
     try
     {
@@ -109,13 +111,13 @@ void in_edge_manager::operator ()()
       util::sockman collab_handler_socket( context_.zmq_context(), ZMQ_PAIR );
       util::check_zmq( zmq_bind( collab_handler_socket, INPROC_COLLABORATION_MESSAGE_HANDLER ) );
 
-      collaboration_handler handler( &context_,  INPROC_COLLABORATION_MESSAGE_HANDLER );
-      boost::thread thrd( handler ) ;
 
         util::sockman_ptr_t notification_sock =
             util::create_socket_ptr( context_.zmq_context(), ZMQ_REP );
         util::check_zmq( zmq_bind(
-            *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
+                             *notification_sock, in_edge_manager::NOTIFICATION_BINDING ) );
+
+	util::sockman_ptr_t inedge_sock_ptr ;
 
         zmq_pollitem_t* pollitems =
             ( zmq_pollitem_t* )malloc( sizeof( zmq_pollitem_t ) * 2 );
@@ -126,16 +128,18 @@ void in_edge_manager::operator ()()
         pollitems[ 0 ].revents = 0;
         memset( &pollitems[ 1 ], 0, sizeof( zmq_pollitem_t ) );
 
-        string current_binding;
+        std::string current_binding;
+	const long timeout = 100; // 1/10 second 
 
         while( true )
         {
-            int rc = zmq_poll( pollitems, count_items, -1 );
+            int rc = zmq_poll( pollitems, count_items, timeout );
             if( rc > 0 )
             {
                 if( pollitems[ 0 ].revents & ZMQ_POLLIN )
                 {
-                    string json;
+
+                    std::string json;
                     util::recv( pollitems[ 0 ].socket, json );
 
                     notification_message_ptr_t msg =
@@ -146,7 +150,7 @@ void in_edge_manager::operator ()()
                     util::send( pollitems[ 0 ].socket, response.to_json() );
 
                     if( msg->notification_type() ==
-                        binding_notification::NOTIFICATION_TYPE )
+                            binding_notification::NOTIFICATION_TYPE )
                     {
                         binding_notification_ptr_t bind_msg =
                             static_pointer_cast<binding_notification>( msg ) ;
@@ -154,25 +158,23 @@ void in_edge_manager::operator ()()
                         {
                             if( bind_msg->binding() != current_binding )
                             {
-                                LOG( INFO )
-                                    << "Binding worker to ["
-                                    << bind_msg->binding() << "]";
-                                if( count_items > 1 )
-                                {
-                                    util::close_socket( pollitems[ 1 ].socket );
-                                }
+                                KIBITZ_LOG_NOTICE( "Binding worker to ["
+                                        << bind_msg->binding() << "]" );
 
-                                count_items = 2;
-                                current_binding = bind_msg->binding();
-                                pollitems[ 1 ].socket = util::create_socket(
-                                    context_.zmq_context(), ZMQ_PULL );
-                                util::check_zmq( zmq_connect(
-                                    pollitems[ 1 ].socket,
-                                    current_binding.c_str() ) );
-                                pollitems[ 1 ].events = ZMQ_POLLIN;
-                                DLOG( INFO )
-                                    << "Bind operation succeeded to ["
-                                    << bind_msg->binding() << "]";
+				// create smart pointer and swap contents with existing, if there is
+				// already a socket bound to inedge_sock it will be cleaned up when 
+				// we go out of scope
+				util::sockman_ptr_t temp_ptr = util::create_socket_ptr( context_.zmq_context(), ZMQ_PULL );
+				current_binding = bind_msg->binding();
+				util::check_zmq( zmq_connect( *temp_ptr, current_binding.c_str() ) );
+				pollitems[1].socket = *temp_ptr;
+				pollitems[1].events = ZMQ_POLLIN;
+				count_items = 2;
+				// swap so old socket gets closed when temp_ptr goes out of scope, 
+				// new pointer lives until thread dies then it gets cleaned up
+				inedge_sock_ptr.swap( temp_ptr );
+                                KIBITZ_LOG_NOTICE( "Bind operation succeeded to ["
+                                        << bind_msg->binding() << "]" );
                             }
                         }
                     }
@@ -181,29 +183,36 @@ void in_edge_manager::operator ()()
                 //Handle collaboration message
                 if( pollitems[ 1 ].revents & ZMQ_POLLIN )
                 {
-                    string json;
+                    std::string json;
                     util::recv( pollitems[ 1 ].socket, json );
-                    VLOG( 1 ) << "Received collaboration message " << json;
+
+                    KIBITZ_LOG_DEBUG( "Received collaboration message " << json );
 		    context_.send_worker_status( WORK_RECIEVED );
 		    int queue_depth = context_.increment_collaboration_queue();
-		    VLOG( 1 ) << (boost::format("Collaboration queue depth is %1%") % queue_depth ).str() ;
+		    KIBITZ_LOG_DEBUG( "Collaboration queue depth is " <<   queue_depth );
 		    util::send( collab_handler_socket, json );
 
                 }
             }
-            else
+            else if( rc == -1 )  
             {
-                //TODO: handle bad return
+	      int err = zmq_errno();
+	      KIBITZ_LOG_WARNING( "An error occurred polling socket in in_edge_manager. Error = " << zmq_strerror(err) );
+	      if( errno  == ETERM || errno == EFAULT ) break;
             }
+            
+            //See if this thread has been interrupted:
+            //http://www.boost.org/doc/libs/1_53_0/doc/html/thread/thread_management.html#thread.thread_management.this_thread.interruption_point
+            boost::this_thread::interruption_point();
         } //end while
     }
     catch( const util::queue_interrupt& )
     {
-        DLOG( INFO ) << "interrupt terminated in edge manager" ;
+        KIBITZ_LOG_NOTICE( "interrupt terminated in edge manager" );
     }
     catch( const std::exception& ex )
     {
-        LOG( ERROR ) << "exception nuked in edge manager - " << ex.what() ;
+        KIBITZ_LOG_ERROR( "exception in edge manager - " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
