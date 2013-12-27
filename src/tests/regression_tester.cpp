@@ -43,6 +43,7 @@
 #include <boost/foreach.hpp>
 #include <kibitz/kibitz.hpp>
 #include <kibitz/logging.hpp>
+#include <signal.h>
 #include <assert.h>
 
 using namespace std;
@@ -56,15 +57,27 @@ void record_in_message( const string& in );
 void record_out_message( const string& out );
 void record_message( const string& filename, const string& message );
 
+void signal_handler( int, siginfo_t*, void* )
+{
+    kibitz::terminate();
+    exit( 0 );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
     std::cout << "starting" << std::endl;
     int result = 0;
+    struct sigaction act;
 
     try
-    {
-        kibitz::initialize( argc, argv );
+    {	        
+	memset( &act, 0, sizeof(act) );
+	act.sa_sigaction = &signal_handler;
+	act.sa_flags = SA_SIGINFO | SA_RESETHAND;
+	sigaction( SIGTERM, &act, NULL );
+	
+	kibitz::initialize( argc, argv );
         // ROOT, CHILD
         string role = getenv( "KIBITZ_ROLE" );
         poco_assert( !role.empty() );// << "Role is not defined";
@@ -81,7 +94,7 @@ int main( int argc, char* argv[] )
         }
 
         kibitz::start();
-        kibitz::terminate();
+        //kibitz::terminate();
     }
     catch( std::exception& e )
     {

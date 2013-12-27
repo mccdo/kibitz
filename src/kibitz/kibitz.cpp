@@ -34,12 +34,14 @@ context* context_ = NULL;
 ////////////////////////////////////////////////////////////////////////////////
 boost::program_options::options_description get_command_line_description()
 {
+    
     boost::program_options::options_description generalOptionDesc( "Kibitz worker command line options" );
     generalOptionDesc.add_options()
     ( "help,h", "Show help message" )
     ( "worker-id,I",            po::value< int >(), "(Required) Integer that identifies worker. Must be unique with worker type" )
     ( "worker-type,T",          po::value< std::string >(), "(Required) Name of the type of worker." )
     ( "log-level,o",             po::value< std::string >()->default_value("warning"),"Set logging level -- fatal, critical, error, warning, notice, information, debug, trace")
+	("log-path", po::value< std::string >()->default_value(boost::filesystem::current_path().string() ), "Path for log file, will default to working directory" )
     //TODO: implement HA pair host1;host2
     ( "locator-host,L",         po::value< std::string >(), "IP Address or DNS name of locator" )
     ( "locator-receive-port,R", po::value< int >()->default_value( 5556 ), "Port to receive notifications from locator" )
@@ -97,26 +99,18 @@ void initialize( po::variables_map& command_line )
     std::string logLevel = command_line["log-level"].as<std::string>();
     rootLogger.setLevel( logLevel );
     Poco::FileChannel* fileChannel = new Poco::FileChannel;
-    std::string logPath;
+
+
+    boost::filesystem::path log_path = command_line["log-path"].as<std::string>();
     
-    logPath = ".";
-    logPath.append( "/" );
+    std::stringstream file_name;
+    file_name << "kibitz_" << command_line["worker-type"].as<std::string>() << "_" << 
+	command_line["worker-id"].as<int>() << ".log";
+
+    log_path /= file_name.str();
+    std::cout << "LogPath = " << log_path.string() << std::endl;
     
-    //boost::filesystem::path p( logPath );
-    //if( !boost::filesystem::exists( p ) )
-    //{
-    //    boost::filesystem::create_directory( p );
-    //}
-    
-    const std::string workerType =
-        command_line["worker-type"].as<std::string>();
-    const std::string workerId =
-        boost::lexical_cast< std::string >( command_line["worker-id"].as<int>() );
-    
-    logPath += "kibitz_" + workerId + "_" + workerType + ".log";
-    std::cout << "LogPath = " << logPath << std::endl;
-    
-    fileChannel->setProperty( "path", logPath );
+    fileChannel->setProperty( "path", log_path.string() );
     fileChannel->setProperty( "rotation", "1M" );
     fileChannel->setProperty( "archive", "number" );
     fileChannel->setProperty( "purgeCount", "5" );

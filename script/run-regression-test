@@ -38,7 +38,7 @@ function restart_locator
 	#kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
 	echo "locator already running"
     else
-	$LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --log-level=debug
+	$LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --log-level=debug --log-path=$(pwd)/log/locator.log
     fi
 
 
@@ -46,6 +46,7 @@ function restart_locator
 
 
 rm -fv test/*
+rm log/*
 
 restart_locator
 
@@ -60,10 +61,10 @@ check_result
 # echo "A -> B,C -> D"
 
 
-KIBITZ_ROLE=ROOT $REGRESSION_TESTER -I1 -TA -Llocalhost --log-level=debug &
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TB -Llocalhost  --log-level=debug &
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TC -Llocalhost --log-level=debug &
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --log-level=debug &
+KIBITZ_ROLE=ROOT $REGRESSION_TESTER -I1 -TA -Llocalhost --log-level=debug --log-path=$(pwd)/log &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TB -Llocalhost  --log-level=debug --log-path=$(pwd)/log &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TC -Llocalhost --log-level=debug --log-path=$(pwd)/log &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --log-level=debug --log-path=$(pwd)/log &
 
 sleep 4
 
@@ -96,7 +97,7 @@ check_result
 rm -fv test/*
 
 
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I2 -TB -Llocalhost --log-level=debug &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I2 -TB -Llocalhost --log-level=debug --log-path=$(pwd)/log &
 
 sleep 4
 # first message will go to b.1 
@@ -136,7 +137,7 @@ check_result
 killall regression-tester
 
 
-echo "shutting down locator"
+ echo "shutting down locator"
 if [ -e ${HOME}/kibitz-locator.pid ]
 then
 kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
