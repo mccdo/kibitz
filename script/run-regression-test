@@ -35,10 +35,13 @@ function restart_locator
     
     if [ -e ${HOME}/kibitz-locator.pid ]
     then
-	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+	#kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+	echo "locator already running"
+    else
+	$LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --log-level=debug
     fi
 
-    $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid --graph-definition-file=$(pwd)/config/test1.graph --host=localhost --log-level=debug
+
 }
 
 
@@ -58,16 +61,18 @@ check_result
 
 
 KIBITZ_ROLE=ROOT $REGRESSION_TESTER -I1 -TA -Llocalhost --log-level=debug &
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TB -Llocalhost  &
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TC -Llocalhost &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TB -Llocalhost  --log-level=debug &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TC -Llocalhost --log-level=debug &
 KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I1 -TD -Llocalhost -P9001 --log-level=debug &
 
 sleep 4
 
-KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1 
 
+KIBITZ_LOCATOR='tcp://localhost:5557' script/kibitz initiate --worker-type=A --worker-id=1
 
-# test_name="Traversal A -> B"
+sleep 4
+
+echo "Test traversal A -> B"
 script/validate test/B.1.in test/A.1.out
 check_result
 
@@ -87,12 +92,11 @@ check_result
 script/check_count test/D.1.in 2
 check_result
 
-# sleep 5
 
 rm -fv test/*
 
 
-KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I2 -TB -Llocalhost &
+KIBITZ_ROLE=CHILD $REGRESSION_TESTER -I2 -TB -Llocalhost --log-level=debug &
 
 sleep 4
 # first message will go to b.1 
@@ -127,7 +131,10 @@ script/check_count test/D.1.in 2
 check_result
 
 
-KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+#KIBITZ_LOCATOR="tcp://localhost:5557" script/kibitz stop
+
+killall regression-tester
+
 
 echo "shutting down locator"
 if [ -e ${HOME}/kibitz-locator.pid ]

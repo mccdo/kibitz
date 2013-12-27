@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+puts "Working dir #{ Dir.pwd }"
 
 infile = ARGV.shift
 
@@ -7,7 +8,7 @@ inguids = IO.readlines( infile ).map { | guid | guid.chomp }
 
 
 ARGV.each do | outfile | 
-  outguid = IO.read( outfile )
+  outguid = IO.read( outfile ).chomp
   exit 1 unless inguids.index( outguid ) 
 end
 

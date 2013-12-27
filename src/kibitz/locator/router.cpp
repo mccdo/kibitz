@@ -44,46 +44,58 @@ void router::operator()()
 
     try
     {
-        boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
-        messages_by_worker_and_job_t inedge_cache;
+	boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
+	messages_by_worker_and_job_t inedge_cache;
 
-        ku::sockman_ptr_t message_listener =
-            ku::create_socket_ptr( context_, ZMQ_PULL );
-        ku::check_zmq( zmq_bind(
-                           *message_listener, listener_binding_.c_str() ) );
+	ku::sockman_ptr_t message_listener =
+	    ku::create_socket_ptr( context_, ZMQ_PULL );
+	ku::check_zmq( zmq_bind(
+			   *message_listener, listener_binding_.c_str() ) );
 
-        util::sockman notification_socket( publisher_.get_publish_socket() );
+	util::sockman notification_socket( publisher_.get_publish_socket() );
 
-        bind_out_sockets( out_socks );
+	bind_out_sockets( out_socks );
 
-        while( true )
-        {
-            KIBITZ_LOG_DEBUG( "Router waiting for  message" );
-            std::string json;
-            ku::recv( *message_listener, json );
-            KIBITZ_LOG_DEBUG( "Router got message " << json );
-            message_ptr_t message_ptr = message_factory( json );
+	while( true )
+	{
+	    KIBITZ_LOG_DEBUG( "Router waiting for  message" );
+	    std::string json;
+	    if( ku::recv_async( *message_listener, json ) ) {
+		KIBITZ_LOG_DEBUG( "Router got message " << json );
+		message_ptr_t message_ptr = message_factory( json );
 
-            if( message_ptr->message_type() == NOTIFICATION_MESSAGE_TYPE )
-            {
-                KIBITZ_LOG_DEBUG( "Router received notification message" );
-                publisher_.send( notification_socket, json );
-            }
-            else if( message_ptr->message_type() == COLLABORATION_MESSAGE_TYPE )
-            {
-                KIBITZ_LOG_DEBUG( "Router recieved collaboration message " << json );
-                route_message( out_socks, json, inedge_cache );
-            }
-            else
-            {
-                KIBITZ_LOG_WARNING( "Unknown message type received." << std::endl
-                                   << "Unknown Message = " << json );
-            }
-        }
+		if( message_ptr->message_type() == NOTIFICATION_MESSAGE_TYPE )
+		{
+		    KIBITZ_LOG_DEBUG( "Router received notification message" );
+		    publisher_.send( notification_socket, json );
+		}
+		else if( message_ptr->message_type() == COLLABORATION_MESSAGE_TYPE )
+		{
+		    KIBITZ_LOG_DEBUG( "Router recieved collaboration message " << json );
+		    route_message( out_socks, json, inedge_cache );
+		}
+		else
+		{
+		    KIBITZ_LOG_WARNING( "Unknown message type received." << std::endl
+					<< "Unknown Message = " << json );
+		}
+	    } 
+	    else 
+	    {
+		const int one_tenth_second = 100;
+		ku::wait( one_tenth_second );
+	    }
+
+	    boost::this_thread::interruption_point();
+	}
+    }
+    catch( boost::thread_interrupted const & ) 
+    {
+	KIBITZ_LOG_INFO( "Router thread was interrupted" );
     }
     catch( const std::exception& ex )
     {
-        KIBITZ_LOG_ERROR( "Router thread was killed. Reason " << ex.what() );
+	KIBITZ_LOG_ERROR( "Router thread was killed. Reason " << ex.what() );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
