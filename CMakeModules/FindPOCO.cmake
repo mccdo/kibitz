@@ -75,7 +75,7 @@ if( POCO_INCLUDE_DIR )
     if( WIN32 )
         set( _versionFile "${POCO_INCLUDE_DIR}/Poco/Version.h" )
     else()
-        set( _versionFile "${POCO_INCLUDE_DIR}/Poco/Version.h" )
+        set( _versionFile "${POCO_INCLUDE_DIR}/Version.h" )
     endif()
 
     if( NOT EXISTS ${_versionFile} )

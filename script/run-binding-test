@@ -1,0 +1,67 @@
+#!/bin/bash
+
+LOCATOR=./src/apps/locator/worker-locator
+REGRESSION_TESTER=./src/tests/regression-tester
+
+test_name=
+
+function test_passed
+{
+    echo -e "\033[40m\033[1;32m ${test_name} ...Test Passed!  \033[0m"
+}
+
+function test_failed
+{
+    echo -e "\033[40m\033[1;31m ${test_name} ...Test Failed!   \033[0m"
+}
+
+
+
+function check_result
+{
+    RESULT=$?
+    echo
+    if [[ $RESULT == "0" ]]
+    then
+	test_passed
+    else
+	test_failed
+    fi
+}
+
+function restart_locator
+{
+    echo "(re)starting locator"
+    if [ -e ${HOME}/kibitz-locator.pid ]
+    then
+	kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+    fi
+
+    GLOG_log_dir=./log $LOCATOR -d --pid-file=${HOME}/kibitz-locator.pid 
+}
+
+
+rm -fv test/*
+
+restart_locator
+
+
+echo "Starting workers for traversal test"
+echo "A -> B,C -> D"
+
+
+# KIBITZ_ROLE=ROOT GLOG_log_dir=log GLOG_minloglevel=0 $REGRESSION_TESTER -I1 -TA -b'tcp://localhost:5556' -d'tcp://localhost:5557' -p9000 -P9100  &
+
+echo "wait for heartbeats to perculate throughout system"
+sleep 5
+echo "Workers started establishing collaboration connections and running jobs"
+KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz initiate --worker-type=A --worker-id=1 --binding-file=config/test1.graph
+sleep 5 
+KIBITZ_LOCATOR='tcp://localhost:5556' script/kibitz stop 
+
+echo "shutting down locator"
+if [ -e ${HOME}/kibitz-locator.pid ]
+then
+kill -SIGINT `cat ${HOME}/kibitz-locator.pid`
+fi
+
