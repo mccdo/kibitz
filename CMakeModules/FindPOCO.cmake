@@ -72,11 +72,7 @@ find_path( POCO_INCLUDE_DIR Poco/Poco.h
 set( POCO_VERSION )
 if( POCO_INCLUDE_DIR )
 
-    if( WIN32 )
-        set( _versionFile "${POCO_INCLUDE_DIR}/Poco/Version.h" )
-    else()
-        set( _versionFile "${POCO_INCLUDE_DIR}/Version.h" )
-    endif()
+    set( _versionFile "${POCO_INCLUDE_DIR}/Poco/Version.h" )
 
     if( NOT EXISTS ${_versionFile} )
         message( SEND_ERROR "Can't find ${_versionFile}" )
