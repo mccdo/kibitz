@@ -57,26 +57,28 @@ void record_in_message( const string& in );
 void record_out_message( const string& out );
 void record_message( const string& filename, const string& message );
 
+#ifndef BOOST_WINDOWS
 void signal_handler( int, siginfo_t*, void* )
 {
     kibitz::terminate();
     exit( 0 );
 }
-
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
     std::cout << "starting" << std::endl;
     int result = 0;
-    struct sigaction act;
 
     try
     {	        
+#ifndef BOOST_WINDOWS
+    struct sigaction act;
 	memset( &act, 0, sizeof(act) );
 	act.sa_sigaction = &signal_handler;
 	act.sa_flags = SA_SIGINFO | SA_RESETHAND;
 	sigaction( SIGTERM, &act, NULL );
-	
+#endif
 	kibitz::initialize( argc, argv );
         // ROOT, CHILD
         string role = getenv( "KIBITZ_ROLE" );
