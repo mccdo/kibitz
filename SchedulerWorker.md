@@ -1,0 +1,1 @@
+A scheduler is a special kind of worker that is used to set up collaborations and initiate jobs.
